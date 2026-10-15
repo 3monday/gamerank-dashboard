@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TapTap 今日游戏 · 2026-10-15</title>
+<style>
+  :root{
+    --bg:#0f1420; --card:#161d30; --card2:#1b2338; --line:#2a3247; --line2:#232b40;
+    --tx:#e6e9f0; --tx2:#9aa4b2; --tx3:#6b7280; --title:#fff;
+    --accent:#3b82f6; --release:#22c55e; --test:#f59e0b; --reserve:#38bdf8; --other:#64748b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--tx);padding:16px;-webkit-text-size-adjust:100%}
+  .wrap{max-width:1220px;margin:0 auto}
+  .hd{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+  .hd h1{font-size:19px;color:var(--title)}
+  .hd .sub{color:var(--tx2);font-size:12.5px}
+  .hd .perf{margin-left:auto;font-size:11px;color:var(--tx3)}
+  .hint{color:var(--tx3);font-size:11.5px;margin:2px 0 12px}
+  .bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .chip{padding:6px 13px;border:1px solid var(--line);border-radius:18px;background:var(--card);color:var(--tx2);font-size:13px;cursor:pointer;white-space:nowrap;transition:.12s}
+  .chip:hover{border-color:var(--accent)}
+  .chip.on{color:#fff;border-color:transparent}
+  .chip.on[data-cat=all]{background:var(--accent)}
+  .chip.on[data-cat=release]{background:var(--release)}
+  .chip.on[data-cat=test]{background:var(--test);color:#1a1205}
+  .chip.on[data-cat=reserve]{background:var(--reserve);color:#04212e}
+  .chip.on[data-cat=other]{background:var(--other)}
+  .chip .n{opacity:.75;font-size:11.5px;margin-left:3px}
+  .spacer{flex:1}
+  .search{padding:7px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--tx);font-size:13px;min-width:150px;outline:none}
+  .search:focus{border-color:var(--accent)}
+  .tog{padding:6px 12px;border:1px solid var(--line);border-radius:18px;background:var(--card);color:var(--tx2);font-size:12.5px;cursor:pointer;user-select:none}
+  .tog.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .sel{padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--tx);font-size:12.5px;outline:none}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:10px}
+  .card{display:flex;gap:11px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;transition:.12s;text-decoration:none;color:inherit;position:relative}
+  .card:hover{border-color:var(--accent);background:var(--card2)}
+  .card .ico{width:52px;height:52px;border-radius:11px;object-fit:cover;background:#222b3f;flex:none}
+  .card .mid{min-width:0;flex:1}
+  .card .tt{font-weight:600;font-size:13.5px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card .meta{display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap}
+  .tag{font-size:10.5px;padding:2px 7px;border-radius:6px;font-weight:600}
+  .tag.release{background:rgba(34,197,94,.16);color:#4ade80}
+  .tag.test{background:rgba(245,158,11,.16);color:#fbbf24}
+  .tag.reserve{background:rgba(56,189,248,.16);color:#7dd3fc}
+  .tag.other{background:rgba(100,116,139,.22);color:#94a3b8}
+  .score{font-size:11.5px;color:#fbbf24;font-weight:700}
+  .score.na{color:var(--tx3);font-weight:400}
+  .top{position:absolute;top:-6px;left:-6px;background:#ef4444;color:#fff;font-size:9.5px;font-weight:700;padding:1px 6px;border-radius:8px}
+  .empty{padding:40px;text-align:center;color:var(--tx3)}
+  .foot{margin-top:22px;color:var(--tx3);font-size:11px;text-align:center;line-height:1.8}
+  @media(max-width:560px){
+    body{padding:10px}
+    .grid{grid-template-columns:1fr 1fr;gap:8px}
+    .card{flex-direction:column;align-items:stretch;padding:9px}
+    .card .ico{width:100%;height:92px;border-radius:9px}
+    .card .tt{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .hd h1{font-size:16px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hd">
+    <h1>🆕 TapTap 今日游戏</h1>
+    <span class="sub" id="meta">加载中…</span>
+    <span class="perf" id="perf"></span>
+  </div>
+  <div class="hint">每天首发 / 开测 / 可预约的新游戏 · 点卡片跳 TapTap 详情 · 按事件类型筛选 + 搜索，方便挑新游</div>
+
+  <div class="bar">
+    <span class="chip on" data-cat="all">全部<span class="n" id="n-all"></span></span>
+    <span class="chip" data-cat="release">🚀 今日首发<span class="n" id="n-release"></span></span>
+    <span class="chip" data-cat="test">🧪 测试中<span class="n" id="n-test"></span></span>
+    <span class="chip" data-cat="reserve">📅 新游预约<span class="n" id="n-reserve"></span></span>
+    <span class="chip" data-cat="other">其它<span class="n" id="n-other"></span></span>
+    <span class="spacer"></span>
+    <input class="search" id="q" placeholder="搜索游戏名…">
+    <span class="tog" id="onlyScore">只看有评分</span>
+    <select class="sel" id="sort">
+      <option value="default">排序：默认</option>
+      <option value="score">评分 高→低</option>
+      <option value="name">名称 A→Z</option>
+    </select>
+  </div>
+
+  <div class="grid" id="grid"><div class="empty">加载中…</div></div>
+
+  <div class="foot">
+    数据来源：TapTap 今日游戏日历 · <a style="color:var(--accent)" href="https://www.taptap.cn/app-calendar" target="_blank" rel="noopener">打开 TapTap 原页</a><br>
+    ⚡ lab 实验榜 · 仅读取 TapTap 公开接口，未改动任何线上文件
+  </div>
+</div>
+
+<script>
+const $ = (s)=>document.querySelector(s);
+let DATA = [], cat = 'all', kw = '', onlyScore = false, sortBy = 'default';
+const CATNAME = {release:'首发', test:'测试中', reserve:'新游预约', other:'其它'};
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+function render(){
+  let list = DATA.slice();
+  if (cat !== 'all') list = list.filter(x=>x.cat===cat);
+  if (alsoFilterKw()) list = list.filter(x=>(x.title||'').toLowerCase().includes(kw));
+  if (onlyScore) list = list.filter(x=>x.score && +x.score>0);
+  if (sortBy==='score') list.sort((a,b)=>(+b.score||0)-(+a.score||0));
+  else if (sortBy==='name') list.sort((a,b)=>(a.title||'').localeCompare(b.title||'','zh'));
+  else list.sort((a,b)=>(b.level||0)-(a.level||0)); // 默认: 重点(level=1)置顶
+  const g = $('#grid');
+  if (!list.length){ g.innerHTML = '<div class="empty">没有符合条件的游戏</div>'; return; }
+  g.innerHTML = list.map(x=>{
+    const sc = (x.score && +x.score>0) ? `<span class="score">★ ${esc(x.score)}</span>` : '<span class="score na">未评分</span>';
+    const top = (x.level===1) ? '<span class="top">重点</span>' : '';
+    const img = x.icon ? `<img class="ico" loading="lazy" referrerpolicy="no-referrer" src="${esc(x.icon)}" alt="">` : '<div class="ico"></div>';
+    return `<a class="card" href="${esc(x.link)}" target="_blank" rel="noopener">${top}${img}
+      <div class="mid"><div class="tt" title="${esc(x.title)}">${esc(x.title)}</div>
+      <div class="meta"><span class="tag ${x.cat}">${esc(x.event||CATNAME[x.cat]||'')}</span>${sc}</div></div></a>`;
+  }).join('');
+}
+function alsoFilterKw(){ return kw.length>0; }
+
+function counts(){
+  const c = {all:DATA.length, release:0, test:0, reserve:0, other:0};
+  DATA.forEach(x=>{ c[x.cat] = (c[x.cat]||0)+1; });
+  for (const k in c) { const el = $('#n-'+k); if (el) el.textContent = c[k]; }
+}
+
+document.querySelectorAll('.chip').forEach(ch=>{
+  ch.onclick = ()=>{ document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on')); ch.classList.add('on'); cat = ch.dataset.cat; render(); };
+});
+$('#q').oninput = (e)=>{ kw = e.target.value.trim().toLowerCase(); render(); };
+$('#onlyScore').onclick = ()=>{ onlyScore = !onlyScore; $('#onlyScore').classList.toggle('on', onlyScore); render(); };
+$('#sort').onchange = (e)=>{ sortBy = e.target.value; render(); };
+
+(async function(){
+  const t0 = performance.now();
+  const date = new URLSearchParams(location.search).get('d') || '2026-10-15';
+  try{
+    const r = await fetch(`data/${date}/taptap_today.json`, {cache:'force-cache'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const j = await r.json();
+    DATA = j.items || [];
+    $('#meta').textContent = `${j.date} · 共 ${DATA.length} 款`;
+    counts(); render();
+    $('#perf').textContent = `⚡ 就绪 ${Math.round(performance.now()-t0)}ms`;
+  }catch(e){
+    $('#grid').innerHTML = `<div class="empty" style="color:#ef4444">加载失败: ${esc(e.message)}</div>`;
+  }
+})();
+</script>
+</body></html>
