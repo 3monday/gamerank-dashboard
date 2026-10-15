@@ -45,13 +45,29 @@
   .spacer{flex:1;min-width:8px}
   .searchwrap{position:relative;display:inline-flex;align-items:center}
   .searchwrap .sic{position:absolute;left:11px;font-size:13px;opacity:.6}
-  .search{padding:8px 13px 8px 32px;border:1px solid var(--line);border-radius:11px;background:var(--card2);color:var(--tx);font-size:13px;min-width:200px;outline:none;transition:.14s}
+  .search{padding:8px 13px 8px 32px;border:1px solid var(--line);border-radius:11px;background:var(--card2);color:var(--tx);font-size:13px;min-width:230px;max-width:320px;flex:1;outline:none;transition:.14s}
   .search:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,140,255,.15)}
   .tog{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid var(--line);border-radius:11px;background:var(--card2);color:var(--tx2);font-size:12.5px;font-weight:600;cursor:pointer;user-select:none;transition:.14s}
   .tog:hover{border-color:var(--accent);color:var(--tx)}
   .tog.on{background:linear-gradient(180deg,#5a95ff,#3f7dff);color:#fff;border-color:transparent}
   .sel{padding:8px 12px;border:1px solid var(--line);border-radius:11px;background:var(--card2);color:var(--tx);font-size:12.5px;font-weight:600;outline:none;cursor:pointer;transition:.14s}
   .sel:hover,.sel:focus{border-color:var(--accent)}
+
+  /* 厂商/供应商筛选标签栏 */
+  .tagbar{display:flex;flex-wrap:wrap;gap:7px;align-items:center;background:linear-gradient(180deg,var(--card),#121a2b);border:1px solid var(--line);border-radius:16px;padding:11px 14px;margin:-8px 0 18px}
+  .tagbar .tgrp-l{font-size:11px;font-weight:800;color:var(--accent);letter-spacing:.4px;white-space:nowrap;margin-right:2px}
+  .tagbar .tag{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:16px;cursor:pointer;font-size:12.5px;font-weight:600;user-select:none;transition:.14s;background:rgba(79,140,255,.10);color:var(--accent);border:1px solid rgba(79,140,255,.38)}
+  .tagbar .tag:hover{border-color:var(--accent)}
+  .tagbar .tag.on{background:linear-gradient(180deg,#5a95ff,#3f7dff);color:#fff;border-color:transparent}
+  .tagbar .tag .n{opacity:.7;font-size:11px;font-weight:700}
+  .tagbar .tag.on .n{opacity:.9}
+  .tagbar .tag .x{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;font-size:11px;color:var(--tx3);cursor:pointer}
+  .tagbar .tag .x:hover{background:#e5484d;color:#fff}
+  .tagbar .tag-add{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;padding:0 9px;border-radius:14px;color:var(--accent);border:1px dashed var(--accent);background:rgba(79,140,255,.12);cursor:pointer;font-size:12.5px;font-weight:700}
+  .tagbar .tag-add:hover{background:var(--accent);color:#fff}
+  .tagbar .tsep{width:1px;align-self:stretch;background:var(--line);margin:0 2px}
+  .tagbar .clr{font-size:12px;color:var(--tx3);cursor:pointer;padding:5px 10px;border-radius:14px;border:1px solid var(--line)}
+  .tagbar .clr:hover{border-color:#e5484d;color:#ff8080}
 
   /* 卡片网格 */
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px}
@@ -129,6 +145,8 @@
     </select>
   </div>
 
+  <div class="tagbar" id="tagbar"></div>
+
   <div class="grid" id="grid"><div class="empty">加载中…</div></div>
 
   <div class="foot">
@@ -140,14 +158,25 @@
 <script>
 const $ = (s)=>document.querySelector(s);
 let DATA = [], cat = 'reserve', kw = '', onlyScore = false, sortBy = 'default';
+let selectedComps = [], customComps = [];
 const CATNAME = {release:'首发', test:'测试中', reserve:'新开预约', other:'其它', workshop:'创意工坊'};
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
-function render(){
+// 每款游戏的"主公司" = 供应商 > 研发 > 发行
+function compOf(x){ return (x.supplier||'').trim() || (x.dev&&x.dev[0]) || (x.pub&&x.pub[0]) || '未知'; }
+
+// 当前分类下的基础列表(供标签统计与筛选)
+function baseList(){
   let list = DATA.slice();
-  if (cat === 'all') list = list.filter(x=>!x.workshop);   // 全部新游 = 不含创意工坊
+  if (cat === 'all') list = list.filter(x=>!x.workshop);
   else list = list.filter(x=>x.cat===cat);
+  return list;
+}
+
+function render(){
+  let list = baseList();
+  if (selectedComps.length) list = list.filter(x=>selectedComps.includes(compOf(x)));
   if (alsoFilterKw()) list = list.filter(x=>{
     const hay = [x.title||'', (x.dev||[]).join(' '), (x.pub||[]).join(' '), x.supplier||''].join(' ').toLowerCase();
     return hay.includes(kw);
@@ -187,8 +216,43 @@ function counts(){
   for (const k in c) { const el = $('#n-'+k); if (el) el.textContent = c[k]; }
 }
 
+// 厂商筛选标签栏(按当前分类统计)
+function renderTagbar(){
+  const base = baseList();
+  const cnt = {};
+  base.forEach(x=>{ const k=compOf(x); cnt[k]=(cnt[k]||0)+1; });
+  let names = Object.keys(cnt).sort((a,b)=> cnt[b]-cnt[a] || a.localeCompare(b,'zh'));
+  const TOPN = 18;
+  let shown = names.slice(0, TOPN);
+  customComps.forEach(n=>{ if(!shown.includes(n)) shown.push(n); });
+  const bar = $('#tagbar');
+  const tags = shown.map(n=>{
+    const on = selectedComps.includes(n);
+    return `<span class="tag ${on?'on':''}" data-name="${esc(n)}">${esc(n)}<span class="n">${cnt[n]||0}</span></span>`;
+  }).join('') + `<span class="tag-add" id="tagAdd" title="手动添加厂商关键词">＋</span>`;
+  const more = names.length>TOPN ? `<span style="font-size:11.5px;color:var(--tx3)">（共 ${names.length} 家，仅列前 ${TOPN}）</span>` : '';
+  const clr = selectedComps.length ? `<span class="tsep"></span><span class="clr" id="clrTags">✕ 清筛选(${selectedComps.length})</span>` : '';
+  bar.innerHTML = `<span class="tgrp-l">🏢 厂商筛选</span>` + tags + more + clr;
+  bar.querySelectorAll('.tag').forEach(el=>{
+    el.onclick = ()=>{
+      const n = el.dataset.name;
+      if(selectedComps.includes(n)) selectedComps = selectedComps.filter(x=>x!==n);
+      else selectedComps.push(n);
+      renderTagbar(); render();
+    };
+  });
+  const add = $('#tagAdd');
+  if(add) add.onclick = ()=>{
+    const v = (prompt('添加厂商筛选关键词（支持部分匹配）')||'').trim();
+    if(v && !customComps.includes(v)) customComps.push(v);
+    if(v){ renderTagbar(); render(); }
+  };
+  const c2 = $('#clrTags');
+  if(c2) c2.onclick = ()=>{ selectedComps=[]; renderTagbar(); render(); };
+}
+
 document.querySelectorAll('.chip').forEach(ch=>{
-  ch.onclick = ()=>{ document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on')); ch.classList.add('on'); cat = ch.dataset.cat; render(); };
+  ch.onclick = ()=>{ document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on')); ch.classList.add('on'); cat = ch.dataset.cat; selectedComps=[]; renderTagbar(); render(); };
 });
 $('#q').oninput = (e)=>{ kw = e.target.value.trim().toLowerCase(); render(); };
 $('#onlyScore').onclick = ()=>{ onlyScore = !onlyScore; $('#onlyScore').classList.toggle('on', onlyScore); render(); };
@@ -197,14 +261,14 @@ $('#sort').onchange = (e)=>{ sortBy = e.target.value; render(); };
 (async function(){
   const t0 = performance.now();
   const date = new URLSearchParams(location.search).get('d') || '2026-10-15';
-  const VER = '20261015164642';
+  const VER = '20261015170610';
   try{
     const r = await fetch(`data/${date}/taptap_today.json?v=${VER}`, {cache:'no-cache'});
     if(!r.ok) throw new Error('HTTP '+r.status);
     const j = await r.json();
     DATA = j.items || [];
     $('#meta').textContent = `2026-10-15 · 共 ${DATA.length} 款`;
-    counts(); render();
+    counts(); renderTagbar(); render();
   }catch(e){
     $('#grid').innerHTML = `<div class="empty" style="color:#ef4444">加载失败: ${esc(e.message)}</div>`;
   }
