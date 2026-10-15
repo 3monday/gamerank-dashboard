@@ -440,6 +440,19 @@
 </head>
 <body>
 
+
+<div class="topnav">
+  <a href="dash3.html?d=2026-10-15" class="active">📊 预约榜</a>
+  <a href="today3.html?d=2026-10-15">🆕 新游日历</a>
+</div>
+<style>
+.topnav{max-width:1220px;margin:0 auto 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.topnav a{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid var(--line,#2a3247);border-radius:10px;background:var(--card,#161d30);color:var(--tx2,#9aa4b2);text-decoration:none;font-size:14px;font-weight:600;transition:.12s}
+.topnav a:hover{border-color:var(--accent,#3b82f6);color:var(--tx,#e6e9f0)}
+.topnav a.active{background:var(--accent,#3b82f6);color:#fff;border-color:var(--accent,#3b82f6)}
+</style>
+
+
 <div id="skel" style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:var(--bg,#0f1420);color:#9aa4b2;font:14px/1.6 -apple-system,'PingFang SC','Microsoft YaHei',sans-serif;">
   <div style="text-align:center"><div style="font-size:26px;margin-bottom:10px">📊</div><div id="skelMsg">加载中…</div></div>
 </div>
