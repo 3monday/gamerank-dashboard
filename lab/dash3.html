@@ -446,13 +446,15 @@
 <div id="perf3" style="position:fixed;right:10px;bottom:10px;z-index:9998;background:rgba(20,26,40,.92);border:1px solid #2a3247;color:#8b93a7;font:11px/1.5 ui-monospace,Menlo,monospace;padding:5px 9px;border-radius:7px;display:none"></div>
 <script>
 (function(){
-  function tick(){
+  var n=0;
+  var iv=setInterval(function(){
+    n++;
     var p = window.__PERF__ || {};
     var el=document.getElementById('perf3');
-    if(el){ el.style.display='block';
-      el.textContent='⚡ lab v3 · 数据就绪 '+p.coreMs+'ms'+(p.seriesDone?' · 历史已加载':''); }
-  }
-  tick(); setTimeout(tick, 800); setTimeout(tick, 2500);
+    if(el && p.coreMs!=null){ el.style.display='block';
+      el.textContent='⚡ lab v3 · 数据就绪 '+p.coreMs+'ms'+(p.seriesDone?' · 历史已加载':'');
+      if(p.seriesDone || n>40) clearInterval(iv); }
+  }, 200);
 })();
 </script>
 
