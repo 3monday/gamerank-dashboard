@@ -44,6 +44,7 @@
   .card .tt{font-weight:600;font-size:13.5px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .card .meta{display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap}
   .card .dev{font-size:10.5px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
+  .card .dev.sup-full{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.45}
   .card .dev .dlb{display:inline-block;color:#8b93a7;background:rgba(255,255,255,.06);border-radius:3px;padding:0 4px;margin-right:4px;font-size:9.5px}
   .card .dev .dlb.sup{color:#7dd3fc;background:rgba(56,189,248,.12)}
   .card .dev .dlb.pub{color:#fbbf24;background:rgba(245,158,11,.12)}
@@ -133,9 +134,13 @@ function render(){
     const pb = (x.pub||[]).join('、');
     const sp = x.supplier || '';
     let devHtml = '';
-    if (dv) devHtml += `<div class="dev" title="研发：${esc(dv)}"><span class="dlb">研发</span>${esc(dv)}</div>`;
+    // 默认显示「供应商」并展开; 无供应商时才回退显示「研发(厂商)」
+    if (sp) {
+      devHtml += `<div class="dev sup-full" title="供应商：${esc(sp)}"><span class="dlb sup">供应商</span>${esc(sp)}</div>`;
+    } else if (dv) {
+      devHtml += `<div class="dev" title="厂商：${esc(dv)}"><span class="dlb">厂商</span>${esc(dv)}</div>`;
+    }
     if (pb) devHtml += `<div class="dev" title="发行：${esc(pb)}"><span class="dlb pub">发行</span>${esc(pb)}</div>`;
-    if (sp && sp !== dv) devHtml += `<div class="dev" title="供应商：${esc(sp)}"><span class="dlb sup">供应商</span>${esc(sp)}</div>`;
     return `<a class="card${x.workshop?' ws':''}" href="${esc(x.link)}" target="_blank" rel="noopener">${top}${img}
       <div class="mid"><div class="tt" title="${esc(x.title)}">${esc(x.title)}</div>
       ${devHtml}
@@ -160,7 +165,7 @@ $('#sort').onchange = (e)=>{ sortBy = e.target.value; render(); };
 (async function(){
   const t0 = performance.now();
   const date = new URLSearchParams(location.search).get('d') || '2026-10-15';
-  const VER = '20261015154940';
+  const VER = '20261015161808';
   try{
     const r = await fetch(`data/${date}/taptap_today.json?v=${VER}`, {cache:'no-cache'});
     if(!r.ok) throw new Error('HTTP '+r.status);
