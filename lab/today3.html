@@ -45,6 +45,8 @@
   .card .meta{display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap}
   .card .dev{font-size:10.5px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
   .card .dev .dlb{display:inline-block;color:#8b93a7;background:rgba(255,255,255,.06);border-radius:3px;padding:0 4px;margin-right:4px;font-size:9.5px}
+  .card .dev .dlb.sup{color:#7dd3fc;background:rgba(56,189,248,.12)}
+  .card .dev .dlb.pub{color:#fbbf24;background:rgba(245,158,11,.12)}
   .card.ws{border-color:#3a2f5c}
   .card.ws:hover{border-color:#8b5cf6}
   .tag.workshop{background:rgba(139,92,246,.18);color:#c4b5fd}
@@ -85,7 +87,7 @@
     <span class="chip" data-cat="other">其它<span class="n" id="n-other"></span></span>
     <span class="chip" data-cat="workshop">🏭 TAP创意工坊<span class="n" id="n-workshop"></span></span>
     <span class="spacer"></span>
-    <input class="search" id="q" placeholder="搜索游戏名 / 厂商 / 发行…">
+    <input class="search" id="q" placeholder="搜索游戏名 / 研发 / 发行 / 供应商…">
     <span class="tog" id="onlyScore">只看有评分</span>
     <select class="sel" id="sort">
       <option value="default">排序：默认</option>
@@ -114,7 +116,7 @@ function render(){
   if (cat === 'all') list = list.filter(x=>!x.workshop);   // 全部新游 = 不含创意工坊
   else list = list.filter(x=>x.cat===cat);
   if (alsoFilterKw()) list = list.filter(x=>{
-    const hay = [x.title||'', (x.dev||[]).join(' '), (x.pub||[]).join(' ')].join(' ').toLowerCase();
+    const hay = [x.title||'', (x.dev||[]).join(' '), (x.pub||[]).join(' '), x.supplier||''].join(' ').toLowerCase();
     return hay.includes(kw);
   });
   if (onlyScore) list = list.filter(x=>x.score && +x.score>0);
@@ -129,9 +131,11 @@ function render(){
     const img = x.icon ? `<img class="ico" loading="lazy" referrerpolicy="no-referrer" src="${esc(x.icon)}" alt="">` : '<div class="ico"></div>';
     const dv = (x.dev||[]).join('、');
     const pb = (x.pub||[]).join('、');
+    const sp = x.supplier || '';
     let devHtml = '';
     if (dv) devHtml += `<div class="dev" title="研发：${esc(dv)}"><span class="dlb">研发</span>${esc(dv)}</div>`;
-    if (pb) devHtml += `<div class="dev" title="发行：${esc(pb)}"><span class="dlb">发行</span>${esc(pb)}</div>`;
+    if (pb) devHtml += `<div class="dev" title="发行：${esc(pb)}"><span class="dlb pub">发行</span>${esc(pb)}</div>`;
+    if (sp && sp !== dv) devHtml += `<div class="dev" title="供应商：${esc(sp)}"><span class="dlb sup">供应商</span>${esc(sp)}</div>`;
     return `<a class="card${x.workshop?' ws':''}" href="${esc(x.link)}" target="_blank" rel="noopener">${top}${img}
       <div class="mid"><div class="tt" title="${esc(x.title)}">${esc(x.title)}</div>
       ${devHtml}
@@ -156,7 +160,7 @@ $('#sort').onchange = (e)=>{ sortBy = e.target.value; render(); };
 (async function(){
   const t0 = performance.now();
   const date = new URLSearchParams(location.search).get('d') || '2026-10-15';
-  const VER = '20261015154407';
+  const VER = '20261015154940';
   try{
     const r = await fetch(`data/${date}/taptap_today.json?v=${VER}`, {cache:'no-cache'});
     if(!r.ok) throw new Error('HTTP '+r.status);
