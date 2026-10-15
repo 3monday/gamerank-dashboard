@@ -27,6 +27,8 @@
   .chip.on[data-cat=test]{background:var(--test);color:#1a1205}
   .chip.on[data-cat=reserve]{background:var(--reserve);color:#04212e}
   .chip.on[data-cat=other]{background:var(--other)}
+  .chip.on[data-cat=workshop]{background:#8b5cf6}
+  .chip[data-cat=workshop]{border-color:#4c3a76;color:#c4b5fd}
   .chip .n{opacity:.75;font-size:11.5px;margin-left:3px}
   .spacer{flex:1}
   .search{padding:7px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--tx);font-size:13px;min-width:150px;outline:none}
@@ -41,6 +43,10 @@
   .card .mid{min-width:0;flex:1}
   .card .tt{font-weight:600;font-size:13.5px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .card .meta{display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap}
+  .card .dev{font-size:10.5px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
+  .card.ws{border-color:#3a2f5c}
+  .card.ws:hover{border-color:#8b5cf6}
+  .tag.workshop{background:rgba(139,92,246,.18);color:#c4b5fd}
   .tag{font-size:10.5px;padding:2px 7px;border-radius:6px;font-weight:600}
   .tag.release{background:rgba(34,197,94,.16);color:#4ade80}
   .tag.test{background:rgba(245,158,11,.16);color:#fbbf24}
@@ -71,11 +77,12 @@
   <div class="hint">每天首发 / 开测 / 可预约的新游戏 · 点卡片跳 TapTap 详情 · 按事件类型筛选 + 搜索，方便挑新游</div>
 
   <div class="bar">
-    <span class="chip on" data-cat="all">全部<span class="n" id="n-all"></span></span>
+    <span class="chip on" data-cat="all">🎮 全部新游<span class="n" id="n-all"></span></span>
     <span class="chip" data-cat="release">🚀 今日首发<span class="n" id="n-release"></span></span>
     <span class="chip" data-cat="test">🧪 测试中<span class="n" id="n-test"></span></span>
     <span class="chip" data-cat="reserve">📅 新游预约<span class="n" id="n-reserve"></span></span>
     <span class="chip" data-cat="other">其它<span class="n" id="n-other"></span></span>
+    <span class="chip" data-cat="workshop">🏭 TAP创意工坊<span class="n" id="n-workshop"></span></span>
     <span class="spacer"></span>
     <input class="search" id="q" placeholder="搜索游戏名…">
     <span class="tog" id="onlyScore">只看有评分</span>
@@ -97,13 +104,14 @@
 <script>
 const $ = (s)=>document.querySelector(s);
 let DATA = [], cat = 'all', kw = '', onlyScore = false, sortBy = 'default';
-const CATNAME = {release:'首发', test:'测试中', reserve:'新游预约', other:'其它'};
+const CATNAME = {release:'首发', test:'测试中', reserve:'新游预约', other:'其它', workshop:'创意工坊'};
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
 function render(){
   let list = DATA.slice();
-  if (cat !== 'all') list = list.filter(x=>x.cat===cat);
+  if (cat === 'all') list = list.filter(x=>!x.workshop);   // 全部新游 = 不含创意工坊
+  else list = list.filter(x=>x.cat===cat);
   if (alsoFilterKw()) list = list.filter(x=>(x.title||'').toLowerCase().includes(kw));
   if (onlyScore) list = list.filter(x=>x.score && +x.score>0);
   if (sortBy==='score') list.sort((a,b)=>(+b.score||0)-(+a.score||0));
@@ -113,18 +121,21 @@ function render(){
   if (!list.length){ g.innerHTML = '<div class="empty">没有符合条件的游戏</div>'; return; }
   g.innerHTML = list.map(x=>{
     const sc = (x.score && +x.score>0) ? `<span class="score">★ ${esc(x.score)}</span>` : '<span class="score na">未评分</span>';
-    const top = (x.level===1) ? '<span class="top">重点</span>' : '';
+    const top = (!x.workshop && x.level===1) ? '<span class="top">重点</span>' : '';
     const img = x.icon ? `<img class="ico" loading="lazy" referrerpolicy="no-referrer" src="${esc(x.icon)}" alt="">` : '<div class="ico"></div>';
-    return `<a class="card" href="${esc(x.link)}" target="_blank" rel="noopener">${top}${img}
+    const dv = (x.devs||[]).map(d=>d.name).filter(Boolean)[0]||'';
+    const devHtml = dv ? `<div class="dev" title="${esc(dv)}">${esc(dv)}</div>` : '';
+    return `<a class="card${x.workshop?' ws':''}" href="${esc(x.link)}" target="_blank" rel="noopener">${top}${img}
       <div class="mid"><div class="tt" title="${esc(x.title)}">${esc(x.title)}</div>
+      ${devHtml}
       <div class="meta"><span class="tag ${x.cat}">${esc(x.event||CATNAME[x.cat]||'')}</span>${sc}</div></div></a>`;
   }).join('');
 }
 function alsoFilterKw(){ return kw.length>0; }
 
 function counts(){
-  const c = {all:DATA.length, release:0, test:0, reserve:0, other:0};
-  DATA.forEach(x=>{ c[x.cat] = (c[x.cat]||0)+1; });
+  const c = {all:0, release:0, test:0, reserve:0, other:0, workshop:0};
+  DATA.forEach(x=>{ c[x.cat] = (c[x.cat]||0)+1; if(!x.workshop) c.all++; });
   for (const k in c) { const el = $('#n-'+k); if (el) el.textContent = c[k]; }
 }
 
