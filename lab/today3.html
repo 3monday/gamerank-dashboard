@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TapTap 今日游戏 · 2026-10-15</title>
+<title>TapTap 新游日历 · 2026-10-15</title>
 <style>
   :root{
     --bg:#0f1420; --card:#161d30; --card2:#1b2338; --line:#2a3247; --line2:#232b40;
@@ -13,6 +13,13 @@
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--tx);padding:16px;-webkit-text-size-adjust:100%}
   .wrap{max-width:1220px;margin:0 auto}
+  /* 顶部导航(与预约榜页共享) */
+  .topnav{max-width:1220px;margin:0 auto 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .topnav a{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--tx2);text-decoration:none;font-size:14px;font-weight:600;transition:.12s}
+  .topnav a:hover{border-color:var(--accent);color:var(--tx)}
+  .topnav a.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .topnav .navsp{flex:1}
+  .topnav .navdate{font-size:12.5px;color:var(--tx3);font-variant-numeric:tabular-nums}
   .hd{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px}
   .hd h1{font-size:19px;color:var(--title)}
   .hd .sub{color:var(--tx2);font-size:12.5px}
@@ -70,19 +77,25 @@
 </style>
 </head>
 <body>
+<div class="topnav">
+  <a href="dash3.html?d=2026-10-15" id="navDash">📊 预约榜</a>
+  <a href="today3.html?d=2026-10-15" class="active" id="navToday">🆕 新游日历</a>
+  <span class="navsp"></span>
+  <span class="navdate">2026-10-15</span>
+</div>
 <div class="wrap">
   <div class="hd">
-    <h1>🆕 TapTap 今日游戏</h1>
+    <h1>🆕 TapTap 新游日历</h1>
     <span class="sub" id="meta">加载中…</span>
     <span class="perf" id="perf"></span>
   </div>
-  <div class="hint">每天首发 / 开测 / 可预约的新游戏 · 点卡片跳 TapTap 详情 · 按事件类型筛选 + 搜索，方便挑新游</div>
+  <div class="hint">今天新开预约 / 首发 / 开测的游戏 · 点卡片跳 TapTap 详情 · 按类型筛选 + 搜索（游戏名/研发/发行/供应商）</div>
 
   <div class="bar">
-    <span class="chip on" data-cat="all">🎮 全部新游<span class="n" id="n-all"></span></span>
+    <span class="chip on" data-cat="reserve">📅 今日新开预约<span class="n" id="n-reserve"></span></span>
     <span class="chip" data-cat="release">🚀 今日首发<span class="n" id="n-release"></span></span>
     <span class="chip" data-cat="test">🧪 测试中<span class="n" id="n-test"></span></span>
-    <span class="chip" data-cat="reserve">📅 新游预约<span class="n" id="n-reserve"></span></span>
+    <span class="chip" data-cat="all">🎮 全部<span class="n" id="n-all"></span></span>
     <span class="chip" data-cat="other">其它<span class="n" id="n-other"></span></span>
     <span class="chip" data-cat="workshop">🏭 TAP创意工坊<span class="n" id="n-workshop"></span></span>
     <span class="spacer"></span>
@@ -98,15 +111,15 @@
   <div class="grid" id="grid"><div class="empty">加载中…</div></div>
 
   <div class="foot">
-    数据来源：TapTap 今日游戏日历 · <a style="color:var(--accent)" href="https://www.taptap.cn/app-calendar" target="_blank" rel="noopener">打开 TapTap 原页</a><br>
+    数据来源：TapTap 原生日历「今日游戏」· <a style="color:var(--accent)" href="https://www.taptap.cn/app-calendar" target="_blank" rel="noopener">打开 TapTap 原页</a><br>
     ⚡ lab 实验榜 · 仅读取 TapTap 公开接口，未改动任何线上文件
   </div>
 </div>
 
 <script>
 const $ = (s)=>document.querySelector(s);
-let DATA = [], cat = 'all', kw = '', onlyScore = false, sortBy = 'default';
-const CATNAME = {release:'首发', test:'测试中', reserve:'新游预约', other:'其它', workshop:'创意工坊'};
+let DATA = [], cat = 'reserve', kw = '', onlyScore = false, sortBy = 'default';
+const CATNAME = {release:'首发', test:'测试中', reserve:'新开预约', other:'其它', workshop:'创意工坊'};
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
@@ -163,7 +176,7 @@ $('#sort').onchange = (e)=>{ sortBy = e.target.value; render(); };
 (async function(){
   const t0 = performance.now();
   const date = new URLSearchParams(location.search).get('d') || '2026-10-15';
-  const VER = '20261015162735';
+  const VER = '20261015163526';
   try{
     const r = await fetch(`data/${date}/taptap_today.json?v=${VER}`, {cache:'no-cache'});
     if(!r.ok) throw new Error('HTTP '+r.status);
