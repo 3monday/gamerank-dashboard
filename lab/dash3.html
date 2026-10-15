@@ -523,7 +523,7 @@
 </div>
 
 <!-- 表头提示带：常驻，教首次用户核心操作 -->
-<div class="tipbar" id="tipbar"><span>💡 <b>看榜指南</b></span><span><b class="hi">①平台</b>：切 TapTap / 好游快爆 / B站榜单</span><span><b class="hi">②筛厂</b>：点厂商小标签只看该厂(可多选，<u>×</u>删、<u>＋</u>自定义)</span><span><b class="hi">③排序</b>：点列表列名如「预约量」/「增量」→ 按它从高到低排，<u>再点一下</u>变从低到高</span><span><b class="hi">④Top20</b>：默认显示<u>全量</u>榜单；点🏆按钮点亮(橙)=只看前20名，再点熄灭=回到全量</span><span><b class="hi">⑤搜</b>：🔍输游戏名 / 厂商过滤</span><span><b class="hi">⑥定位</b>：上方今日简报卡片的条目（⚡异常/🆕新游/🚀增长/大厂…）<u>点一下</u> → 自动跳到下方榜单对应游戏并高亮，快速看它排第几涨多少</span><span class="tip-x" id="tipX" title="关闭本条">✕</span></div>
+<div class="tipbar" id="tipbar"><span>💡 <b>看榜指南</b></span><span><b class="hi">①平台</b>：切 TapTap / 好游快爆 / B站榜单</span><span><b class="hi">②筛厂</b>：点厂商小标签只看该厂(可多选，<u>×</u>删、<u>＋</u>自定义)</span><span><b class="hi">③排序</b>：点列表列名如「预约量」/「增量」→ 按它从高到低排，<u>再点一下</u>变从低到高</span><span><b class="hi">④Top20</b>：默认显示<u>全量</u>榜单；点🏆按钮点亮(橙)=只看前20名，再点熄灭=回到全量</span><span><b class="hi">⑤搜</b>：🔍输游戏名 / 厂商过滤</span><span><b class="hi">⑥定位</b>：上方今日简报卡片的条目（⚡异常/🆕新上榜/🚀增长/大厂…）<u>点一下</u> → 自动跳到下方榜单对应游戏并高亮，快速看它排第几涨多少</span><span class="tip-x" id="tipX" title="关闭本条">✕</span></div>
 <div class="meta" id="meta"></div>
 <div class="wrap"><table id="grid">
   <thead><tr id="gridHead"></tr></thead>
@@ -710,7 +710,7 @@ function renderBrief(){
   const newMaxRows = Math.max(1, ...briefPlats.map(p=>newByPlat[p]?.length||0));
   let newTbl = '';
   if(newTotal===0){
-    newTbl = '<span class="empty-t">今日无新游</span>';
+    newTbl = '<span class="empty-t">今日无新上榜游戏</span>';
   } else {
     newTbl = '<table class="gain-tbl"><thead><tr><th style="width:56px">新游榜</th>';
     newTbl += briefPlats.map(p=>`<th>${esc(p)} <span style="color:#7a8499">${newByPlat[p].length}</span></th>`).join('');
@@ -736,7 +736,7 @@ function renderBrief(){
   }
   // 手机版: 新游榜 = 按平台分组的竖向列表
   let newMobile = '<div class="mgroup">';
-  if(newTotal===0){ newMobile = '<span class="empty-t">今日无新游</span>'; }
+  if(newTotal===0){ newMobile = '<span class="empty-t">今日无新上榜游戏</span>'; }
   else {
     briefPlats.forEach(p=>{
       const arr = newByPlat[p]||[];
@@ -779,7 +779,7 @@ function renderBrief(){
   // ===== 领导版文字简报(放最前) =====
   const leaderPlats = ['TapTap预约','好游快爆','B站游戏'];  // 只关注预约, 排除TapTap新品
   // 概况
-  let newLineTxt = `今日新增预约新游 ${newTotal} 款`;
+  let newLineTxt = `今日新上榜游戏 ${newTotal} 款`;
   // 今日新增属大厂的名录(大厂名单+别名匹配; 今日新上线/新增预约, 排除TapTap新品)
   let bigNewLines = [];
   leaderPlats.forEach(p=>{
@@ -914,7 +914,7 @@ function renderBrief(){
     ${leaderHtml}
     ${strict ? `
     <div class="brief-card" style="grid-column:1/-1">
-      <div class="brief-title">🆕 今日新游明细（${newTotal}款，点击定位）</div>
+      <div class="brief-title">🆕 今日新上榜游戏（${newTotal}款，点击定位）</div>
       <div class="brief-grid">${mobileMode?newMobile:newTbl}</div>
     </div>` : ''}
     <div class="brief-card" style="grid-column:1/-1">
