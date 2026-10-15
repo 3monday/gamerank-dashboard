@@ -1705,14 +1705,15 @@ function applyTheme(key){
   function showSkel(msg){ if(el('skel')) { el('skel').style.display='flex'; el('skelMsg').textContent = msg||'加载中…'; } }
   function hideSkel(){ if(el('skel')) el('skel').style.display='none'; }
   var t0 = (performance && performance.now) ? performance.now() : Date.now();
+  window.__PERF__ = {coreMs: null};
   showSkel('正在加载数据…');
   fetch(base + 'core.json', {cache:'force-cache'})
     .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status+' core.json'); return r.json(); })
     .then(function(b){
       var t1 = (performance && performance.now) ? performance.now() : Date.now();
+      window.__PERF__.coreMs = Math.round(t1-t0);
       window.__BOOT__(b.DATA, b.ICONS, b.TESTNEWS, b.TESTTIMELINE, b.TESTGANT, b.PLATFORMS, b.BUILTIN_TAGS);
       hideSkel();
-      window.__PERF__ = {coreMs: Math.round(t1-t0)};
       // 后台加载全量历史（不阻塞首屏）
       fetch(base + 'series.json', {cache:'force-cache'})
         .then(function(r){ return r.ok ? r.json() : null; })
