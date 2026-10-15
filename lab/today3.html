@@ -149,8 +149,9 @@ $('#sort').onchange = (e)=>{ sortBy = e.target.value; render(); };
 (async function(){
   const t0 = performance.now();
   const date = new URLSearchParams(location.search).get('d') || '2026-10-15';
+  const VER = '20261015153838';
   try{
-    const r = await fetch(`data/${date}/taptap_today.json`, {cache:'force-cache'});
+    const r = await fetch(`data/${date}/taptap_today.json?v=${VER}`, {cache:'no-cache'});
     if(!r.ok) throw new Error('HTTP '+r.status);
     const j = await r.json();
     DATA = j.items || [];
