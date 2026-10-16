@@ -108,6 +108,12 @@
   .datebar select:focus{border-color:var(--accent)}
   .datebar .dinfo{font-size:12px;color:var(--tx3);margin-left:auto}
   .datebar .dtag{font-size:11.5px;color:var(--warn,#f0a020);font-weight:700}
+  /* 上午/下午切换 */
+  .sess{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;flex:none}
+  .sess .stog{padding:7px 15px;cursor:pointer;font-size:12.5px;font-weight:700;color:var(--tx2);background:var(--card2);user-select:none;transition:.14s}
+  .sess .stog.on{background:linear-gradient(180deg,#5a95ff,#3f7dff);color:#fff}
+  .sess .stog.dis{opacity:.35;cursor:not-allowed}
+  .sess .stog:not(.on):not(.dis):hover{color:var(--tx);background:var(--card)}
   @media(max-width:600px){
     body{padding:12px 11px 32px}
     .grid{grid-template-columns:1fr;gap:11px}
@@ -136,6 +142,7 @@
     <select id="dSel"></select>
     <span class="dnav" id="dNext">后一天 ›</span>
     <span id="dToday" class="dnav">回到今天</span>
+    <span class="sess" id="sessTog"><span class="stog" id="sAm">上午</span><span class="stog" id="sPm">下午</span></span>
     <span class="dinfo" id="dInfo"></span>
   </div>
   <div class="hd">
@@ -291,43 +298,63 @@ $('#onlyScore').onclick = ()=>{ onlyScore = !onlyScore; $('#onlyScore').classLis
 $('#sort').onchange = (e)=>{ sortBy = e.target.value; render(); };
 
 // ---------- 日期选择 ----------
-let INDEX = [], curDate = '';
-function gotoDate(d){ location.href = `today3.html?d=${d}`; }
+let INDEX = [], META = {}, curDate = '', curSess = 'am';
+function sessionsOf(d){ const m = META[d]||{}; return ['am','pm'].filter(x=>m[x]); }
+function gotoDate(d, s){ location.href = `today3.html?d=${d}&s=${s}`; }
+function setupSess(){
+  const ss = sessionsOf(curDate);
+  const am = $('#sAm'), pm = $('#sPm');
+  if(!am || !pm) return;
+  am.classList.toggle('dis', !ss.includes('am'));
+  pm.classList.toggle('dis', !ss.includes('pm'));
+  am.classList.toggle('on', curSess==='am');
+  pm.classList.toggle('on', curSess==='pm');
+  am.onclick = ()=>{ if(ss.includes('am')) gotoDate(curDate, 'am'); };
+  pm.onclick = ()=>{ if(ss.includes('pm')) gotoDate(curDate, 'pm'); };
+}
 function setupDates(){
   const sel = $('#dSel');
   if(!sel) return;
   sel.innerHTML = INDEX.slice().reverse().map(d=>`<option value="${d}" ${d===curDate?'selected':''}>${d}${d===INDEX[INDEX.length-1]?' （今天）':''}</option>`).join('');
-  sel.onchange = (e)=>gotoDate(e.target.value);
+  sel.onchange = (e)=>{ const d=e.target.value; const ss=sessionsOf(d); gotoDate(d, ss.length?ss[ss.length-1]:'am'); };
   const i = INDEX.indexOf(curDate);
   const prev = $('#dPrev'), next = $('#dNext');
-  if(i>0){ prev.classList.remove('dis'); prev.onclick = ()=>gotoDate(INDEX[i-1]); } else { prev.classList.add('dis'); prev.onclick=null; }
-  if(i<INDEX.length-1){ next.classList.remove('dis'); next.onclick = ()=>gotoDate(INDEX[i+1]); } else { next.classList.add('dis'); next.onclick=null; }
+  const go = (d)=>{ const ss=sessionsOf(d); gotoDate(d, ss.length?ss[ss.length-1]:'am'); };
+  if(i>0){ prev.classList.remove('dis'); prev.onclick = ()=>go(INDEX[i-1]); } else { prev.classList.add('dis'); prev.onclick=null; }
+  if(i<INDEX.length-1){ next.classList.remove('dis'); next.onclick = ()=>go(INDEX[i+1]); } else { next.classList.add('dis'); next.onclick=null; }
   const t = $('#dToday');
-  if(t) t.onclick = ()=>gotoDate(INDEX[INDEX.length-1]);
+  if(t) t.onclick = ()=>go(INDEX[INDEX.length-1]);
   const info = $('#dInfo');
   if(info) info.textContent = `已收录 ${INDEX.length} 天（${INDEX[0]} ~ ${INDEX[INDEX.length-1]}）`;
+  setupSess();
 }
 
 (async function(){
-  const date = new URLSearchParams(location.search).get('d') || '2026-10-16';
-  const VER = '20261016161007';
-  curDate = date;
+  const q = new URLSearchParams(location.search);
+  const date = q.get('d') || '2026-10-16';
+  const sess = q.get('s') || 'am';
+  const VER = '20261016173441';
+  curDate = date; curSess = sess;
   // 顶部导航带日期
   try{ $('#navDash').href = `dash3.html?d=${date}`; }catch(e){}
   // 载入日期索引 -> 初始化选择器
   try{
     const ir = await fetch(`today_index.json?v=${VER}`, {cache:'no-cache'});
-    if(ir.ok){ const ij = await ir.json(); INDEX = ij.dates || []; }
+    if(ir.ok){ const ij = await ir.json(); INDEX = ij.dates || []; META = ij.meta || {}; }
   }catch(e){}
   if(!INDEX.includes(date)) INDEX = [...new Set([...INDEX, date])].sort();
-  if(INDEX.length) setupDates();
+  // 若当前日期没有请求的时段，回退到可用时段(优先下午=最新)
+  const avail = sessionsOf(date);
+  if(!avail.includes(curSess)) curSess = avail.length ? avail[avail.length-1] : 'am';
+  if(INDEX.length) setupDates(); else setupSess();
   // 载入当日数据
   try{
-    const r = await fetch(`data/${date}/taptap_today.json?v=${VER}`, {cache:'no-cache'});
+    const r = await fetch(`data/${date}/taptap_today_${curSess}.json?v=${VER}`, {cache:'no-cache'});
     if(!r.ok) throw new Error('HTTP '+r.status);
     const j = await r.json();
     DATA = j.items || [];
-    $('#meta').textContent = `${date} · 共 ${DATA.length} 款`;
+    const slabel = curSess==='pm' ? '下午' : '上午';
+    $('#meta').textContent = `${date} ${slabel} · 共 ${DATA.length} 款`;
     counts(); renderTagbar(); render();
   }catch(e){
     $('#grid').innerHTML = `<div class="empty" style="color:#ef4444">加载失败: ${esc(e.message)}</div>`;
