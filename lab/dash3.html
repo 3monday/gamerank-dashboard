@@ -450,6 +450,10 @@
 .topnav a{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid var(--line,#2a3247);border-radius:10px;background:var(--card,#161d30);color:var(--tx2,#9aa4b2);text-decoration:none;font-size:14px;font-weight:600;transition:.12s}
 .topnav a:hover{border-color:var(--accent,#3b82f6);color:var(--tx,#e6e9f0)}
 .topnav a.active{background:var(--accent,#3b82f6);color:#fff;border-color:var(--accent,#3b82f6)}
+/* 多平台(5列)适配: 增长榜/新游榜表格列等宽, 内容超长截断 */
+.gain-tbl{table-layout:fixed}
+.gain-tbl th:first-child,.gain-tbl td.rk{width:56px}
+.gain-tbl .gcell-name,.gain-tbl .gcell-co{max-width:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style>
 
 
