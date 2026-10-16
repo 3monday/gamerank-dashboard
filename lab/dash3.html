@@ -454,6 +454,8 @@
 .gain-tbl{table-layout:fixed}
 .gain-tbl th:first-child,.gain-tbl td.rk{width:56px}
 .gain-tbl .gcell-name,.gain-tbl .gcell-co{max-width:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* 分析板块 5 张卡片统一占满整行(原 大厂上榜/各榜榜首 只有 1/3 宽, 与满宽卡宽度不一致) */
+.brief .brief-card{grid-column:1/-1}
 </style>
 
 
@@ -1734,14 +1736,14 @@ function applyTheme(key){
       .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
       .catch(function(e){ if(tries < 2) return fetchJSON(u, tries+1); throw e; });
   }
-  fetchJSON(base + 'core.json?b=1792134468')
+  fetchJSON(base + 'core.json?b=1792139851')
     .then(function(b){
       var t1 = (performance && performance.now) ? performance.now() : Date.now();
       window.__PERF__.coreMs = Math.round(t1-t0);
       window.__BOOT__(b.DATA, b.ICONS, b.TESTNEWS, b.TESTTIMELINE, b.TESTGANT, b.PLATFORMS, b.BUILTIN_TAGS);
       hideSkel();
       // 后台加载全量历史（不阻塞首屏）
-      fetchJSON(base + 'series.json?b=1792134468')
+      fetchJSON(base + 'series.json?b=1792139851')
         .then(function(s){ if(s && window.__setSeries){ window.__setSeries(s); window.__PERF__.seriesDone = true; } })
         .catch(function(e){ console.warn('series load failed', e); });
     })
