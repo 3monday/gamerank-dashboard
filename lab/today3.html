@@ -144,7 +144,7 @@
 
   <div class="toolbar">
     <div class="chips">
-      <span class="chip on" data-cat="reserve">📅 今日新开预约<span class="n" id="n-reserve"></span></span>
+      <span class="chip" data-cat="reserve">📅 今日新开预约<span class="n" id="n-reserve"></span></span>
       <span class="chip" data-cat="release">🚀 今日首发<span class="n" id="n-release"></span></span>
       <span class="chip" data-cat="test">🧪 测试中<span class="n" id="n-test"></span></span>
       <span class="chip" data-cat="all">🎮 全部<span class="n" id="n-all"></span></span>
@@ -173,7 +173,7 @@
 
 <script>
 const $ = (s)=>document.querySelector(s);
-let DATA = [], cat = 'reserve', kw = '', onlyScore = false, sortBy = 'default';
+let DATA = [], cat = 'all', kw = '', onlyScore = false, sortBy = 'default';  // 无默认选中标签：初始=全部
 let selectedComps = [], customComps = [];
 const CATNAME = {release:'首发', test:'测试中', reserve:'新开预约', other:'其它', workshop:'创意工坊'};
 
@@ -238,15 +238,15 @@ function renderTagbar(){
   const cnt = {};
   base.forEach(x=>{ const k=compOf(x); cnt[k]=(cnt[k]||0)+1; });
   let names = Object.keys(cnt).sort((a,b)=> cnt[b]-cnt[a] || a.localeCompare(b,'zh'));
-  const TOPN = 18;
-  let shown = names.slice(0, TOPN);
+  // 全部展示，不做截断（筛选标签不能删）
+  let shown = names.slice();
   customComps.forEach(n=>{ if(!shown.includes(n)) shown.push(n); });
   const bar = $('#tagbar');
   const tags = shown.map(n=>{
     const on = selectedComps.includes(n);
     return `<span class="tag ${on?'on':''}" data-name="${esc(n)}">${esc(n)}<span class="n">${cnt[n]||0}</span></span>`;
   }).join('') + `<span class="tag-add" id="tagAdd" title="手动添加厂商关键词">＋</span>`;
-  const more = names.length>TOPN ? `<span style="font-size:11.5px;color:var(--tx3)">（共 ${names.length} 家，仅列前 ${TOPN}）</span>` : '';
+  const more = `<span style="font-size:11.5px;color:var(--tx3)">（共 ${names.length} 家）</span>`;
   const clr = selectedComps.length ? `<span class="tsep"></span><span class="clr" id="clrTags">✕ 清筛选(${selectedComps.length})</span>` : '';
   bar.innerHTML = `<span class="tgrp-l">🏢 厂商筛选</span>` + tags + more + clr;
   bar.querySelectorAll('.tag').forEach(el=>{
@@ -268,7 +268,12 @@ function renderTagbar(){
 }
 
 document.querySelectorAll('.chip').forEach(ch=>{
-  ch.onclick = ()=>{ document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on')); ch.classList.add('on'); cat = ch.dataset.cat; selectedComps=[]; renderTagbar(); render(); };
+  ch.onclick = ()=>{
+    const wasOn = ch.classList.contains('on');          // 再点一次＝取消筛选
+    document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));
+    if(wasOn){ cat = 'all'; } else { ch.classList.add('on'); cat = ch.dataset.cat; }
+    selectedComps=[]; renderTagbar(); render();
+  };
 });
 $('#q').oninput = (e)=>{ kw = e.target.value.trim().toLowerCase(); render(); };
 $('#onlyScore').onclick = ()=>{ onlyScore = !onlyScore; $('#onlyScore').classList.toggle('on', onlyScore); render(); };
@@ -294,7 +299,7 @@ function setupDates(){
 
 (async function(){
   const date = new URLSearchParams(location.search).get('d') || '2026-10-15';
-  const VER = '20261015173710';
+  const VER = '20261016085659';
   curDate = date;
   // 顶部导航带日期
   try{ $('#navDash').href = `dash3.html?d=${date}`; }catch(e){}
