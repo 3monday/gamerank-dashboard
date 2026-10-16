@@ -64,6 +64,8 @@
   .tagbar .tag .x{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;font-size:11px;color:var(--tx3);cursor:pointer}
   .tagbar .tag .x:hover{background:#e5484d;color:#fff}
   .tagbar .tag-add{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;padding:0 9px;border-radius:14px;color:var(--accent);border:1px dashed var(--accent);background:rgba(79,140,255,.12);cursor:pointer;font-size:12.5px;font-weight:700}
+  .tagbar .tag-more{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:16px;cursor:pointer;font-size:12px;font-weight:700;color:var(--tx2);border:1px dashed var(--line);background:transparent;user-select:none;transition:.14s}
+  .tagbar .tag-more:hover{border-color:var(--accent);color:var(--accent)}
   .tagbar .tag-add:hover{background:var(--accent);color:#fff}
   .tagbar .tsep{width:1px;align-self:stretch;background:var(--line);margin:0 2px}
   .tagbar .clr{font-size:12px;color:var(--tx3);cursor:pointer;padding:5px 10px;border-radius:14px;border:1px solid var(--line)}
@@ -174,7 +176,7 @@
 <script>
 const $ = (s)=>document.querySelector(s);
 let DATA = [], cat = 'all', kw = '', onlyScore = false, sortBy = 'default';  // 无默认选中标签：初始=全部
-let selectedComps = [], customComps = [];
+let selectedComps = [], customComps = [], tagsOpen = false;  // 厂商筛选默认收起(清空），点「展开」才显示
 const CATNAME = {release:'首发', test:'测试中', reserve:'新开预约', other:'其它', workshop:'创意工坊'};
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
@@ -238,17 +240,24 @@ function renderTagbar(){
   const cnt = {};
   base.forEach(x=>{ const k=compOf(x); cnt[k]=(cnt[k]||0)+1; });
   let names = Object.keys(cnt).sort((a,b)=> cnt[b]-cnt[a] || a.localeCompare(b,'zh'));
-  // 全部展示，不做截断（筛选标签不能删）
-  let shown = names.slice();
-  customComps.forEach(n=>{ if(!shown.includes(n)) shown.push(n); });
   const bar = $('#tagbar');
-  const tags = shown.map(n=>{
-    const on = selectedComps.includes(n);
-    return `<span class="tag ${on?'on':''}" data-name="${esc(n)}">${esc(n)}<span class="n">${cnt[n]||0}</span></span>`;
-  }).join('') + `<span class="tag-add" id="tagAdd" title="手动添加厂商关键词">＋</span>`;
-  const more = `<span style="font-size:11.5px;color:var(--tx3)">（共 ${names.length} 家）</span>`;
+  // 已选中的标签始终显示（即使收起）
+  const selTags = selectedComps.map(n=>`<span class="tag on" data-name="${esc(n)}">${esc(n)}<span class="n">${cnt[n]||0}</span></span>`).join('');
+  let body = '';
+  if (tagsOpen){
+    let shown = names.slice();  // 展开后全部展示（筛选标签不能删）
+    customComps.forEach(n=>{ if(!shown.includes(n)) shown.push(n); });
+    body = shown.map(n=>{
+      const on = selectedComps.includes(n);
+      return `<span class="tag ${on?'on':''}" data-name="${esc(n)}">${esc(n)}<span class="n">${cnt[n]||0}</span></span>`;
+    }).join('');
+  }
+  const more = tagsOpen
+    ? `<span class="tag-more" id="tagMore">▸ 收起</span>`
+    : `<span class="tag-more" id="tagMore">▸ 展开全部（${names.length} 家）</span>`;
+  const addBtn = `<span class="tag-add" id="tagAdd" title="手动添加厂商关键词">＋</span>`;
   const clr = selectedComps.length ? `<span class="tsep"></span><span class="clr" id="clrTags">✕ 清筛选(${selectedComps.length})</span>` : '';
-  bar.innerHTML = `<span class="tgrp-l">🏢 厂商筛选</span>` + tags + more + clr;
+  bar.innerHTML = `<span class="tgrp-l">🏢 厂商筛选</span>` + (tagsOpen ? '' : selTags) + more + (tagsOpen ? body : '') + addBtn + clr;
   bar.querySelectorAll('.tag').forEach(el=>{
     el.onclick = ()=>{
       const n = el.dataset.name;
@@ -257,6 +266,8 @@ function renderTagbar(){
       renderTagbar(); render();
     };
   });
+  const tm = $('#tagMore');
+  if(tm) tm.onclick = ()=>{ tagsOpen = !tagsOpen; renderTagbar(); };
   const add = $('#tagAdd');
   if(add) add.onclick = ()=>{
     const v = (prompt('添加厂商筛选关键词（支持部分匹配）')||'').trim();
@@ -299,7 +310,7 @@ function setupDates(){
 
 (async function(){
   const date = new URLSearchParams(location.search).get('d') || '2026-10-15';
-  const VER = '20261016085659';
+  const VER = '20261016091857';
   curDate = date;
   // 顶部导航带日期
   try{ $('#navDash').href = `dash3.html?d=${date}`; }catch(e){}
