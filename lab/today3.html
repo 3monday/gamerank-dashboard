@@ -128,8 +128,50 @@
     .hd .pill{display:none}
   }
 </style>
-<!-- 访问统计 counter.dev（与正式版看板同一 data-id） -->
-<script src="https://cdn.counter.dev/script.js" data-id="96600022-bdab-4575-b303-c93e69eeba3d" data-utcoffset="8"></script>
+<!-- 访问统计 counter.dev（每日每设备去重；同一 data-id / 同一后台） -->
+<script>
+(function(){
+  var ID="96600022-bdab-4575-b303-c93e69eeba3d", OFF=8, SRV="https://t.counter.dev";
+  try{
+    if(sessionStorage.getItem("doNotTrack")||localStorage.getItem("doNotTrack")) return;
+  }catch(e){}
+  var path = location.pathname || "/";
+  var day;
+  try{ day = new Date(Date.now()+OFF*3600000).toISOString().slice(0,10); }catch(e){ return; }
+  if(!day) return;
+  // 抢占当日去重键：拿到 true 才上报；localStorage 不可用时退化为官方行为
+  function claim(key){
+    try{
+      if(localStorage.getItem(key)) return false;
+      localStorage.setItem(key, "1");
+      return true;
+    }catch(e){ return true; }
+  }
+  // 1) 访客数(/track)：每设备每天 1 次
+  if(claim("cv_visit_"+ID+"_"+day)){
+    setTimeout(function(){
+      try{
+        fetch(SRV+"/track?"+new URLSearchParams({
+          referrer: document.referrer,
+          screen: screen.width+"x"+screen.height,
+          id: ID,
+          utcoffset: String(OFF)
+        }), {mode:"cors"});
+      }catch(e){}
+    }, 4500);
+  }
+  // 2) 页面浏览(/trackpage)：每设备每天、每个路径 1 次
+  if(claim("cv_page_"+ID+"_"+day+"_"+path)){
+    try{
+      navigator.sendBeacon(SRV+"/trackpage", new URLSearchParams({
+        id: ID, page: path, utcoffset: String(OFF)
+      }));
+    }catch(e){
+      try{ fetch(SRV+"/trackpage?"+new URLSearchParams({id:ID,page:path,utcoffset:String(OFF)}), {mode:"cors"}); }catch(_){}
+    }
+  }
+})();
+</script>
 </head>
 <body>
 <div class="topnav">
@@ -335,7 +377,7 @@ function setupDates(){
   const q = new URLSearchParams(location.search);
   const date = q.get('d') || '2026-10-19';
   const sess = q.get('s') || 'am';
-  const VER = '20261019101055';
+  const VER = '20261019111604';
   curDate = date; curSess = sess;
   // 顶部导航带日期
   try{ $('#navDash').href = `dash3.html?d=${date}`; }catch(e){}
