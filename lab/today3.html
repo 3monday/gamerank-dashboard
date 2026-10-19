@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TapTap 新游日历 · 2026-10-18</title>
+<title>TapTap 新游日历 · 2026-10-19</title>
 <style>
   :root{
     --bg:#0c1220; --card:#151d2e; --card2:#1b2540; --line:#26324a; --line2:#1e2a40;
@@ -128,13 +128,15 @@
     .hd .pill{display:none}
   }
 </style>
+<!-- 访问统计 counter.dev（与正式版看板同一 data-id） -->
+<script src="https://cdn.counter.dev/script.js" data-id="96600022-bdab-4575-b303-c93e69eeba3d" data-utcoffset="8"></script>
 </head>
 <body>
 <div class="topnav">
-  <a href="dash3.html?d=2026-10-18" id="navDash">📊 预约榜</a>
-  <a href="today3.html?d=2026-10-18" class="active" id="navToday">🆕 新游日历</a>
+  <a href="dash3.html?d=2026-10-19" id="navDash">📊 预约榜</a>
+  <a href="today3.html?d=2026-10-19" class="active" id="navToday">🆕 新游日历</a>
   <span class="navsp"></span>
-  <span class="navdate">2026-10-18</span>
+  <span class="navdate">2026-10-19</span>
 </div>
 <div class="wrap">
   <div class="datebar">
@@ -331,9 +333,9 @@ function setupDates(){
 
 (async function(){
   const q = new URLSearchParams(location.search);
-  const date = q.get('d') || '2026-10-18';
+  const date = q.get('d') || '2026-10-19';
   const sess = q.get('s') || 'am';
-  const VER = '20261018162007';
+  const VER = '20261019101053';
   curDate = date; curSess = sess;
   // 顶部导航带日期
   try{ $('#navDash').href = `dash3.html?d=${date}`; }catch(e){}
