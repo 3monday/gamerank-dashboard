@@ -478,6 +478,7 @@
   .mcard.flash { animation:flashcard 2.4s ease; }
   .mrow.flash { animation:flashbg 2.4s ease; }
 
+.gd{font-size:10px;color:var(--tx3,#8b93a7);margin-left:2px;font-weight:400}
 </style>
 </head>
 <body>
@@ -1417,8 +1418,8 @@ function renderGrid(){
       <td>${gameIcon(it)}${it.is_new?'<span class="new-badge">新</span>':''}${esc(it.title)}</td>` + coLine(it) +
       `<td class="num">${fmt(it.reserve)}</td>` +
       `<td class="num ${deltaClass(g.daily?g.daily.delta:null)}">${arrow(g.daily?g.daily.delta:null)}</td>
-       <td class="num ${deltaClass(g.weekly?g.weekly.delta:null)}">${arrow(g.weekly?g.weekly.delta:null)}</td>
-       <td class="num ${deltaClass(g.monthly?g.monthly.delta:null)}">${arrow(g.monthly?g.monthly.delta:null)}</td>` +
+       <td class="num ${deltaClass(g.weekly?g.weekly.delta:null)}">${arrow(g.weekly?g.weekly.delta:null)}${g.weekly&&g.weekly.days&&g.weekly.days!==7?'<span class="gd">('+g.weekly.days+'天)</span>':''}</td>
+       <td class="num ${deltaClass(g.monthly?g.monthly.delta:null)}">${arrow(g.monthly?g.monthly.delta:null)}${g.monthly&&g.monthly.days&&g.monthly.days!==30?'<span class="gd">('+g.monthly.days+'天)</span>':''}</td>` +
       `<td class="num">${esc(it.score||'-')}</td>${linkTd}`;
     return `<tr>${body}</tr>`;
   }).join('');
@@ -1449,8 +1450,8 @@ function renderMobileCards(rows){
           <div class="mc-nums">
             <span class="mc-num-item"><span class="k">${numLabel}</span> <span class="mc-res">${fmt(it.reserve)}</span></span>
             <span class="mc-num-item"><span class="k">+昨日</span> ${sgn(g.daily?g.daily.delta:null)}</span>
-            <span class="mc-num-item"><span class="k">+7日</span> ${sgn(g.weekly?g.weekly.delta:null)}</span>
-            <span class="mc-num-item"><span class="k">+30日</span> ${sgn(g.monthly?g.monthly.delta:null)}</span>
+            <span class="mc-num-item"><span class="k">+7日${g.weekly&&g.weekly.days&&g.weekly.days!==7?'('+g.weekly.days+'天)':''}</span> ${sgn(g.weekly?g.weekly.delta:null)}</span>
+            <span class="mc-num-item"><span class="k">+30日${g.monthly&&g.monthly.days&&g.monthly.days!==30?'('+g.monthly.days+'天)':''}</span> ${sgn(g.monthly?g.monthly.delta:null)}</span>
           </div>
           ${hl?('<a class="mc-link" href="'+esc(hl)+'" target="_blank">查看详情 ↗</a>'):''}
         </div>
@@ -1710,13 +1711,23 @@ function applyTheme(key){
     // 与服务端 per_game_growth 同口径: 周/月基准日 在 [d-back, d-back-2] 窗口内取最近可用
     const refInWindow = (back)=>{ for(let off=0;off<3;off++){ const iso=isoBack(back+off); if(SERIES[iso]) return iso; } return null; };
     const wRefD = refInWindow(7), mRefD = refInWindow(30);
-    const wRef = wRefD?SERIES[wRefD]:null, mRef = mRefD?SERIES[mRefD]:null;
+    // 按平台取基准日：标准窗口无该平台数据时，退化到该平台最早的可用日期。
+    const availSorted = Object.keys(SERIES).sort();
+    const refForPlat = (p, back)=>{
+      for(let off=0;off<3;off++){ const iso=isoBack(back+off);
+        if(SERIES[iso] && (SERIES[iso][p]||[]).length) return {date:iso, days:back+off}; }
+      for(let i=0;i<availSorted.length;i++){ const iso=availSorted[i];
+        if(iso>=d) break;
+        if(SERIES[iso] && (SERIES[iso][p]||[]).length) return {date:iso, days:Math.max(1, dayDiff(d, iso))}; }
+      return null;
+    };
     // 配对用 mk(2026-09-29 方案C): TapTap/B站 的 mk 是 'id:xxx'(免疫改名); 快爆是 't:主干名'。
     const mkOf = (it)=>(it.mk!=null?it.mk:it.t);
     plats.forEach(p=>{
       const cm={}; (cmp[p]||[]).forEach(it=>{ cm[mkOf(it)]=it.rv; });
-      const cw={}; if(wRef) (wRef[p]||[]).forEach(it=>{ cw[mkOf(it)]=it.rv; });
-      const cM={}; if(mRef) (mRef[p]||[]).forEach(it=>{ cM[mkOf(it)]=it.rv; });
+      const wP = refForPlat(p,7), mP = refForPlat(p,30);
+      const cw={}; if(wP && SERIES[wP.date]) (SERIES[wP.date][p]||[]).forEach(it=>{ cw[mkOf(it)]=it.rv; });
+      const cM={}; if(mP && SERIES[mP.date]) (SERIES[mP.date][p]||[]).forEach(it=>{ cM[mkOf(it)]=it.rv; });
       (cur[p]||[]).forEach(it=>{
         const mk=mkOf(it);
         const then=cm[mk];
@@ -1727,9 +1738,9 @@ function applyTheme(key){
           dg.push({platform:p,title:it.t,mk:mk,now:it.rv,then:then,delta:delta,pct:then?Math.round(delta/then*1000)/10:null});
         }
         const tw=cw[mk];
-        if(tw!=null&&it.rv!=null){ const delta=Math.round(it.rv-tw); rec.weekly={delta:delta, pct: tw?Math.round(delta/tw*1000)/10:null, base_date:wRefD}; }
+        if(tw!=null&&it.rv!=null){ const delta=Math.round(it.rv-tw); rec.weekly={delta:delta, pct: tw?Math.round(delta/tw*1000)/10:null, base_date:wP.date, days:wP.days}; }
         const tM=cM[mk];
-        if(tM!=null&&it.rv!=null){ const delta=Math.round(it.rv-tM); rec.monthly={delta:delta, pct: tM?Math.round(delta/tM*1000)/10:null, base_date:mRefD}; }
+        if(tM!=null&&it.rv!=null){ const delta=Math.round(it.rv-tM); rec.monthly={delta:delta, pct: tM?Math.round(delta/tM*1000)/10:null, base_date:mP.date, days:mP.days}; }
         // growth 仍按【展示名】it.t 存(下游渲染直接用 it.title 查), 但配对是 mk。
         if(Object.keys(rec).length) growth[p][it.t]=rec;
       });
@@ -1778,14 +1789,14 @@ function applyTheme(key){
       .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
       .catch(function(e){ if(tries < 2) return fetchJSON(u, tries+1); throw e; });
   }
-  fetchJSON(base + 'core.json?b=1792380379')
+  fetchJSON(base + 'core.json?b=1792382606')
     .then(function(b){
       var t1 = (performance && performance.now) ? performance.now() : Date.now();
       window.__PERF__.coreMs = Math.round(t1-t0);
       window.__BOOT__(b.DATA, b.ICONS, b.TESTNEWS, b.TESTTIMELINE, b.TESTGANT, b.PLATFORMS, b.BUILTIN_TAGS);
       hideSkel();
       // 后台加载全量历史（不阻塞首屏）
-      fetchJSON(base + 'series.json?b=1792380379')
+      fetchJSON(base + 'series.json?b=1792382606')
         .then(function(s){ if(s && window.__setSeries){ window.__setSeries(s); window.__PERF__.seriesDone = true; } })
         .catch(function(e){ console.warn('series load failed', e); });
     })
