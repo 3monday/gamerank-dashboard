@@ -1374,7 +1374,7 @@ function renderGrid(){
   }
   rows = sortRows(rows);
   document.getElementById('meta').textContent =
-    `显示 ${rows.length} / ${items.length} 款（${onlyTop20?'Top20':'全部'}${onlyNew?'、今日新增':''}）｜ ${curPlat}${selectedTags.length?(' ｜ 标签: '+selectedTags.join('+')):''}${blockedTags.length?(' ｜ 🚫屏蔽 '+blockedTags.join('、')):''}${curPlat==='4399游戏盒'?'<span class="prec-note" title="4399 官方接口只返回千位精度，增量显示 0 时真实增长可能在 ±500 之间"> ｜ ⓘ 预约数精度 1000，增量 &lt;500 显示为 ≈0</span>':''}`;
+    `显示 ${rows.length} / ${items.length} 款（${onlyTop20?'Top20':'全部'}${onlyNew?'、今日新增':''}）｜ ${curPlat}${selectedTags.length?(' ｜ 标签: '+selectedTags.join('+')):''}${blockedTags.length?(' ｜ 🚫屏蔽 '+blockedTags.join('、')):''}${curPlat==='4399游戏盒'?' ｜ ⓘ 预约数精度 1000，增量 <500 显示为 ≈0':''}`;
 
   const cols = [
     {k:'rank',  label:'排名'},{k:null, label:'游戏'},{k:null, label:'厂商/发行'},
@@ -1782,14 +1782,14 @@ function applyTheme(key){
       .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
       .catch(function(e){ if(tries < 2) return fetchJSON(u, tries+1); throw e; });
   }
-  fetchJSON(base + 'core.json?b=1792395240')
+  fetchJSON(base + 'core.json?b=1792395521')
     .then(function(b){
       var t1 = (performance && performance.now) ? performance.now() : Date.now();
       window.__PERF__.coreMs = Math.round(t1-t0);
       window.__BOOT__(b.DATA, b.ICONS, b.TESTNEWS, b.TESTTIMELINE, b.TESTGANT, b.PLATFORMS, b.BUILTIN_TAGS);
       hideSkel();
       // 后台加载全量历史（不阻塞首屏）
-      fetchJSON(base + 'series.json?b=1792395240')
+      fetchJSON(base + 'series.json?b=1792395521')
         .then(function(s){ if(s && window.__setSeries){ window.__setSeries(s); window.__PERF__.seriesDone = true; } })
         .catch(function(e){ console.warn('series load failed', e); });
     })
