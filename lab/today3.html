@@ -53,24 +53,6 @@
   .sel{padding:8px 12px;border:1px solid var(--line);border-radius:11px;background:var(--card2);color:var(--tx);font-size:12.5px;font-weight:600;outline:none;cursor:pointer;transition:.14s}
   .sel:hover,.sel:focus{border-color:var(--accent)}
 
-  /* 厂商/供应商筛选标签栏 */
-  .tagbar{display:flex;flex-wrap:wrap;gap:7px;align-items:center;background:linear-gradient(180deg,var(--card),#121a2b);border:1px solid var(--line);border-radius:16px;padding:11px 14px;margin:-8px 0 18px}
-  .tagbar .tgrp-l{font-size:11px;font-weight:800;color:var(--accent);letter-spacing:.4px;white-space:nowrap;margin-right:2px}
-  .tagbar .tag{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:16px;cursor:pointer;font-size:12.5px;font-weight:600;user-select:none;transition:.14s;background:rgba(79,140,255,.10);color:var(--accent);border:1px solid rgba(79,140,255,.38)}
-  .tagbar .tag:hover{border-color:var(--accent)}
-  .tagbar .tag.on{background:linear-gradient(180deg,#5a95ff,#3f7dff);color:#fff;border-color:transparent}
-  .tagbar .tag .n{opacity:.7;font-size:11px;font-weight:700}
-  .tagbar .tag.on .n{opacity:.9}
-  .tagbar .tag .x{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;font-size:11px;color:var(--tx3);cursor:pointer}
-  .tagbar .tag .x:hover{background:#e5484d;color:#fff}
-  .tagbar .tag-add{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;padding:0 9px;border-radius:14px;color:var(--accent);border:1px dashed var(--accent);background:rgba(79,140,255,.12);cursor:pointer;font-size:12.5px;font-weight:700}
-  .tagbar .tag-more{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:16px;cursor:pointer;font-size:12px;font-weight:700;color:var(--tx2);border:1px dashed var(--line);background:transparent;user-select:none;transition:.14s}
-  .tagbar .tag-more:hover{border-color:var(--accent);color:var(--accent)}
-  .tagbar .tag-add:hover{background:var(--accent);color:#fff}
-  .tagbar .tsep{width:1px;align-self:stretch;background:var(--line);margin:0 2px}
-  .tagbar .clr{font-size:12px;color:var(--tx3);cursor:pointer;padding:5px 10px;border-radius:14px;border:1px solid var(--line)}
-  .tagbar .clr:hover{border-color:#e5484d;color:#ff8080}
-
   /* 卡片网格 */
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px}
   .card{display:flex;gap:15px;align-items:flex-start;background:linear-gradient(180deg,var(--card),#121a2b);border:1px solid var(--line);border-radius:16px;padding:15px 17px 15px 16px;cursor:pointer;transition:transform .16s cubic-bezier(.2,.7,.3,1),box-shadow .16s,border-color .16s;text-decoration:none;color:inherit;position:relative;overflow:hidden}
@@ -193,7 +175,7 @@
     <h1>🆕 TapTap 新游日历</h1>
     <span class="pill" id="meta">加载中…</span>
   </div>
-  <div class="hint">今天新开预约 / 首发 / 开测的游戏 · 点卡片跳 TapTap 详情 · 按类型筛选 + 搜索（游戏名/研发/发行/供应商）</div>
+  <div class="hint">今天新开预约 / 首发 / 开测的游戏 · 点卡片跳 TapTap 详情 · 按类型筛选 + 搜索（游戏名/发行/供应商，研发不参与搜索）</div>
 
   <div class="toolbar">
     <div class="chips">
@@ -205,7 +187,7 @@
       <span class="chip" data-cat="workshop">🏭 TAP创意工坊<span class="n" id="n-workshop"></span></span>
     </div>
     <span class="spacer"></span>
-    <div class="searchwrap"><span class="sic">🔍</span><input class="search" id="q" placeholder="搜游戏名 / 研发 / 发行 / 供应商…"></div>
+    <div class="searchwrap"><span class="sic">🔍</span><input class="search" id="q" placeholder="搜游戏名 / 发行 / 供应商（如：深圳）"></div>
     <span class="tog" id="onlyScore">只看有评分</span>
     <select class="sel" id="sort">
       <option value="default">排序：默认</option>
@@ -213,8 +195,6 @@
       <option value="name">名称 A→Z</option>
     </select>
   </div>
-
-  <div class="tagbar" id="tagbar"></div>
 
   <div class="grid" id="grid"><div class="empty">加载中…</div></div>
 
@@ -227,15 +207,11 @@
 <script>
 const $ = (s)=>document.querySelector(s);
 let DATA = [], cat = 'all', kw = '', onlyScore = false, sortBy = 'default';  // 无默认选中标签：初始=全部
-let selectedComps = [], customComps = [], tagsOpen = false;  // 厂商筛选默认收起(清空），点「展开」才显示
 const CATNAME = {release:'首发', test:'测试中', reserve:'新开预约', other:'其它', workshop:'创意工坊'};
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
-// 每款游戏的"主公司" = 供应商 > 研发 > 发行
-function compOf(x){ return (x.supplier||'').trim() || (x.dev&&x.dev[0]) || (x.pub&&x.pub[0]) || '未知'; }
-
-// 当前分类下的基础列表(供标签统计与筛选)
+// 当前分类下的基础列表
 function baseList(){
   let list = DATA.slice();
   if (cat === 'all') list = list.filter(x=>!x.workshop);
@@ -245,9 +221,9 @@ function baseList(){
 
 function render(){
   let list = baseList();
-  if (selectedComps.length) list = list.filter(x=>selectedComps.includes(compOf(x)));
-  if (alsoFilterKw()) list = list.filter(x=>{
-    const hay = [x.title||'', (x.dev||[]).join(' '), (x.pub||[]).join(' '), x.supplier||''].join(' ').toLowerCase();
+  // 关键词搜索：只匹配 游戏名 + 发行 + 供应商（研发/厂商不参与）
+  if (kw) list = list.filter(x=>{
+    const hay = [x.title||'', (x.pub||[]).join(' '), x.supplier||''].join(' ').toLowerCase();
     return hay.includes(kw);
   });
   if (onlyScore) list = list.filter(x=>x.score && +x.score>0);
@@ -277,7 +253,6 @@ function render(){
       <div class="meta"><span class="tag ${x.cat}">${esc(x.event||CATNAME[x.cat]||'')}</span>${sc}</div></div></a>`;
   }).join('');
 }
-function alsoFilterKw(){ return kw.length>0; }
 
 function counts(){
   const c = {all:0, release:0, test:0, reserve:0, other:0, workshop:0};
@@ -285,56 +260,12 @@ function counts(){
   for (const k in c) { const el = $('#n-'+k); if (el) el.textContent = c[k]; }
 }
 
-// 厂商筛选标签栏(按当前分类统计)
-function renderTagbar(){
-  const base = baseList();
-  const cnt = {};
-  base.forEach(x=>{ const k=compOf(x); cnt[k]=(cnt[k]||0)+1; });
-  let names = Object.keys(cnt).sort((a,b)=> cnt[b]-cnt[a] || a.localeCompare(b,'zh'));
-  const bar = $('#tagbar');
-  // 已选中的标签始终显示（即使收起）
-  const selTags = selectedComps.map(n=>`<span class="tag on" data-name="${esc(n)}">${esc(n)}<span class="n">${cnt[n]||0}</span></span>`).join('');
-  let body = '';
-  if (tagsOpen){
-    let shown = names.slice();  // 展开后全部展示（筛选标签不能删）
-    customComps.forEach(n=>{ if(!shown.includes(n)) shown.push(n); });
-    body = shown.map(n=>{
-      const on = selectedComps.includes(n);
-      return `<span class="tag ${on?'on':''}" data-name="${esc(n)}">${esc(n)}<span class="n">${cnt[n]||0}</span></span>`;
-    }).join('');
-  }
-  const more = tagsOpen
-    ? `<span class="tag-more" id="tagMore">▸ 收起</span>`
-    : `<span class="tag-more" id="tagMore">▸ 展开全部（${names.length} 家）</span>`;
-  const addBtn = `<span class="tag-add" id="tagAdd" title="手动添加厂商关键词">＋</span>`;
-  const clr = selectedComps.length ? `<span class="tsep"></span><span class="clr" id="clrTags">✕ 清筛选(${selectedComps.length})</span>` : '';
-  bar.innerHTML = `<span class="tgrp-l">🏢 厂商筛选</span>` + (tagsOpen ? '' : selTags) + more + (tagsOpen ? body : '') + addBtn + clr;
-  bar.querySelectorAll('.tag').forEach(el=>{
-    el.onclick = ()=>{
-      const n = el.dataset.name;
-      if(selectedComps.includes(n)) selectedComps = selectedComps.filter(x=>x!==n);
-      else selectedComps.push(n);
-      renderTagbar(); render();
-    };
-  });
-  const tm = $('#tagMore');
-  if(tm) tm.onclick = ()=>{ tagsOpen = !tagsOpen; renderTagbar(); };
-  const add = $('#tagAdd');
-  if(add) add.onclick = ()=>{
-    const v = (prompt('添加厂商筛选关键词（支持部分匹配）')||'').trim();
-    if(v && !customComps.includes(v)) customComps.push(v);
-    if(v){ renderTagbar(); render(); }
-  };
-  const c2 = $('#clrTags');
-  if(c2) c2.onclick = ()=>{ selectedComps=[]; renderTagbar(); render(); };
-}
-
 document.querySelectorAll('.chip').forEach(ch=>{
   ch.onclick = ()=>{
     const wasOn = ch.classList.contains('on');          // 再点一次＝取消筛选
     document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));
     if(wasOn){ cat = 'all'; } else { ch.classList.add('on'); cat = ch.dataset.cat; }
-    selectedComps=[]; renderTagbar(); render();
+    render();
   };
 });
 $('#q').oninput = (e)=>{ kw = e.target.value.trim().toLowerCase(); render(); };
@@ -377,7 +308,7 @@ function setupDates(){
   const q = new URLSearchParams(location.search);
   const date = q.get('d') || '2026-10-20';
   const sess = q.get('s') || 'am';
-  const VER = '20261020101117';
+  const VER = '20261020113338';
   curDate = date; curSess = sess;
   // 顶部导航带日期
   try{ $('#navDash').href = `dash3.html?d=${date}`; }catch(e){}
@@ -399,7 +330,7 @@ function setupDates(){
     DATA = j.items || [];
     const slabel = curSess==='pm' ? '下午' : '上午';
     $('#meta').textContent = `${date} ${slabel} · 共 ${DATA.length} 款`;
-    counts(); renderTagbar(); render();
+    counts(); render();
   }catch(e){
     $('#grid').innerHTML = `<div class="empty" style="color:#ef4444">加载失败: ${esc(e.message)}</div>`;
   }
