@@ -275,7 +275,7 @@ $('#sort').onchange = (e)=>{ sortBy = e.target.value; render(); };
 // ---------- 日期选择 ----------
 let INDEX = [], META = {}, curDate = '', curSess = 'am';
 function sessionsOf(d){ const m = META[d]||{}; return ['am','pm'].filter(x=>m[x]); }
-function gotoDate(d, s){ location.href = `today3.html?d=${d}&s=${s}`; }
+function gotoDate(d, s){ location.href = `today.html?d=${d}&s=${s}`; }
 function setupSess(){
   const ss = sessionsOf(curDate);
   const am = $('#sAm'), pm = $('#sPm');
@@ -311,7 +311,7 @@ function setupDates(){
   const VER = '20261028101326';
   curDate = date; curSess = sess;
   // 顶部导航带日期
-  try{ $('#navDash').href = `dash3.html?d=${date}`; }catch(e){}
+  try{ $('#navDash').href = `index.html?d=${date}`; }catch(e){}
   // 载入日期索引 -> 初始化选择器
   try{
     const ir = await fetch(`today_index.json?v=${VER}`, {cache:'no-cache'});
