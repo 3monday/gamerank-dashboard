@@ -1,0 +1,1787 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 访问统计 counter.dev（每日每设备去重；同一 data-id / 同一后台） -->
+<script>
+(function(){
+  var ID="96600022-bdab-4575-b303-c93e69eeba3d", OFF=8, SRV="https://t.counter.dev";
+  try{
+    if(sessionStorage.getItem("doNotTrack")||localStorage.getItem("doNotTrack")) return;
+  }catch(e){}
+  var path = location.pathname || "/";
+  var day;
+  try{ day = new Date(Date.now()+OFF*3600000).toISOString().slice(0,10); }catch(e){ return; }
+  if(!day) return;
+  // 抢占当日去重键：拿到 true 才上报；localStorage 不可用时退化为官方行为
+  function claim(key){
+    try{
+      if(localStorage.getItem(key)) return false;
+      localStorage.setItem(key, "1");
+      return true;
+    }catch(e){ return true; }
+  }
+  // 1) 访客数(/track)：每设备每天 1 次
+  if(claim("cv_visit_"+ID+"_"+day)){
+    setTimeout(function(){
+      try{
+        fetch(SRV+"/track?"+new URLSearchParams({
+          referrer: document.referrer,
+          screen: screen.width+"x"+screen.height,
+          id: ID,
+          utcoffset: String(OFF)
+        }), {mode:"cors"});
+      }catch(e){}
+    }, 4500);
+  }
+  // 2) 页面浏览(/trackpage)：每设备每天、每个路径 1 次
+  if(claim("cv_page_"+ID+"_"+day+"_"+path)){
+    try{
+      navigator.sendBeacon(SRV+"/trackpage", new URLSearchParams({
+        id: ID, page: path, utcoffset: String(OFF)
+      }));
+    }catch(e){
+      try{ fetch(SRV+"/trackpage?"+new URLSearchParams({id:ID,page:path,utcoffset:String(OFF)}), {mode:"cors"}); }catch(_){}
+    }
+  }
+})();
+</script>
+<title>游戏预约榜 · 2026-10-28</title>
+<style>
+  :root {
+    --bg:#0f1420; --bg2:#1c2333; --bg3:#243049; --head:#151b2a;
+    --card:#161d30; --card2-hover:#161d30; --inset:#13203a;
+    --line:#2a3247; --line2:#232b40; --line3:#22304e; --line4:#1e2638;
+    --tx:#e6e9f0; --tx2:#dfe3ee; --tx3:#8b93a7; --tx4:#6b7280; --tx5:#7a8499;
+    --title:#ffffff;
+    --accent:#3b82f6; --accent-hi:#2563eb; --link:#7aa2ff;
+    --pos:#22c55e; --neg:#ef4444; --zero:#64748b; --na:#475569;
+    --warn:#f59e0b; --warn-txt:#fbbf24; --onamber:#1a1205;
+    --bc-bg:#2b3a5c;
+  }
+  /* ================= 暖纸米白 · 浅色素雅 (明亮) ================= */
+  body.theme-paper {  /* 暖纸 · 米白浅色 */
+    background:var(--bg); color:var(--tx);
+    --bg:#f4f1ea; --bg2:#ffffff; --bg3:#efece3; --head:#eae6dc;
+    --card:#ffffff; --card2-hover:#f2eee4; --inset:#faf7ef;
+    --line:#e0dacb; --line2:#eae4d7; --line3:#e6dfd0; --line4:#efeadf;
+    --tx:#33332d; --tx2:#494943; --tx3:#7f786a; --tx4:#a09a8b; --tx5:#8f887a;
+    --title:#2a2a23;
+    --accent:#5b7f9e; --accent-hi:#49708f; --link:#3d6492;
+    --pos:#35855b; --neg:#c05040; --zero:#a49e91; --na:#b8b2a5;
+    --warn:#b8842a; --warn-txt:#a8751c; --onamber:#fffdf6;
+    --bc-bg:#d5cfc1;
+  }
+  /* ================= 霓虹石墨 · 高对比近黑 (科技) ================= */
+  body.theme-graphite {  /* 石墨 · 黑+荧光青 */
+    background:var(--bg); color:var(--tx);
+    --bg:#0b0d10; --bg2:#131619; --bg3:#1d2126; --head:#0f1215;
+    --card:#15181c; --card2-hover:#20252c; --inset:#101317;
+    --line:#24282e; --line2:#1c2024; --line3:#252a31; --line4:#191c20;
+    --tx:#e6edf2; --tx2:#c2cad2; --tx3:#88929b; --tx4:#626a73; --tx5:#778089;
+    --title:#f7fbfe;
+    --accent:#2fd4c0; --accent-hi:#5ce6d2; --link:#4fd8c6;
+    --pos:#3dd68a; --neg:#ff5d6c; --zero:#4a5159; --na:#343b41;
+    --warn:#f2c14e; --warn-txt:#ffd566; --onamber:#241d08;
+    --bc-bg:#1d3a3a;
+  }
+
+  /* 各主题下 .bc(厂商小徽标)文本色微调(主要兼容浅色纸面) */
+  body.theme-paper .bc { color:#3b3b35; }
+  body.theme-graphite .bc { color:#bfe9e2; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg); color:var(--tx); padding:18px;
+  }
+  .masthead { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:4px 0 2px; }
+  .mh-title { font-size:17px; font-weight:700; color:var(--title); }
+  .mh-sub { color:var(--tx3); font-size:12px; }
+  /* 顶部日期对比条(页面最上方) */
+  .datebar { position:sticky; top:0; z-index:60; display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    background:var(--card); border:1px solid var(--line); border-radius:10px;
+    padding:10px 14px; margin:0 0 12px; box-shadow:0 2px 10px rgba(0,0,0,.18); }
+  .datebar .db-title { font-size:13px; font-weight:700; color:var(--title); }
+  .datebar .db-grp { position:relative; display:inline-flex; align-items:center; gap:6px; }
+  .datebar .db-lb { font-size:12px; color:var(--tx3); }
+  .datebar .db-pick { display:inline-flex; align-items:center; gap:7px; padding:6px 12px; border:1px solid var(--line3);
+    border-radius:8px; background:var(--bg2); color:var(--title); font-size:13px; font-weight:600; cursor:pointer;
+    font-variant-numeric:tabular-nums; min-width:112px; transition:border-color .12s; }
+  .datebar .db-pick:hover { border-color:var(--accent); }
+  .datebar .db-pick.data { border-color:var(--accent); }
+  .datebar .db-pick.cmp { border-color:var(--warn); color:var(--warn); }
+  .datebar .db-lb.today { color:var(--accent); font-weight:700; }
+  .datebar .db-lb.yest { color:var(--warn); font-weight:700; }
+  .datebar .db-pick .cal-ico { opacity:.75; }
+  .datebar .db-arrow { color:var(--tx4); font-size:15px; }
+  .datebar .db-btn { padding:6px 14px; border:1px solid var(--accent); border-radius:8px;
+    background:var(--accent); color:#fff; font-weight:600; font-size:13px; cursor:pointer; }
+  .datebar .db-btn:hover { background:var(--accent-hi); }
+  .datebar .db-hint { font-size:11px; color:var(--tx4); margin-left:auto; }
+  /* 日历弹层 */
+  .cal-pop { position:absolute; top:calc(100% + 8px); left:0; z-index:120; width:266px;
+    background:var(--card); border:1px solid var(--line3); border-radius:12px; padding:12px;
+    box-shadow:0 10px 34px rgba(0,0,0,.42); display:none; }
+  .cal-pop.open { display:block; }
+  .cal-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:9px; }
+  .cal-head .cal-ym { font-size:14px; font-weight:700; color:var(--title); font-variant-numeric:tabular-nums; }
+  .cal-nav { display:flex; gap:4px; }
+  .cal-nav button { width:26px; height:26px; border:1px solid var(--line3); border-radius:7px; background:var(--bg2);
+    color:var(--tx2); cursor:pointer; font-size:13px; line-height:1; display:inline-flex; align-items:center; justify-content:center; }
+  .cal-nav button:hover { border-color:var(--accent); color:var(--accent); }
+  .cal-grid { display:grid; grid-template-columns:repeat(7, 1fr); gap:3px; }
+  .cal-grid .cal-wd { text-align:center; font-size:11px; color:var(--tx4); padding:2px 0; }
+  .cal-day { aspect-ratio:1/1; display:flex; align-items:center; justify-content:center; border-radius:7px;
+    font-size:12.5px; font-variant-numeric:tabular-nums; border:1px solid transparent; position:relative; }
+  .cal-bdg { position:absolute; top:1px; right:1px; font-size:8px; line-height:1; font-weight:800;
+    color:var(--warn); background:color-mix(in srgb, var(--warn) 16%, transparent);
+    border-radius:4px; padding:1px 2px; pointer-events:none; }
+  .cal-bdg.yest { color:var(--tx3); background:color-mix(in srgb, var(--tx3) 14%, transparent); }
+  .cal-day.sel .cal-bdg { color:#fff; background:rgba(255,255,255,.28); }
+  .cal-day.on { cursor:pointer; color:var(--tx); background:var(--bg2); border-color:var(--line3); }
+  .cal-day.on:hover { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .cal-day.today { box-shadow:inset 0 0 0 1.5px var(--warn); }
+  .cal-day.sel { background:var(--accent); color:#fff; border-color:var(--accent); font-weight:700; }
+  .cal-day.off { color:var(--tx4); opacity:.28; cursor:not-allowed; }
+  .cal-day.pad { color:var(--tx4); opacity:.18; }
+  .hint { color:var(--tx4); font-size:11px; margin:0 0 12px; }
+  /* 帮助按钮：醒目可点的文字入口（点开才出现榜单用法说明） */
+  .hbtn { display:inline-flex; align-items:center; gap:5px; cursor:pointer; font-size:12.5px; font-weight:600;
+     color:var(--accent); background:var(--bg2); border:1.5px solid var(--accent); border-radius:16px;
+     padding:4px 12px; margin-left:6px; user-select:none; transition:background .15s, color .15s, filter .1s; vertical-align:middle; }
+  .hbtn:hover { background:var(--accent); color:#fff; }
+  .hbtn.on { background:var(--accent); color:#fff; }
+  .hbtn.on:hover { filter:brightness(1.08); }
+  .hbtn .mark { font-size:12px; }
+  .hpop { display:none; margin:0 0 10px; padding:8px 12px; border-left:3px solid var(--accent);
+     background:var(--bg2); border-radius:6px; color:var(--tx3); font-size:12px; line-height:1.9; }
+  .hpop.show { display:block; }
+  .hpop b { color:var(--tx2); font-weight:600; }
+  /* 轻量首次提示条(不遮数据, 一次性) */
+  .tipbar { display:flex; flex-wrap:wrap; align-items:center; gap:5px 14px; margin:6px 0 10px; padding:8px 12px;
+     background:color-mix(in srgb, var(--accent) 9%, transparent); border:1px solid color-mix(in srgb, var(--accent) 38%, transparent);
+     border-radius:8px; color:var(--tx2); font-size:12.5px; line-height:1.6; }
+  .tipbar b { color:var(--title); }
+  .tipbar .hi { color:var(--accent); font-weight:800; }
+  .tip-x { margin-left:auto; cursor:pointer; color:var(--tx4); font-weight:700; padding:0 4px; flex:none; }
+  .tip-x:hover { color:var(--accent); }
+  th.sortable:hover { color:var(--tx); }
+  /* 主题切换：做成右下悬浮圆钮(同回顶钮), 菜单向上弹 */
+  .theme-switch { position:fixed; right:24px; bottom:82px; z-index:110; width:44px; height:44px; border-radius:50%;
+     background:var(--bg2); color:var(--tx2); border:1px solid var(--line); cursor:pointer;
+     display:inline-flex; align-items:center; justify-content:center; font-size:20px; user-select:none;
+     box-shadow:0 3px 12px rgba(0,0,0,.15); }
+  .theme-switch:hover { background:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent); }
+  .theme-switch .tn { position:absolute; right:52px; top:50%; transform:translateY(-50%); white-space:nowrap;
+     font-size:11px; color:var(--tx4); background:var(--card); border:1px solid var(--line); border-radius:6px;
+     padding:1px 6px; opacity:0; pointer-events:none; transition:opacity .12s; }
+  .theme-switch:hover .tn { opacity:1; }
+  .theme-menu { position:absolute; bottom:calc(100% + 10px); right:0; z-index:120; min-width:150px;
+     background:var(--card); border:1px solid var(--line); border-radius:10px; padding:4px; box-shadow:0 -8px 24px rgba(0,0,0,.2);
+     display:none; flex-direction:column; }
+  .theme-menu.open { display:flex; }
+  .theme-menu .tm-item { display:flex; align-items:center; gap:8px; padding:7px 10px; border-radius:7px;
+     color:var(--tx); cursor:pointer; font-size:12.5px; }
+  .theme-menu .tm-item:hover { background:var(--bg3); }
+  .theme-menu .tm-item.sel { color:var(--accent); font-weight:600; }
+  .theme-menu .dot { width:12px; height:12px; border-radius:50%; border:1px solid var(--line); flex:0 0 auto; }
+  body { transition:background .25s ease, color .25s ease; }
+  .tabs { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
+  .tab { padding:7px 16px; border-radius:8px; background:var(--bg2); cursor:pointer;
+          font-size:13px; color:var(--tx2); border:1px solid var(--line); }
+  .tab.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .filters { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px; align-items:center; }
+  .search { padding:6px 10px; border-radius:8px; background:var(--bg2); color:var(--tx);
+             border:1px solid var(--line); font-size:13px; width:220px; }
+  .search::placeholder { color:var(--tx4); }
+  .new-btn { padding:6px 14px; border-radius:8px; background:var(--bg2); color:var(--tx2);
+               border:1px solid var(--line); cursor:pointer; font-size:12px; }
+  .new-btn.on { background:var(--warn); color:var(--onamber); border-color:var(--warn); font-weight:600; }
+  .tagbar { display:flex; flex-direction:column; align-items:stretch; gap:8px; margin-bottom:10px; }
+  /* ==== 厂商屏蔽(排除) ==== */
+  .blockbar { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:2px 0 8px; }
+  .block-add { display:inline-flex; align-items:center; gap:5px; cursor:pointer; font-size:12.5px; color:#fff;
+     background:var(--neg,#e5484d); border:0; border-radius:16px; padding:5px 13px; font-weight:600; user-select:none;
+     transition:filter .12s; }
+  .block-add:hover { filter:brightness(1.1); }
+  .block-sw { cursor:pointer; color:var(--tx3); font-size:12px; text-decoration:underline dotted; user-select:none; }
+  .block-sw:hover { color:var(--neg,#e5484d); }
+  .blocklist { display:flex; flex-wrap:wrap; gap:6px; align-items:center; padding:6px 8px; margin:2px 0 8px;
+     background:color-mix(in srgb, var(--neg,#e5484d) 8%, transparent); border:1px dashed color-mix(in srgb, var(--neg,#e5484d) 45%, transparent); border-radius:8px; }
+  .blocklist .blk-tip { font-size:12px; color:var(--tx3); margin-right:2px; }
+  .blk { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:14px; font-size:12px;
+     background:color-mix(in srgb, var(--neg,#e5484d) 18%, var(--card)); color:var(--neg,#ff6b6b); border:1px solid color-mix(in srgb, var(--neg,#e5484d) 45%, transparent); font-weight:600; }
+  .blk .b-x { cursor:pointer; font-weight:800; opacity:.75; margin-left:2px; }
+  .blk .b-x:hover { opacity:1; }
+  .tag { display:inline-flex; align-items:center; gap:5px; padding:4px 8px 4px 12px;
+          border-radius:16px; cursor:pointer; font-size:12px; position:relative; user-select:none;
+          background:color-mix(in srgb, var(--accent) 10%, var(--card));
+          color:var(--accent); border:1px solid color-mix(in srgb, var(--accent) 45%, var(--line)); }
+  /* 屏蔽厂商(红标签) */
+  .tag-block { background:color-mix(in srgb, var(--neg,#e5484d) 13%, var(--card)); color:var(--neg,#e5484d);
+     border:1px solid color-mix(in srgb, var(--neg,#e5484d) 62%, transparent); font-weight:600; }
+  .tag-block .bx { display:inline-flex; align-items:center; justify-content:center; width:14px; height:14px;
+     border-radius:50%; font-size:11px; color:#fff; background:var(--neg,#e5484d); cursor:pointer; margin-left:3px; }
+  .tag-block .bx:hover { background:var(--neg,#e5484d); color:#fff; }
+  .tb-sep { width:1px; height:22px; background:var(--line3); margin:0 2px; align-self:center; }
+  .tag-add.tag-add-block { color:#fff; background:color-mix(in srgb, var(--neg,#e5484d) 78%, transparent); border:1px solid var(--neg,#e5484d); border-style:dashed; }
+  .tag-add.tag-add-block:hover { background:color-mix(in srgb, var(--neg,#e5484d) 95%, transparent); color:#fff; }
+  .tag.on { background:var(--accent); color:#fff; border-color:var(--accent-hi); box-shadow:0 0 0 2px color-mix(in srgb, var(--accent) 22%, transparent); }
+  .tag .x { display:inline-flex; align-items:center; justify-content:center; width:14px; height:14px;
+             border-radius:50%; font-size:11px; line-height:1; color:var(--tx3); cursor:pointer; }
+  .tag .x:hover { background:var(--neg); color:#fff; }
+  .tag-add { display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px;
+              border-radius:50%; color:var(--accent); border:1px solid var(--accent); border-style:dashed;
+              background:color-mix(in srgb, var(--accent) 15%, var(--card)); cursor:pointer; font-size:18px; line-height:1; }
+  .tag-add:hover { background:var(--accent); color:#fff; }
+  .tag-custom { border-style:dashed; border-color:color-mix(in srgb, var(--accent) 55%, var(--line)); color:var(--accent); }
+  .tag-custom.on { background:var(--accent); color:#fff; border-color:var(--accent-hi); }
+  /* 厂商标签栏：筛选(主题强调色) / 屏蔽(主题报错红) 两个分组容器 */
+  .tgrp { display:inline-flex; flex-wrap:wrap; gap:6px; align-items:center; padding:5px 9px;
+     border:1px solid color-mix(in srgb, var(--accent) 38%, var(--line2)); border-radius:11px;
+     background:color-mix(in srgb, var(--accent) 9%, transparent); }
+  .tgrp-l { font-size:11px; font-weight:800; color:var(--accent); letter-spacing:.3px; margin-right:2px; white-space:nowrap; }
+  .tgrp-red { background:color-mix(in srgb, var(--neg,#e5484d) 8%, transparent); border-color:color-mix(in srgb, var(--neg,#e5484d) 35%, var(--line2)); }
+  .tgrp-red .tgrp-l { color:color-mix(in srgb, var(--neg,#ff6b6b) 75%, var(--tx4)); }
+  .meta { color:var(--tx3); font-size:12px; margin-bottom:10px; }
+  .wrap { overflow-x:auto; overflow-y:auto; height:min(88vh, 1725px); min-height:520px;
+     border-radius:8px; border:1px solid var(--line2); scroll-behavior:smooth; scrollbar-width:thin;
+     scrollbar-color: color-mix(in srgb, var(--accent) 55%, transparent) color-mix(in srgb, var(--tx4) 14%, transparent); }
+  .wrap::-webkit-scrollbar { width:10px; height:10px; }
+  .wrap::-webkit-scrollbar-track { background:color-mix(in srgb, var(--tx4) 12%, transparent); border-radius:8px; }
+  .wrap::-webkit-scrollbar-thumb { background:color-mix(in srgb, var(--accent) 55%, transparent); border-radius:8px; }
+  .wrap::-webkit-scrollbar-thumb:hover { background:var(--accent); }
+  table { width:100%; border-collapse:collapse; font-size:13.5px; min-width:900px; }
+  th,td { padding:10px 10px; text-align:left; border-bottom:1px solid var(--line2); white-space:nowrap; }
+  th { color:var(--tx3); font-weight:600; font-size:12px; background:var(--head); position:sticky; top:0; }
+  th.num, td.num { text-align:right; font-variant-numeric:tabular-nums; }
+  th.sortable:hover { color:var(--tx); }
+  th.sorted { color:var(--accent); }
+  tr:hover { background:var(--card2-hover, var(--card)); }
+  .pos { color:var(--pos); } .neg { color:var(--neg); } .zero { color:var(--zero); } .na { color:var(--na); }
+  .link { color:var(--link); text-decoration:none; margin-left:6px; font-size:12px; }
+  .link:hover { text-decoration:underline; }
+  .empty { color:var(--tx3); padding:30px; text-align:center; }
+  .badge-c { display:inline-block; padding:1px 8px; border-radius:10px; font-size:11px;
+              background:var(--badge-bg, var(--line)); color:var(--badge-tx, var(--tx2)); margin-left:4px; }
+  .new-badge { display:inline-block; padding:0 6px; border-radius:6px; font-size:11px;
+                 background:var(--warn); color:var(--onamber); margin-right:5px; font-weight:600; }
+  /* 游戏图标（实验 2026-09-30）：桌50表格 30px / 手机卡片 36px */
+  .icon-tt { display:inline-block; width:46px; height:46px; border-radius:22%; object-fit:cover;
+              vertical-align:middle; margin-right:8px; background:rgba(0,0,0,.25);
+              border:1px solid var(--line2); }
+  .mcard .mc-ico { width:36px; height:36px; border-radius:22%; object-fit:cover; flex:0 0 auto;
+                    background:rgba(0,0,0,.25); border:1px solid var(--line2); display:block; }
+  .mcard .mc-ico-wrap { flex:0 0 auto; display:flex; align-items:center; }
+  /* 小图标：今日新游/增长榜 条目名前的图标 */
+  .icon-mini { display:inline-block; width:48px; height:48px; border-radius:22%; object-fit:cover;
+                vertical-align:middle; margin-right:0; background:rgba(0,0,0,.25);
+                border:1px solid var(--line2); }
+  /* 增长榜/新游榜 单元格: 图标在左, 右侧竖排 名/厂商/量 (2026-09-30 用户定稿) */
+  .gain-tbl .gcell { display:flex; align-items:center; gap:9px; min-width:0; }
+  .gain-tbl .gcell > .icon-mini { flex:0 0 auto; }
+  .gain-tbl .gcell-tx { display:flex; flex-direction:column; justify-content:center; min-width:0; line-height:1.3; }
+  .gain-tbl .gcell-name { font-weight:600; font-size:13.5px; color:var(--tx); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:220px; }
+  .gain-tbl .gcell-co { color:var(--tx5, #8b93a7); font-size:11.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:220px; margin-top:2px; }
+  .gain-tbl .gcell-num { font-size:12.5px; margin-top:3px; color:var(--tx3); white-space:nowrap; }
+  .gain-tbl .gcell-num .gv { color:var(--tx3); }
+  .gain-tbl .gcell-num .gd { font-weight:600; }
+  .co-sub { color:var(--tx4, #8b93a7); font-size:11px; margin-top:2px; line-height:1.35; }
+  .note { color:var(--tx4); font-size:12px; margin-top:12px; }
+  .backtop { position:fixed; right:24px; bottom:24px; width:44px; height:44px; border-radius:50%;
+              background:var(--accent); color:#fff; border:none; font-size:22px; cursor:pointer;
+              box-shadow:0 4px 14px rgba(0,0,0,.3); display:none; align-items:center; justify-content:center;
+              z-index:99; transition:opacity .2s, transform .2s; }
+  .backtop:hover { background:var(--accent-hi); transform:translateY(-2px); }
+  .brief { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px; }
+  .brief .span2 { grid-column:span 2; }
+  .brief .row2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; grid-column:1/-1; }
+  @media (max-width:900px) { .brief { grid-template-columns:1fr; } .brief .row2 { grid-template-columns:1fr; } }
+  /* ==== 悬浮: 手机/电脑排版切换钮 (两个图标并排, 点亮当前) ==== */
+  .layout-switch { position:fixed; right:24px; bottom:140px; z-index:110; height:44px; border-radius:22px;
+     background:var(--card); border:1px solid var(--line3); cursor:pointer;
+     display:inline-flex; align-items:center; padding:3px; gap:2px; box-shadow:0 3px 14px rgba(0,0,0,.28); }
+  .layout-switch .ls-ic { width:38px; height:36px; border-radius:18px; display:inline-flex; align-items:center; justify-content:center;
+     font-size:19px; filter:grayscale(1); opacity:.5; transition:all .15s; }
+  .layout-switch .ls-ic.on { filter:none; opacity:1; background:var(--accent); }
+  .layout-switch:hover { border-color:var(--accent); }
+  /* ==== 手机竖屏卡片流 ==== */
+  .mcards { display:none; flex-direction:column; gap:8px; }
+  .mcards.on { display:flex; }
+  .mcard { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 12px; }
+  .mcard .mc-row { display:flex; align-items:flex-start; gap:10px; }
+  .mcard .mc-rank { flex:0 0 auto; font-size:13px; font-weight:800; color:var(--accent); min-width:32px; padding-top:9px; font-variant-numeric:tabular-nums; }
+  .mcard .mc-ico-wrap { flex:0 0 auto; padding-top:2px; }
+  .mcard .mc-info { flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:2px; }
+  .mcard .mc-name { font-size:15px; font-weight:700; color:var(--title); line-height:1.3; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .mcard .mc-new { font-size:10px; font-weight:700; color:#fff; background:var(--warn); border-radius:4px; padding:1px 4px; margin-left:6px; vertical-align:middle; }
+  .mcard .mc-co { font-size:11.5px; color:var(--tx3); line-height:1.35; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .mcard .mc-nums { display:flex; flex-direction:column; gap:2px; margin-top:3px; font-size:12.5px; }
+  .mcard .mc-num-item { display:flex; align-items:baseline; gap:6px; line-height:1.4; }
+  .mcard .mc-nums .k { color:var(--tx4); font-size:11px; flex:0 0 auto; min-width:48px; }
+  .mcard .mc-nums .v { font-variant-numeric:tabular-nums; }
+  .mcard .mc-nums .pos { color:var(--pos); } .mcard .mc-nums .neg { color:var(--neg); }
+  .mcard .mc-res { font-size:15px; font-weight:800; color:var(--title); font-variant-numeric:tabular-nums; }
+  .mcard .mc-link { font-size:12px; color:var(--link); margin-top:5px; align-self:flex-start; }
+  .mc-more { margin-top:4px; padding:11px; border-radius:10px; border:1px dashed var(--accent);
+     background:color-mix(in srgb, var(--accent) 10%, transparent); color:var(--accent);
+     font-size:13px; font-weight:700; cursor:pointer; }
+  .mc-more:hover { background:color-mix(in srgb, var(--accent) 20%, transparent); }
+  .mc-btns { display:flex; gap:8px; margin-top:6px; margin-bottom:96px; align-items:stretch; }
+  .mc-btns .mc-more { flex:1 1 0; margin-top:0; min-width:0; }
+  .mc-less { flex:1 1 0; padding:11px; border-radius:10px; border:1px solid var(--line3);
+     background:var(--bg2); color:var(--tx2); font-size:13px; font-weight:700; cursor:pointer; min-width:0; }
+  .mc-less:hover { border-color:var(--accent); color:var(--accent); }
+  .mc-alldone { flex:1 1 0; display:flex; align-items:center; justify-content:center; padding:8px; font-size:12px; color:var(--tx4); min-width:0; }
+  /* 手机版排序切换 */
+  .msort { display:flex; align-items:center; gap:6px; margin:0 0 10px; flex-wrap:wrap; }
+  .msort .msort-lb { font-size:12px; color:var(--tx3); }
+  .msort .msort-btn { padding:6px 14px; border-radius:16px; border:1px solid var(--line3); background:var(--bg2);
+     color:var(--tx2); font-size:12.5px; font-weight:600; cursor:pointer; }
+  .msort .msort-btn.on { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .msort .msort-btn:hover { border-color:var(--accent); }
+  .mc-done { margin-top:4px; padding:8px; text-align:center; font-size:12px; color:var(--tx4); }
+  /* 手机版: 新游榜/增长榜 竖向分组列表 */
+  .mgroup { display:flex; flex-direction:column; gap:2px; }
+  .mgroup-t { font-size:12.5px; font-weight:700; color:var(--warn); margin:8px 0 3px; }
+  .mgroup-t:first-child { margin-top:2px; }
+  .mrow { display:flex; align-items:baseline; gap:8px; padding:6px 8px; border-radius:7px; background:var(--inset); font-size:13px; }
+  .mrow.gc { cursor:pointer; }
+  .mrow.gc:hover { background:var(--bg3); }
+  .mrow .mrk { flex:0 0 auto; width:22px; color:var(--na); font-size:12px; font-variant-numeric:tabular-nums; }
+  .mrow .mtitle { flex:0 1 auto; color:var(--tx); font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .mrow .mco { flex:1 1 auto; min-width:0; color:var(--tx5); font-size:11px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .mrow .mval { flex:0 0 auto; color:var(--tx3); font-size:12px; font-variant-numeric:tabular-nums; }
+  .mrow .mval .pos { color:var(--pos); }
+  /* 手机版 增长/新游榜: 竖排卡片(图标左, 右侧竖排 名/厂商/量) 2026-09-30 */
+  .mcard2 { padding:9px 10px; border-radius:9px; background:var(--inset); margin-bottom:6px; }
+  .mcard2.gc { cursor:pointer; }
+  .mcard2.gc:hover { background:var(--bg3); }
+  .mc2-top { display:flex; align-items:center; gap:8px; }
+  .mc2-top .mrk { flex:0 0 auto; width:20px; color:var(--na); font-size:12px; font-variant-numeric:tabular-nums; }
+  .mc2-top img.icon-mini { flex:0 0 auto; margin-right:0; }
+  .mc2-name { flex:1 1 auto; min-width:0; color:var(--tx); font-weight:600; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .mc2-info { margin-left:28px; margin-top:3px; }
+  .mc2-co { color:var(--tx5); font-size:11.5px; line-height:1.35; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .mc2-num { color:var(--tx3); font-size:12.5px; margin-top:2px; font-variant-numeric:tabular-nums; }
+  .mc2-num .k { color:var(--tx4); font-size:11px; margin-right:3px; }
+  /* 手机版项部精简: 隐藏提示带/写卡说明等 */
+  body.mobile .tipbar, body.mobile .masthead .mh-sub { display:none; }
+  body.mobile .search { width:100%; box-sizing:border-box; }
+  body.mobile .filters { gap:8px; }
+  body.mobile .tabs { overflow-x:auto; flex-wrap:nowrap; -webkit-overflow-scrolling:touch; padding-bottom:2px; }
+  body.mobile .tabs .tab { flex:0 0 auto; }
+  body.mobile .wrap { display:none; }
+  body.mobile .brief { grid-template-columns:1fr; }
+  body.mobile .brief .row2 { grid-template-columns:1fr; }
+  body.mobile .surge-cfg .sc-grid { gap:11px; }
+  /* 手机版: 简报内部宽表格改为容器内横滚, 不撑破页面 */
+  body.mobile .brief-card, body.mobile .brief-grid { overflow-x:auto; max-width:100%; }
+  body.mobile .gain-tbl { width:auto; min-width:100%; }
+  body.mobile .brief { overflow-x:hidden; }
+  body.mobile .wrap, body.mobile .mcards { max-width:100%; overflow-x:hidden; }
+  .mlimit { padding:6px 10px; border-radius:8px; background:var(--bg2); color:var(--tx); border:1px solid var(--line); font-size:13px; }
+  .brief > * { min-width:0; }
+  .leader-card { grid-column:1/-1; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; min-width:0; }
+  .leader-card .leader-block, .leader-card .lb-t, .leader-card .lc { min-width:0; max-width:100%; }
+  .leader-body { overflow-wrap:anywhere; display:flex; flex-direction:column; gap:12px; font-size:13px; color:var(--tx); }
+  .leader-h { font-size:15px; font-weight:700; color:var(--title); display:flex; align-items:baseline; gap:8px; margin-bottom:10px; flex-wrap:wrap; }
+  .leader-h .ld { font-weight:400; font-size:13px; color:var(--link); }
+  .leader-ts { font-weight:400; font-size:12px; color:var(--tx2); background:var(--bg2); border:1px solid var(--line); border-radius:6px; padding:2px 8px; font-variant-numeric:tabular-nums; }
+  .lb-t-toggle { cursor:pointer; user-select:none; }
+  /* 高亮的“口径设置”按钮 */
+  .cfg-btn { display:inline-flex; align-items:center; gap:6px; padding:5px 13px; border-radius:999px;
+    background:linear-gradient(135deg, var(--accent) 0%, var(--accent-hi) 100%); color:#fff;
+    border:1px solid var(--accent-hi); font-size:12px; font-weight:700; cursor:pointer; user-select:none;
+    box-shadow:0 2px 7px rgba(0,0,0,.22); transition:transform .12s, box-shadow .12s, filter .12s; }
+  .cfg-btn:hover { transform:translateY(-1px); filter:brightness(1.08); box-shadow:0 4px 12px rgba(0,0,0,.3); }
+  .cfg-btn:active { transform:translateY(0); }
+  .cfg-btn .caret { font-size:10px; transition:transform .18s; }
+  .cfg-btn.open .caret { transform:rotate(180deg); }
+  .surge-cfg { margin:10px 0 12px; padding:14px 16px; background:var(--inset); border:1px solid var(--line3);
+    border-radius:10px; display:flex; flex-direction:column; gap:9px; box-shadow:inset 0 1px 0 rgba(255,255,255,.03); }
+  .surge-cfg .sc-head { font-size:12px; font-weight:700; color:var(--title); margin-bottom:2px;
+    display:flex; align-items:center; gap:7px; }
+  .surge-cfg .sc-head .sc-sub { font-weight:400; color:var(--tx3); font-size:11px; }
+  .surge-cfg .sc-grid { display:flex; flex-direction:column; gap:9px; }
+  .surge-cfg .sc-row { display:flex; align-items:center; gap:9px; font-size:12px; color:var(--tx2); }
+  .surge-cfg .sc-k { min-width:88px; color:var(--tx2); font-weight:600; }
+  .surge-cfg .sc-in { width:70px; padding:4px 8px; border:1px solid var(--line3); border-radius:7px;
+    background:var(--card); color:var(--title); font-size:13px; font-weight:600; font-variant-numeric:tabular-nums;
+    text-align:center; transition:border-color .12s, box-shadow .12s; }
+  .surge-cfg .sc-in:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 2px rgba(90,140,255,.22); }
+  .surge-cfg .sc-u { color:var(--tx3); }
+  .surge-cfg .sc-actions { display:flex; align-items:center; gap:12px; margin-top:4px;
+    padding-top:10px; border-top:1px dashed var(--line3); }
+  .surge-cfg .sc-btn { display:inline-flex; align-items:center; gap:6px; padding:7px 18px; border:none; border-radius:8px;
+    background:linear-gradient(135deg, var(--accent) 0%, var(--accent-hi) 100%); color:#fff;
+    font-size:13px; font-weight:700; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.2);
+    transition:transform .12s, filter .12s, box-shadow .12s; }
+  .surge-cfg .sc-btn:hover { transform:translateY(-1px); filter:brightness(1.1); box-shadow:0 4px 13px rgba(0,0,0,.3); }
+  .surge-cfg .sc-btn:active { transform:translateY(0); }
+  .surge-cfg .sc-note { font-size:11px; color:var(--tx3); }
+  .leader-h .ld { font-weight:400; font-size:13px; color:var(--link); }
+  .leader-block { display:flex; flex-direction:column; gap:6px; }
+  .lb-t { font-weight:700; font-size:13px; color:var(--title); display:flex; align-items:center; gap:6px; }
+  .lc { color:var(--tx2); }
+  .bc { display:inline-block; background:var(--bc-bg, #2b3a5c); border-radius:5px; padding:0 6px; font-size:11px; color:#fff; font-weight:600; margin-right:2px; }
+  .surge { display:flex; flex-direction:column; gap:1px; padding:7px 9px; background:var(--inset); border:1px solid var(--line3); border-left:3px solid var(--warn); border-radius:6px; }
+  .surge .s-top { display:flex; justify-content:space-between; gap:10px; align-items:baseline; }
+  .surge .s-name { font-weight:600; color:var(--title); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .surge .s-amt { color:var(--pos); font-weight:700; white-space:nowrap; font-variant-numeric:tabular-nums; }
+  .surge .s-amt .pct { color:var(--warn-txt); font-weight:600; margin-left:6px; }
+  .surge .s-meta { color:var(--tx3); font-size:12px; }
+  .surge .s-why { color:var(--warn-txt); font-size:12px; margin-top:2px; }
+  .brief-card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px; }
+  .brief-title { font-size:15px; font-weight:700; margin-bottom:10px; color:var(--title); display:flex; align-items:center; gap:7px; }
+  .brief-date { font-size:13px; color:var(--link); font-weight:700; }
+  .brief-date .big { font-size:15px; }
+  .brief-grid { font-size:13px; display:flex; flex-direction:column; gap:5px; }
+  .brief-row { display:flex; justify-content:space-between; gap:10px; }
+  .brief-row .n { color:var(--tx3); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .brief-row .c { color:var(--pos); font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .brief-row .leader-name { color:var(--tx); font-weight:600; }
+  .brief-row .leader-note { color:var(--tx4); font-weight:400; font-size:12px; }
+  .brief-tagline { color:var(--tx3); font-size:12px; margin-top:8px; }
+  .brief-new { display:flex; flex-wrap:wrap; gap:6px; }
+  .brief-new .gname { background:var(--bg2); color:var(--tx); border:1px solid var(--line); border-radius:6px;
+                       padding:2px 8px; font-size:12px; }
+  .brief-new .gname[data-title] { cursor:pointer; }
+  .brief-new .gname[data-title]:hover { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .brief-new .plat { color:var(--warn); font-weight:600; font-size:12px; }
+  .brief-new .empty-t { color:var(--tx4); font-size:12px; }
+  .gain-block { margin-bottom:6px; }
+  .gain-cards { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; }
+  .gain-card { min-width:150px; max-width:200px; background:var(--bg2); border:1px solid var(--line);
+                border-radius:8px; padding:8px 10px; cursor:pointer; flex:0 0 auto; }
+  .gain-card:hover { background:var(--bg3); border-color:var(--accent); }
+  .gain-card .gt { font-size:12.5px; color:var(--tx); font-weight:600; white-space:nowrap;
+                    overflow:hidden; text-overflow:ellipsis; margin-bottom:4px; }
+  .gain-card .gv { font-size:13px; color:var(--tx3); font-variant-numeric:tabular-nums; }
+  .gain-card .gd { font-size:12.5px; font-weight:600; }
+  .gain-tbl { width:100%; border-collapse:collapse; font-size:12.5px; }
+  .gain-tbl th { text-align:left; color:var(--warn); font-weight:700; border-bottom:1px solid var(--line); padding:6px 8px; font-size:12.5px; }
+  .gain-tbl td { padding:5px 8px; border-bottom:1px solid var(--line4); vertical-align:top; }
+  .gain-tbl td.rk { color:var(--na); width:56px; }
+  .gain-tbl td.gc { cursor:pointer; }
+  .gain-tbl td.gc:hover { background:var(--bg3); }
+  .gain-tbl .gt { color:var(--tx); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px; }
+  .gain-tbl .gco { color:var(--tx5); font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px; margin-top:1px; }
+  .gain-tbl .gl { display:flex; gap:8px; margin-top:2px; white-space:nowrap; }
+  .gain-tbl .gv { color:var(--tx3); }
+  .gain-tbl .gd { font-weight:600; }
+  @keyframes flashbg { 0%,100% { background:transparent; } 25%,70% { background:var(--accent); } }
+  tr.flash { animation:flashbg 2.5s ease; }
+  @keyframes flashcard { 0% { box-shadow:0 0 0 0 var(--accent); background:color-mix(in srgb, var(--accent) 42%, var(--card)); }
+     100% { box-shadow:0 0 0 6px transparent; background:var(--card); } }
+  .mcard.flash { animation:flashcard 2.4s ease; }
+  .mrow.flash { animation:flashbg 2.4s ease; }
+
+.zapprox{color:var(--tx3,#8b93a7);font-weight:400;border-bottom:1px dotted currentColor;cursor:help}
+.prec-note{color:var(--tx3,#8b93a7);font-weight:400;cursor:help}
+</style>
+</head>
+<body>
+
+
+<div class="topnav">
+  <a href="index.html?d=2026-10-28" class="active">📊 预约榜</a>
+  <a href="today.html?d=2026-10-28">🆕 新游日历</a>
+</div>
+<style>
+.topnav{max-width:1220px;margin:0 auto 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.topnav a{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid var(--line,#2a3247);border-radius:10px;background:var(--card,#161d30);color:var(--tx2,#9aa4b2);text-decoration:none;font-size:14px;font-weight:600;transition:.12s}
+.topnav a:hover{border-color:var(--accent,#3b82f6);color:var(--tx,#e6e9f0)}
+.topnav a.active{background:var(--accent,#3b82f6);color:#fff;border-color:var(--accent,#3b82f6)}
+/* 多平台(5列)适配: 增长榜/新游榜表格列等宽, 内容超长截断 */
+.gain-tbl{table-layout:fixed}
+.gain-tbl th:first-child,.gain-tbl td.rk{width:56px}
+.gain-tbl .gcell-name,.gain-tbl .gcell-co{max-width:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* 分析板块 5 张卡片统一占满整行(原 大厂上榜/各榜榜首 只有 1/3 宽, 与满宽卡宽度不一致) */
+.brief .brief-card{grid-column:1/-1}
+</style>
+
+
+<div id="skel" style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:var(--bg,#0f1420);color:#9aa4b2;font:14px/1.6 -apple-system,'PingFang SC','Microsoft YaHei',sans-serif;">
+  <div style="text-align:center"><div style="font-size:26px;margin-bottom:10px">📊</div><div id="skelMsg">加载中…</div></div>
+</div>
+<!-- 顶部日期对比条: 数据日 vs 对比日 (日历选日, 不可选日置灰) -->
+<div class="datebar" id="datebar">
+  <span class="db-title">📅 日期</span>
+  <span class="db-grp" id="grpData"><span class="db-lb">数据</span>
+    <span class="db-pick data" id="pickData"><span class="cal-ico">🗓</span><span class="pv"></span></span>
+    <div class="cal-pop" id="calData"></div>
+  </span>
+  <span class="db-arrow">↔</span>
+  <span class="db-grp" id="grpCmp"><span class="db-lb">对比</span>
+    <span class="db-pick cmp" id="pickCmp"><span class="cal-ico">🗓</span><span class="pv"></span></span>
+    <div class="cal-pop" id="calCmp"></div>
+  </span>
+  <button class="db-btn" id="dbGo">刷新</button>
+  <span class="db-hint">默认=今日 vs 昨日 · 灰色日期无数据不可选</span>
+</div>
+<div id="dbWarn" style="display:none; margin:-4px 0 12px; padding:8px 12px; border-radius:8px;
+  background:var(--bg2); border:1px solid var(--warn); color:var(--warn); font-size:12px;"></div>
+
+<!-- 今日简报：第一眼必须是它，置于页面最前 -->
+<div class="brief" id="brief"></div>
+
+<!-- 精简页头 -->
+<div class="masthead"><span class="mh-title">🎮 游戏预约榜</span><span class="mh-sub">切换平台Tab</span></div>
+
+<div class="tabs" id="platTabs"></div>
+
+<div class="filters">
+  <input class="search" id="search" placeholder="🔍 搜游戏名/厂商...">
+  <div class="new-btn" id="newBtn" title="只看今日新增上榜">🆕 今日新增</div>
+  <div class="new-btn" id="top20Btn" title="点亮=只看榜单前20；默认熄灭=看全量">🏆 仅看 Top20</div>
+  <select class="mlimit" id="mobLimit" title="手机版显示条数" style="display:none">
+    <option value="5" selected>前5条</option>
+    <option value="10">前10条</option>
+    <option value="20">前20条</option>
+    <option value="50">前50条</option>
+    <option value="0">全部</option>
+  </select>
+</div>
+<!-- 手机版排序切换（默认/总预约/增量） -->
+<div class="msort" id="mobSort" style="display:none">
+  <span class="msort-lb">排序</span>
+  <div class="msort-btn" data-k="" title="按榜单原始排名">默认排序</div>
+  <div class="msort-btn" data-k="reserve" title="按总预约量从高到低">总预约</div>
+  <div class="msort-btn" data-k="daily" title="按本日增量从高到低">增量</div>
+</div>
+
+<!-- 大厂标签流：筛选(蓝,点选) + 屏蔽(红,自建) → 由 JS 渲染 -->
+<div class="tagbar" id="tagbar">
+  <div class="tag-add" id="tagAdd" title="添加筛选厂商标签">＋筛</div>
+</div>
+
+<!-- 表头提示带：常驻，教首次用户核心操作 -->
+<div class="tipbar" id="tipbar"><span>💡 <b>看榜指南</b></span><span><b class="hi">①平台</b>：切 TapTap / 好游快爆 / B站榜单</span><span><b class="hi">②筛厂</b>：点厂商小标签只看该厂(可多选，<u>×</u>删、<u>＋</u>自定义)</span><span><b class="hi">③排序</b>：点列表列名如「预约量」/「增量」→ 按它从高到低排，<u>再点一下</u>变从低到高</span><span><b class="hi">④Top20</b>：默认显示<u>全量</u>榜单；点🏆按钮点亮(橙)=只看前20名，再点熄灭=回到全量</span><span><b class="hi">⑤搜</b>：🔍输游戏名 / 厂商过滤</span><span><b class="hi">⑥定位</b>：上方今日简报卡片的条目（⚡异常/🆕新上榜/🚀增长/大厂…）<u>点一下</u> → 自动跳到下方榜单对应游戏并高亮，快速看它排第几涨多少</span><span class="tip-x" id="tipX" title="关闭本条">✕</span></div>
+<div class="meta" id="meta"></div>
+<div class="wrap"><table id="grid">
+  <thead><tr id="gridHead"></tr></thead>
+  <tbody id="gridBody"></tbody>
+</table></div>
+<!-- 手机竖屏: 卡片流(与表格二选一显示) -->
+<div class="mcards" id="mcards"></div>
+<div class="note" id="note"></div>
+<div class="theme-switch" id="themeSwitch" title="切换主题"><span>🎨</span><span class="tn">主题：<span id="themeName" style="font-size:inherit"></span></span></div>
+<button class="layout-switch" id="layoutSwitch" title="切换手机/电脑排版">
+  <span class="ls-ic" id="lsPc" data-mode="pc" title="电脑排版">🖥️</span>
+  <span class="ls-ic" id="lsMob" data-mode="mob" title="手机排版">📱</span>
+</button>
+<button class="backtop" id="backtop" title="回到顶部">↑</button>
+
+<script>
+window.__BOOT__ = function(DATA, ICONS, TESTNEWS, TESTTIMELINE, TESTGANT, PLATFORMS, BUILTIN_TAGS){
+
+
+
+
+
+
+// 大厂集团常见运营主体/品牌别名 -> 命中即归属该大厂标签(与 companies.json 对应)
+const COMPANY_ALIAS = {
+  "腾讯": ["腾讯"], "网易": ["网易", "雷火", "网之易"], "米哈游": ["米哈游", "miHoYo"],
+  "莉莉丝": ["莉莉丝"], "叠纸": ["叠纸", "暖叠"], "鹰角": ["鹰角"], "完美世界": ["完美世界", "完美互娱"],
+  "哔哩哔哩": ["哔哩哔哩", "bilibili", "上海幻电", "哔哩"], "BILIBILI": ["哔哩哔哩", "bilibili", "上海幻电"],
+  "朝夕光年": ["朝夕光年", "字节跳动"], "沐瞳": ["沐瞳", "Moonton"], "库洛": ["库洛", "Kuro"]
+};
+
+let curPlat = PLATFORMS[0];
+let keyword = '';
+let onlyNew = false;
+let onlyTop20 = false;   // 详细榜单默认看全量, 点亮🏆才只看 Top20
+let mobileMode = false; // 手机竖屏排版开关
+let mobileLimit = 5;    // 手机版首批显示条数(默认前5, 可继续“加载更多”到全部)
+let mobileShown = 5;    // 手机版当前已显示条数(加载更多时递增)
+let jumpExpand = false; // 手机版: 定位时展开全部卡片
+let selectedTags = [];      // 当前选中的标签(厂商名)
+let customTags = [];        // 自定义标签(含内置中被删除重加的? 只存用户自定义)
+let removedBuiltin = [];    // 被用户小叉删掉的内置标签
+let blockedTags = ['创巴'];   // 默认屏蔽/排除(模糊匹配, 其游戏全网隐藏); 用户 2026-09-09 定: 默认屏掉上海创巴同厂系(空壳工作室多)
+let sortKey = null;
+let sortDir = 1;
+
+function esc(s){
+  if(s===null||s===undefined) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fmt(v){
+  if(v===null||v===undefined) return '-';
+  v=Number(v);
+  if(v>=1e8) return (v/1e8).toFixed(2)+'亿';
+  if(v>=1e4) return (v/1e4).toFixed(1)+'万';
+  return String(Math.round(v));
+}
+function fmtDelta(x){
+  if(x===null||x===undefined) return '-';
+  x=Number(x);
+  if(x>0) return '+'+fmt(x);
+  if(x<0) return fmt(x);
+  return '0';
+}
+function deltaClass(x){ return x>0?'pos':(x<0?'neg':'zero'); }
+
+function companyOf(it){
+  return (it.company_full||it.company||it.operator||it.developer||'').toLowerCase();
+}
+// 厂商名是否命中某大厂标签(含别名)
+function matchTagName(nameP, tag){
+  const n = String(nameP||'').toLowerCase();
+  const t = String(tag).toLowerCase();
+  const aliases = (COMPANY_ALIAS[tag]||[tag]).map(a=>String(a).toLowerCase());
+  return aliases.some(a=> n.includes(a));
+}
+// 给定一条记录，返回命中的大厂标签数组(BUILTIN_TAGS 顺序优先, 也匹配自定义标签)
+function bigTagsOf(it){ const r=[]; BUILTIN_TAGS.forEach(tag=>{ if(matchTagName(companyOf(it), tag)) r.push(tag); }); return r; }
+function matchesTag(it, tag){
+  const n = (it.company_full||it.company||it.operator||it.developer||'').toLowerCase();
+  // 1) 标签本身/别名在厂商名中; 2) 反向: 厂商名含于标签(如标签=公司主体全称)
+  const t = String(tag).toLowerCase();
+  if(n.includes(t)) return true;
+  const aliases = (COMPANY_ALIAS[tag]||[tag]).map(a=>String(a).toLowerCase());
+  return aliases.some(a=> n.includes(a));
+}
+
+function renderBrief(){
+  const b = document.getElementById('brief');
+  const dateStr = DATA.date;
+  // 对比用两组数据的时间(含时分秒)
+  const tsOf = (iso)=>{
+    if(!iso) return '—';
+    const s = ((DATA.snapshot_ts||{})[iso]) || DATA.gen_ts;
+    if(!s) return iso;
+    return String(s).replace('T',' ').slice(0,19);
+  };
+  const _pick10 = ()=>{
+    const days = DATA.has_previous_days||[];
+    let best=null, bestD=null;
+    days.forEach(iso=>{
+      const mt = (DATA.snapshot_ts||{})[iso]; if(!mt) return;
+      const d = new Date(mt.replace(' ','T'));
+      if(d.toISOString().slice(0,10)!==iso) return;
+      const mins = d.getHours()*60+d.getMinutes();
+      const dd = Math.abs(mins-600);
+      if(best===null||dd<bestD){ best=iso; bestD=dd; }
+    });
+    return best;
+  };
+  // 对比基准日: 优先用 server 传入的 cmp_date; 否则前一日; 再兑底最近可用日期
+  let cmpIso = DATA.cmp_date || null;
+  if(!cmpIso){
+    try{ const dd=new Date(dateStr+'T00:00:00'); dd.setDate(dd.getDate()-1); cmpIso=dd.toISOString().slice(0,10); }catch(e){}
+    if(cmpIso && !(DATA.has_previous_days||[]).includes(cmpIso)){
+      const cand=(DATA.has_previous_days||[]).filter(x=>x<dateStr).sort();
+      cmpIso = cand.length? cand[cand.length-1] : null;
+    }
+  }
+  const dataTs = tsOf(dateStr);
+  const cmpTs = tsOf(cmpIso);
+  // 昨日增长Top —— 表格: 平台横列表头, 每平台Top20竖排, 排除TapTap新品
+  const gainPlats = PLATFORMS.filter(p=>p!=='TapTap新品');
+  // 每平台增长Top20
+  const gainTop = {};
+  gainPlats.forEach(p=>{
+    const items = DATA.all[p]||[];
+    const withGain = items.map(it=>{
+      const g = (DATA.growth[p]||{})[it.title]||{};
+      return {it: it, daily: g.daily?g.daily.delta:null, now: it.reserve};
+    }).filter(x=>x.daily!==null&&x.daily!==undefined);
+    withGain.sort((a,b)=>b.daily-a.daily);
+    gainTop[p] = withGain.slice(0,20);
+  });
+  const maxRows = Math.max(1, ...gainPlats.map(p=>gainTop[p].length));
+  let gainTbl = '<table class="gain-tbl"><thead><tr><th style="width:56px">增长榜</th>';
+  gainTbl += gainPlats.map(p=>`<th>${esc(p)}</th>`).join('');
+  gainTbl += '</tr></thead><tbody>';
+  for(let i=0;i<maxRows;i++){
+    gainTbl += `<tr><td class="rk">${i+1}</td>`;
+    gainPlats.forEach(p=>{
+      const x = gainTop[p][i];
+      if(x){
+        gainTbl += `<td class="gc" data-plat="${esc(p)}" data-title="${esc(x.it.title)}" title="点击定位">` +
+          `<div class="gcell">${gameIconMini(x.it,p)}<div class="gcell-tx">` +
+          `<div class="gcell-name">${esc(x.it.title)}</div>` +
+          `<div class="gcell-co">${esc(coShort(x.it))}</div>` +
+          `<div class="gcell-num"><span class="gv">现${fmt(x.now)}</span> <span class="gd pos">▲+${fmt(x.daily)}</span></div>` +
+          `</div></div></td>`;
+      } else {
+        gainTbl += '<td class="gc">-</td>';
+      }
+    });
+    gainTbl += '</tr>';
+  }
+  gainTbl += '</tbody></table>';
+  if(maxRows<=1 && !gainPlats.some(p=>gainTop[p].length)) gainTbl = '<span class="empty-t">暂无增量数据(需连续2天)</span>';
+  // 手机版: 增长榜 = 按平台分组的竖向列表
+  let gainMobile = '<div class="mgroup">';
+  gainPlats.forEach(p=>{
+    const arr = gainTop[p]||[];
+    if(!arr.length) return;
+    gainMobile += `<div class="mgroup-t">🚀 ${esc(p)}</div>`;
+    arr.forEach((x,i)=>{
+      gainMobile += `<div class="mcard2 gc" data-plat="${esc(p)}" data-title="${esc(x.it.title)}" title="点击定位">`+
+        `<div class="mc2-top"><span class="mrk">${i+1}</span>${gameIconMini(x.it,p)}<span class="mc2-name">${esc(x.it.title)}</span></div>`+
+        `<div class="mc2-info">`+
+        `<div class="mc2-co">${esc(coShort(x.it)||'-')}</div>`+
+        `<div class="mc2-num"><span class="k">现</span>${fmt(x.now)} <b class="pos">▲+${fmt(x.daily)}</b></div>`+
+        `</div></div>`;
+    });
+  });
+  if(gainMobile==='<div class="mgroup">') gainMobile = '<span class="empty-t">暂无增量数据(需连续2天)</span>';
+  gainMobile += '</div>';
+
+  // 今日新游(排除TapTap新品) —— 横向表格: 平台横列表头, 竖排各平台新游
+  const briefPlats = PLATFORMS.filter(p=>p!=='TapTap新品');
+  const newByPlat = {};
+  let newTotal = 0;
+  briefPlats.forEach(p=>{
+    newByPlat[p] = (DATA.all[p]||[]).filter(it=>it.is_new);
+    newTotal += newByPlat[p].length;
+  });
+  const newMaxRows = Math.max(1, ...briefPlats.map(p=>newByPlat[p]?.length||0));
+  let newTbl = '';
+  if(newTotal===0){
+    newTbl = '<span class="empty-t">今日无新上榜游戏</span>';
+  } else {
+    newTbl = '<table class="gain-tbl"><thead><tr><th style="width:56px">新游榜</th>';
+    newTbl += briefPlats.map(p=>`<th>${esc(p)} <span style="color:#7a8499">${newByPlat[p].length}</span></th>`).join('');
+    newTbl += '</tr></thead><tbody>';
+    for(let i=0;i<newMaxRows;i++){
+      newTbl += `<tr><td class="rk">${i+1}</td>`;
+      briefPlats.forEach(p=>{
+        const it = newByPlat[p]?.[i];
+        if(it){
+          newTbl += `<td class="gc" data-plat="${esc(p)}" data-title="${esc(it.title)}" title="点击定位">` +
+            `<div class="gcell">${gameIconMini(it,p)}<div class="gcell-tx">` +
+            `<div class="gcell-name">${esc(it.title)}</div>` +
+            `<div class="gcell-co">${esc(coShort(it))}</div>` +
+            `<div class="gcell-num"><span class="gv">现${fmt(it.reserve)}</span></div>` +
+            `</div></div></td>`;
+        } else {
+          newTbl += '<td class="gc">-</td>';
+        }
+      });
+      newTbl += '</tr>';
+    }
+    newTbl += '</tbody></table>';
+  }
+  // 手机版: 新游榜 = 按平台分组的竖向列表
+  let newMobile = '<div class="mgroup">';
+  if(newTotal===0){ newMobile = '<span class="empty-t">今日无新上榜游戏</span>'; }
+  else {
+    briefPlats.forEach(p=>{
+      const arr = newByPlat[p]||[];
+      if(!arr.length) return;
+      newMobile += `<div class="mgroup-t">🆕 ${esc(p)} <span style="color:var(--tx4);font-weight:400">${arr.length}</span></div>`;
+      arr.forEach((it,i)=>{
+        newMobile += `<div class="mcard2 gc" data-plat="${esc(p)}" data-title="${esc(it.title)}" title="点击定位">`+
+          `<div class="mc2-top"><span class="mrk">${i+1}</span>${gameIconMini(it,p)}<span class="mc2-name">${esc(it.title)}</span></div>`+
+          `<div class="mc2-info">`+
+          `<div class="mc2-co">${esc(coShort(it)||'-')}</div>`+
+          `<div class="mc2-num"><span class="k">现</span>${fmt(it.reserve)}</div>`+
+          `</div></div>`;
+      });
+    });
+    newMobile += '</div>';
+  }
+
+  // 大厂新游(有游戏的大厂, 标出是否新游)
+  let bigHtml = '';
+  Object.keys(DATA.big_company||{}).forEach(c=>{
+    const items = DATA.big_company[c];
+    if(!items.length) return;
+    const newOnes = items.filter(it=>it.is_new);
+    const names = items.slice(0,3).map(it=>it.title).map(esc);
+    bigHtml += `<div class="brief-row" style="margin-bottom:4px"><span class="n"><b>${esc(c)}</b> ${names.join('、')}${items.length>3?' 等'+items.length+'款':''}</span>` +
+      (newOnes.length?`<span class="c" style="color:#f59e0b;white-space:nowrap">🆕${newOnes.length}新</span>`:'') +
+      '</div>';
+  });
+  if(!bigHtml) bigHtml = '<span class="empty-t">今日无大厂上榜</span>';
+
+  // 榜首一览(供底部/简报用)
+  let topHtml = '';
+  PLATFORMS.forEach(p=>{
+    const items = DATA.top20[p]||[];
+    const t1 = items[0];
+    if(!t1) return;
+    topHtml += `<div class="brief-row"><span class="n">${esc(p)}</span><span class="c"><span class="leader-name">${esc(t1.title)}</span><span class="leader-note">(现${fmt(t1.reserve)})</span>${t1.is_new?' <span class="new-badge">新</span>':''}</span></div>`;
+  });
+
+  // ===== 领导版文字简报(放最前) =====
+  const leaderPlats = ['TapTap预约','好游快爆','B站游戏'];  // 只关注预约, 排除TapTap新品
+  // 概况
+  let newLineTxt = `今日新上榜游戏 ${newTotal} 款`;
+  // 今日新增属大厂的名录(大厂名单+别名匹配; 今日新上线/新增预约, 排除TapTap新品)
+  let bigNewLines = [];
+  leaderPlats.forEach(p=>{
+    ((DATA.all[p]||[])).forEach(it=>{
+      if(!it.is_new) return;
+      const hit = bigTagsOf(it);
+      if(hit.length){
+        bigNewLines.push(`<span class="bc">${esc(hit[0])}</span> ${esc(it.title)} <span style="color:#8b93a7">${esc(p)}·现${fmt(it.reserve)}</span>`);
+      }
+    });
+  });
+  // 异常放量 (2026-09-15 新口径, 与文字简报一致): 四条任一命中
+  //   前提: 增量>0 且 总预约>=1000; TapTap新品已由上游排除
+  //   ①环比: 本日增 >= 前日增*2 (超100%)  ②占比: 本日增/昨日总量 >=30%
+  //   ③超均: 本日增 >= 过去7天日均*2.5     ④巨量: 本日增 >= 5万
+  let surgeHtml = '';
+  const findRec = (p,t)=>{ const arr=DATA.all[p]||[]; for(let i=0;i<arr.length;i++){ if(arr[i].title===t) return arr[i]; } return null; };
+  // 历史序列(每日 reserve)由后端注入: DATA.reserve_hist 键为 平台|标题, 值为日期降序数组
+  const hist = DATA.reserve_hist || {};
+  const prevDayGain = (p,t)=>{
+    const hs = hist[p+'|'+t]; if(!hs || hs.length<3) return null;
+    return (hs[1].reserve||0) - (hs[2].reserve||0);
+  };
+  const avg7Gain = (p,t)=>{
+    // 与文字简报 _avg7_gain 严格对齐(常量见 surge_rules.py):
+    // 取含今日最近 avgDays 个数据日 → 最多 avgDays-1 段相邻日增量 → 日均。
+    const n = (window.SURGE_CFG && window.SURGE_CFG.avgDays) || 7;
+    const hs = hist[p+'|'+t]; if(!hs || hs.length<2) return null;
+    const days = hs.slice(0, n);
+    const gs=[];
+    for(let i=1;i<days.length;i++){ gs.push((days[i-1].reserve||0)-(days[i].reserve||0)); }
+    if(!gs.length) return null;
+    return gs.reduce((a,b)=>a+b,0)/gs.length;
+  };
+  const surgeFlags = (g, cfg)=>{
+    const delta=g.delta||0, now=g.now||0, then=g.then;
+    if(delta<=0 || now<(cfg.minReserve||1000)) return [];
+    const out=[];
+    const dcn = '本日增+'+fmt(delta);
+    const pg = prevDayGain(g.platform,g.title);
+    // 环比: 本日增 >= 前日增*倍数; 且要求 前日增本身 >= 最小下限(默认5000), 防小基数噪声
+    if(pg!=null && pg>=(cfg.hbMin||5000) && delta>=pg*(cfg.hbMult||2)) out.push('环比超'+Math.round((delta/pg-1)*100)+'% (前日+'+fmt(pg)+') '+dcn);
+    // 占比: 本日增 ÷ 昨日总量 >= 阈值; 且要求 本日增 >= 最小下限(默认5000)防小基数噪声,
+    //      同时要求 昨日总量 >= 占比分母下限(默认10万)防小盘子误报。
+    //      小盘子的异动交给环比/超均判。
+    if(then && then>=(cfg.ratioBaseMin||100000) && delta>=(cfg.ratioMin||5000) && delta/then>=(cfg.ratio||0.30)) out.push('占比'+Math.round(delta/then*100)+'% (昨日'+fmt(then)+') '+dcn);
+    const av = avg7Gain(g.platform,g.title);
+    // 超均: 本日增 >= 7天日均*倍数; 且要求 7天日均本身 >= 最小下限(默认5000),
+    // 避免小基数(日均+167/+500)刷出一堆"超均N倍"的噪声项。
+    if(av!=null && av>=(cfg.avgMin||5000) && av>0 && delta>=av*(cfg.avgMult||2.5)) out.push('超均'+Math.round((delta/av-1)*100)+'% (日均+'+fmt(av)+') '+dcn);
+    if(delta>=(cfg.absMin||50000)) out.push('巨量 (≥'+fmt(cfg.absMin||50000)+') '+dcn);
+    return out;
+  };
+  // 口径配置(可在页面改, 改后点刷新重算异常放量)
+  window.SURGE_CFG = window.SURGE_CFG || {"minReserve": 1000, "hbMult": 2.0, "hbMin": 5000, "ratio": 0.3, "ratioMin": 5000, "ratioBaseMin": 100000, "avgMult": 2.5, "avgMin": 5000, "absMin": 50000, "avgDays": 7};
+  window.renderSurges = function(){
+    const cfg = window.SURGE_CFG;
+    const surges = (DATA.daily_gain||[])
+      .filter(g=>{ const rec=findRec(g.platform, g.title)||{}; return !rec.is_new; })
+      .map(g=>{ const fl=surgeFlags(g, cfg); return fl.length?{g,fl}:null; })
+      .filter(Boolean)
+      .sort((a,b)=>(b.g.delta||0)-(a.g.delta||0));
+    const box = document.getElementById('surgeBox');
+    if(!box) return;
+    if(!surges.length){ box.innerHTML='<div class="lc" style="color:#8b93a7">按当前口径无异常放量</div>'; return; }
+    box.innerHTML = surges.map(x=>{
+      const g=x.g;
+      const rec = findRec(g.platform, g.title)||{};
+      const comp = coShort(rec);
+      return `<div class="surge" data-plat=${JSON.stringify(g.platform)} data-title=${JSON.stringify(g.title)} title="点击定位到游戏"><div class="s-top"><span class="s-name">${esc(g.title)} ⇣${comp!=='-'?' <span class="bc">'+esc(comp)+'</span>':''}</span></div>`+
+        `<div class="s-meta">厂商：${esc(comp)}｜平台：${esc(g.platform)}｜今总预约：${fmt(g.now)}</div>`+
+        `<div class="s-why">⚡ ${esc(x.fl.join(' ／ '))}（点击看板行定位）</div></div>`;
+    }).join('');
+    // 重新绑定点击定位
+    box.querySelectorAll('.surge[data-title]').forEach(el=>{
+      el.style.cursor='pointer';
+      const pv=el.dataset.plat, tv=el.dataset.title;
+      el.onclick = ()=>jumpToGame(pv, tv);
+    });
+  };
+  window.applySurgeCfg = function(){
+    const num = id => { const v=parseFloat(document.getElementById(id).value); return isNaN(v)?null:v; };
+    const cfg = window.SURGE_CFG;
+    const mr=num('scMinReserve'); if(mr!=null) cfg.minReserve=mr;
+    const hb=num('scHbMult'); if(hb!=null) cfg.hbMult=hb;
+    const hbmin=num('scHbMin'); if(hbmin!=null) cfg.hbMin=hbmin;
+    const rt=num('scRatio'); if(rt!=null) cfg.ratio=rt/100;
+    const rmin=num('scRatioMin'); if(rmin!=null) cfg.ratioMin=rmin;
+    const rbmin=num('scRatioBaseMin'); if(rbmin!=null) cfg.ratioBaseMin=rbmin*10000;
+    const am=num('scAvgMult'); if(am!=null) cfg.avgMult=am;
+    const amin=num('scAvgMin'); if(amin!=null) cfg.avgMin=amin;
+    const ab=num('scAbsMin'); if(ab!=null) cfg.absMin=ab*10000;
+    window.renderSurges();
+  };
+  let leaderHtml = `
+    <div class="leader-card">
+      <div class="leader-h">📊 今日简报 <span class="ld">${esc(dateStr)}</span>${dataTs?('<span class="leader-ts">🕒 数据 '+esc(dataTs)+' ↔ 对比 '+esc(cmpTs)+'</span>'):''}</div>
+      <div class="leader-body">
+        <div class="leader-block"><div class="lb-t">📌 概况</div><div>${esc(newLineTxt)} ｜ 榜首: 好游快爆《${esc((DATA.top20['好游快爆']||[])[0]?.title||'-')}》 / TapTap《${esc((DATA.top20['TapTap预约']||[])[0]?.title||'-')}》</div></div>
+        ${bigNewLines.length?'<div class="leader-block"><div class="lb-t">🏢 大厂·今日新增预约 <span style="font-weight:400;font-size:11px;color:#6b7280">（'+bigNewLines.length+'款·不含TapTap新品）</span></div>'+bigNewLines.map(x=>`<div class="lc">${x}</div>`).join('')+'</div>':'<div class="leader-block"><div class="lb-t">🏢 大厂·今日新增预约</div><div class="lc" style="color:#8b93a7">今日无新增的大厂预约游</div></div>'}
+        <div class="leader-block">
+          <div class="lb-t" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">⚡ 预约量异常放量
+            <button class="cfg-btn" id="surgeToggle" title="展开判断标准设置">⚙ 判断标准设置 <span class="caret">▾</span></button>
+          </div>
+          <div class="surge-cfg" id="surgeCfg" style="display:none">
+            <div class="sc-head">⚙ 异常放量判断标准 <span class="sc-sub">（命中任一即算异常；改完点下方刷新重算）</span></div>
+            <div class="sc-grid">
+              <div class="sc-row"><span class="sc-k">环比放大</span><input class="sc-in" id="scHbMult" type="number" step="0.1" value="2"><span class="sc-u">倍（本日增 ≥ 前日增 ×值）</span></div>
+              <div class="sc-row"><span class="sc-k">环比·前日下限</span><input class="sc-in" id="scHbMin" type="number" step="500" value="5000"><span class="sc-u">（前日增 ≥ 值才启用环比，防小基数噪声）</span></div>
+              <div class="sc-row"><span class="sc-k">占比</span><input class="sc-in" id="scRatio" type="number" step="1" value="30"><span class="sc-u">%（本日增 ÷ 昨日总量）</span></div>
+              <div class="sc-row"><span class="sc-k">占比·本日下限</span><input class="sc-in" id="scRatioMin" type="number" step="500" value="5000"><span class="sc-u">（本日增 ≥ 值才启用占比，防小基数噪声）</span></div>
+              <div class="sc-row"><span class="sc-k">占比·分母下限</span><input class="sc-in" id="scRatioBaseMin" type="number" step="1" value="10"><span class="sc-u">万（昨日总量 ≥ 值才启用占比，防小盘子误报）</span></div>
+              <div class="sc-row"><span class="sc-k">超均</span><input class="sc-in" id="scAvgMult" type="number" step="0.1" value="2.5"><span class="sc-u">倍（本日增 ≥ 7天日均 ×值）</span></div>
+              <div class="sc-row"><span class="sc-k">超均·日均下限</span><input class="sc-in" id="scAvgMin" type="number" step="500" value="5000"><span class="sc-u">（7天日均 ≥ 值才启用超均，防小基数噪声）</span></div>
+              <div class="sc-row"><span class="sc-k">巨量</span><input class="sc-in" id="scAbsMin" type="number" step="1" value="5"><span class="sc-u">万（本日增 ≥ 值）</span></div>
+              <div class="sc-row"><span class="sc-k">最小前提</span><input class="sc-in" id="scMinReserve" type="number" step="100" value="1000"><span class="sc-u">（总预约 ≥ 值才判定）</span></div>
+            </div>
+            <div class="sc-actions"><button class="sc-btn" id="surgeRefresh">🔄 刷新异常放量</button><span class="sc-note">修改后点刷新即可重算本板块</span></div>
+          </div>
+          <div id="surgeBox"></div>
+        </div>
+      </div>
+    </div>`;
+
+  // 非相邻两日对比时: 隐藏「今日简报/异常放量/今日新增」(这些只对昨日对比有意义)
+  const strict = DATA.strict_pair !== false;
+  if(!strict){
+    leaderHtml = '';
+  }
+
+  b.innerHTML = `
+    ${leaderHtml}
+    ${strict ? `
+    <div class="brief-card" style="grid-column:1/-1">
+      <div class="brief-title">🆕 今日新上榜游戏（${newTotal}款，点击定位）</div>
+      <div class="brief-grid">${mobileMode?newMobile:newTbl}</div>
+    </div>` : ''}
+    <div class="brief-card" style="grid-column:1/-1">
+      <div class="brief-title">🚀 增长最快明细（${esc(cmpTs.slice(5,10))} → ${esc(dateStr.slice(5,10))}，每平台Top20，点击定位）</div>
+      <div class="brief-grid">${mobileMode?gainMobile:gainTbl}</div>
+    </div>
+    <div class="brief-card">
+      <div class="brief-title">🏢 大厂上榜（Top20内）</div>
+      <div class="brief-grid">${bigHtml}</div>
+    </div>
+    <div class="brief-card">
+      <div class="brief-title">👑 各榜榜首</div>
+      <div class="brief-grid">${topHtml}</div>
+    </div>`;
+
+  // 新游/增长榜单单元格点击 -> 定位(闭包绑定, 避免内联onclick作用域不到)
+  //   PC: td.gc (gain-tbl/new-tbl)  |  手机: .mcard2.gc (增长/新游榜竖排卡)
+  b.querySelectorAll('td.gc, .mcard2.gc').forEach(el=>{
+    if(el.dataset?.title) el.onclick = ()=>jumpToGame(el.dataset.plat, el.dataset.title);
+  });
+  // ⚡异常放量: 首次渲染(默认口径)
+  if(window.renderSurges) window.renderSurges();
+  // 口径面板展开/收起
+  const tg = document.getElementById('surgeToggle');
+  const cfgBox = document.getElementById('surgeCfg');
+  if(tg && cfgBox){
+    tg.onclick = ()=>{ const open = cfgBox.style.display!=='none'; cfgBox.style.display = open?'none':'flex'; tg.classList.toggle('open', !open); };
+  }
+  // 刷新按钮: 按当前填的数字重算
+  const rf = document.getElementById('surgeRefresh');
+  if(rf) rf.onclick = ()=>{ if(window.applySurgeCfg) window.applySurgeCfg(); };
+}
+
+
+
+
+function testCard(){
+  var G = (TESTGANT && TESTGANT.days) ? TESTGANT : null;
+  if (!G || !G.days || !G.days.length) return '<span class="empty-t">近期暂无已排期节点</span>';
+  var days = G.days, N = days.length, DW = 46, LEFT = 172, ROWH = 66, TOP = 30;
+  var todayI = days.indexOf(G.today);
+  function toIdx(d){ return days.indexOf(d); }
+  function xOf(i){ return i * DW; }
+  function mid(i){ return i * DW + DW / 2; }
+  function md(d){ if (!d) return ''; var p = d.split('-'); return (+p[1]) + '/' + (+p[2]); }
+  function fmtv(v){ if (v == null) return ''; if (v >= 1e8) return (v/1e8).toFixed(1)+'亿'; if (v >= 1e4) return (v/1e4).toFixed(1)+'万'; return '' + Math.round(v); }
+
+  // 排序: 今日 start 最前, 其余按预约量降序
+  var list = (G.games || []).filter(function(g){ return g.start || g.end || g.testdate || (g.nodes && g.nodes.length); });
+  list.sort(function(a, b){
+    var at = (a.start && a.start === G.today) ? 1 : 0;
+    var bt = (b.start && b.start === G.today) ? 1 : 0;
+    if (bt !== at) return bt - at;
+    return (b.reserve || 0) - (a.reserve || 0);
+  });
+
+  // ---------- 表头日轴 ----------
+  var hdr = '';
+  for (var i = 0; i < N; i++){
+    var tk = (i === todayI);
+    hdr += '<div style="text-align:center;width:'+DW+'px;flex:0 0 '+DW+'px;box-sizing:border-box">'
+        + '<div style="height:16px;line-height:16px;font-size:'+(tk?11:9.5)+'px;color:'+(tk?'var(--warn)':'var(--tx3)')+';font-weight:'+(tk?'800':'500')+'">'+(tk?'今天':md(days[i]))+'</div>'
+        + '<div style="position:relative;height:14px">'
+        + '<div style="position:absolute;left:0;right:0;top:6px;height:1px;background:'+(tk?'var(--warn)':'var(--line3)')+'"></div>'
+        + '<div style="position:absolute;left:'+(DW/2-4)+'px;top:2px;width:7px;height:7px;border-radius:50%;background:'+(tk?'var(--warn)':'var(--tx4)')+'"></div>'
+        + '</div></div>';
+  }
+  var headerHtml = '<div style="display:flex;border-bottom:1px solid var(--line)">'
+    + '<div style="position:sticky;left:0;z-index:15;width:'+LEFT+'px;flex:0 0 '+LEFT+'px;background:var(--bg3);box-sizing:border-box;padding:2px 8px;color:var(--tx4);font-size:11px;border-right:1px solid var(--line);line-height:1.3">测试/招募 排期<br><span style="font-size:8.5px;color:var(--tx5)">← 左右滑更多日期</span></div>'
+    + '<div style="display:flex;width:'+(DW*N)+'px">'+hdr+'</div></div>';
+
+  // ---------- 单行 ----------
+  function dot(x, ytop, color, r){ return '<div style="position:absolute;left:'+x+'px;top:'+ytop+'px;width:'+r+'px;height:'+r+'px;border-radius:50%;background:'+color+';border:2px solid var(--bg);z-index:5"></div>'; }
+  function label(x, ytop, txt, color, bold){
+    return '<div style="position:absolute;left:'+x+'px;top:'+ytop+'px;transform:translateX(-50%);color:'+color+';font-size:'+(bold?9:8.5)+'px;font-weight:'+(bold?700:400)+';white-space:nowrap;text-align:center;line-height:1.15">'+txt+'</div>';
+  }
+  function barh(g){
+    var b='';
+    if (todayI>=0) b += '<div style="position:absolute;left:'+(mid(todayI)-1)+'px;top:0;width:2px;height:100%;background:rgba(245,158,11,.3);z-index:1"></div>';
+    var si = g.start ? toIdx(g.start) : -1;
+    var ei = g.end ? toIdx(g.end) : -1;
+    var ti = g.testdate ? toIdx(g.testdate) : -1;
+
+    // 招募条(有 start)
+    if (si>=0){
+      var x0 = xOf(si);
+      var rEndIdx = ei>=0 ? ei : (ti>=0 ? ti : N-1);
+      if (rEndIdx < si) rEndIdx = si+1;
+      var x1 = xOf(rEndIdx+1);
+      if (x1 > x0){
+        var open = (ei<0 && ti<0);
+        b += '<div style="position:absolute;left:'+x0+'px;top:'+(TOP-1)+'px;width:'+(x1-x0)+'px;height:7px;border-radius:4px;background:'+(open?'var(--bar2,var(--accent))':'var(--bar,var(--accent))')+';z-index:2"></div>';
+        // 左端：招募报名开始
+        b += dot(x0-6, TOP-6, 'var(--accent)', 12);
+        b += label(x0, TOP+3, md(g.start)+'<br><b>招募报名开始</b>', 'var(--accent)', false);
+        // 右端：截止 / 开测 / 进行中
+        if (ei>=0){ b += dot(x1-6, TOP-6, 'var(--neg)', 12); b += label(x1, TOP+3, md(g.end)+'<br><b>招募截止</b>', 'var(--neg)', false); }
+        else if (ti>=0){ b += dot(x1-6, TOP-6, 'var(--warn)', 12); b += label(x1, TOP+3, md(g.testdate)+'<br><b>测试开测</b>', 'var(--warn)', false); }
+        else { b += label(x1, TOP+3, '<b>进行中</b>', 'var(--tx4)', false); }
+      }
+    }
+    // 额外动作点(非端点列)
+    (g.nodes||[]).forEach(function(n){
+      var i = toIdx(n.d); if (i<0) return;
+      if (si>=0 && (i===si)) return;           // 起点已画
+      if (ei>=0 && (i===ei)) return;           // 招募截止点已画(作为右端)
+      if (ti>=0 && (i===ti) && ei<0) return;   // 开测已作为右端
+      var acts = n.act.join('/');
+      var col = /截止/.test(acts) ? 'var(--neg)' : (/上线/.test(acts) ? 'var(--pos)' : 'var(--warn)');
+      var m = mid(i);
+      var txt = acts.replace('预下载','预下载').replace('正式上线','正式上线').replace('删档测试','删档测试').replace('招募截止','招募截止');
+      b += dot(m-6, TOP-2, col, 12);
+      b += label(m, TOP-14, esc(txt), col, true);
+      b += label(m, TOP+10, md(n.d), col, false);
+    });
+    return b;
+  }
+
+  function row(g){
+    var nm = esc(g.name||'');
+    var plat = g.plat||'', dbt = g.dbtitle||'', jump = !!(plat && dbt);
+    var side = '<div style="position:sticky;left:0;z-index:9;width:'+LEFT+'px;flex:0 0 '+LEFT+'px;background:var(--bg2);box-sizing:border-box;padding:0 8px;border-right:1px solid var(--line);display:flex;flex-direction:column;justify-content:center">'
+      + (jump
+         ? '<span onclick="locateTest(this)" data-gp="'+esc(plat)+'" data-gt="'+esc(dbt)+'" title="点我→定位详情" style="cursor:pointer;color:var(--tx);font-size:12.5px;font-weight:700">'+nm+' ⇣</span>'
+         : '<b style="color:var(--tx2);font-size:12px">'+nm+'</b>')
+      + '<span style="font-size:10px;color:var(--accent)">预约 '+fmtv(g.reserve)+'</span>'
+      + '</div>';
+    var track = '<div style="position:relative;width:'+(DW*N)+'px;flex:0 0 '+(DW*N)+'px;height:'+ROWH+'px">' + barh(g) + '</div>';
+    return '<div style="display:flex;border-top:1px solid var(--line3)">' + side + track + '</div>';
+  }
+
+  var SHOW = 5;
+  var card = '<div style="border:1px solid var(--line);border-radius:8px;background:var(--bg);overflow:hidden">';
+  // --- 横向可滚区(只含表头+行) ---
+  card += '<div style="overflow-x:auto;max-width:100%">';
+  card += '<div style="width:'+(LEFT+DW*N)+'px;min-width:100%">';
+  card += headerHtml;
+  var showArr = list.slice(0, SHOW);
+  var moreArr = list.slice(SHOW);
+  for (var a=0;a<showArr.length;a++) card += row(showArr[a]);
+  if (moreArr.length){
+    card += '<div id="gantExtra" style="display:none">';
+    for (var c=0;c<moreArr.length;c++) card += row(moreArr[c]);
+    card += '</div>';
+  }
+  card += '</div>';   // close inner-width (scrolls)
+  card += '</div>';   // close scroller
+  // --- 展开/收起按钮: 放在滚动区外面, 不随横向滚动移动, 固定 ---
+  if (moreArr.length){
+    card += '<div style="padding:6px;border-top:1px solid var(--line2);text-align:center;background:var(--card)">'
+      + '<span id="gantToggle" onclick="toggleGant()" style="cursor:pointer;color:var(--accent);font-size:12px">▾ 展开共 '+list.length+' 款(更多 »)</span></div>';
+  }
+  card += '</div>';   // close outer card box
+  card += '<div class="brief-tagline">蓝条=开放报名期 → 左端“招募报名开始” · 红点右端“招募截止” · 橙点“开测/删档/限量” · 天蓝=预下载 · 绿=正式上线 · 今天=金竖线 ｜ 点游戏名⇣定位 ｜ 左右滑看完整日期</div>';
+  return card;
+}
+// 展开/收起更多
+function toggleGant(){
+  var ex = document.getElementById('gantExtra');
+  var tg = document.getElementById('gantToggle');
+  if (!ex || !tg) return;
+  if (ex.style.display === 'none'){ ex.style.display=''; tg.innerHTML='▴ 收起（只显示重点几款）'; }
+  else { ex.style.display='none'; tg.innerHTML='▾ 展开全部'; }
+}
+    
+function jumpToGame(plat, title){
+  // 1. 切换平台Tab
+  curPlat = plat;
+  renderTabs();
+  // 2. 清筛选, 确保该游戏可见
+  if(selectedTags.length) selectedTags=[];
+  if(onlyNew){ onlyNew=false; document.getElementById('newBtn').classList.remove('on'); }
+  if(onlyTop20){ onlyTop20=false; document.getElementById('top20Btn').classList.remove('on'); }
+  keyword='';
+  document.getElementById('search').value='';
+  sortKey=null; sortDir=1;
+  if(typeof mobileShown!=='undefined') jumpExpand = true;  // 手机版: 定位时展开全部卡片
+  renderTagbar();
+  renderGrid();
+  // 3. 找到该游戏行并滚动高亮(同步, renderGrid已更新DOM); 手机版定位到卡片
+  const target = findGameEl(title);
+  if(target){
+    // 先滚到位再触发高亮(否则动画在屏外放完了看不见)
+    try{ target.scrollIntoView({behavior:'smooth', block:'center'}); }catch(e){}
+    setTimeout(()=>{
+      target.classList.add('flash');
+      setTimeout(()=>target.classList.remove('flash'), 3000);
+    }, 350);
+  }
+}
+
+// 定位元素: 手机模式找卡片(.mcard), 否则找表格行(#gridBody tr)
+function findGameEl(title){
+  if(mobileMode){
+    const cards = document.querySelectorAll('#mcards .mcard');
+    let hit=null; cards.forEach(c=>{ if(c.textContent.includes(title)) hit=c; });
+    return hit;
+  }
+  const rows = document.querySelectorAll('#gridBody tr');
+  let t=null; rows.forEach(r=>{ if(r.textContent.includes(title)) t=r; });
+  return t;
+}
+
+function renderTabs(){
+  const t = document.getElementById('platTabs');
+  t.innerHTML = PLATFORMS.map(p=>
+    `<div class="tab ${p===curPlat?'active':''}" data-p="${p}">${p}<span class="badge-c">${DATA.all[p]?DATA.all[p].length:0}</span></div>`
+  ).join('');
+  t.querySelectorAll('.tab').forEach(el=>{
+    el.onclick=()=>{ curPlat=el.dataset.p; renderTabs(); renderTagbar(); renderGrid(); };
+  });
+}
+
+function renderTagbar(){
+  const items = DATA.all[curPlat]||[];
+  // 内置标签(未删除的) + 自定义标签, 各带当前平台匹配数
+  const builtin = BUILTIN_TAGS.filter(t=>!removedBuiltin.includes(t));
+  const allTags = [
+    ...builtin.map(t=>({name:t, custom:false})),
+    ...customTags.map(t=>({name:t, custom:true}))
+  ];
+  const bar = document.getElementById('tagbar');
+  const filterTags = allTags.map(t=>{
+      const n = items.filter(it=>matchesTag(it,t.name)).length;
+      const on = selectedTags.includes(t.name);
+      const cls = ['tag', t.custom?'tag-custom':'', on?'on':''].join(' ').trim();
+      return `<div class="${cls}" data-tag="${esc(t.name)}">${esc(t.name)}<span class="badge-c">${n}</span><span class="x" data-x="${esc(t.name)}" title="从筛选移除">×</span></div>`;
+    }).join('');
+  const blockTagsHtml = blockedTags.map(w=>
+        `<span class="tag tag-block" title="已屏蔽该厂商">${esc(w)}<span class="bx" data-bx="${esc(w)}" title="解除屏蔽">×</span></span>`).join('');
+  bar.innerHTML =
+    `<div class="tgrp"><span class="tgrp-l">筛选</span>${filterTags}<div class="tag-add" id="tagAdd" title="添加筛选标签">＋</div></div>`
+    + `<div class="tgrp tgrp-red"><span class="tgrp-l">屏蔽</span>${blockTagsHtml}<div class="tag-add tag-add-block" id="tagAddBlock" title="屏蔽某厂商(红, 其游戏全部隐藏)">＋</div></div>`;
+  // 筛选标签多选切换
+  bar.querySelectorAll('.tag:not(.tag-block)').forEach(el=>{
+    el.onclick=(e)=>{
+      if(e.target.classList.contains('x')) return;
+      const t=el.dataset.tag;
+      if(selectedTags.includes(t)) selectedTags=selectedTags.filter(x=>x!==t); else selectedTags.push(t);
+      renderTagbar(); renderGrid();
+    };
+  });
+  // 屏蔽标签解除
+  bar.querySelectorAll('.bx').forEach(bx=>{
+    bx.onclick=(e)=>{ e.stopPropagation(); const w=bx.dataset.bx; unblockTag(w); };
+  });
+  // 屏蔽加号
+  const ab = document.getElementById('tagAddBlock');
+  if(ab) ab.onclick = ()=>addTagBlock();
+  // 标签删除(小叉)
+  bar.querySelectorAll('.x').forEach(x=>{
+    x.onclick=(e)=>{
+      e.stopPropagation();
+      const t = x.dataset.x;
+      // 从自定义或内置中移除
+      if(customTags.includes(t)) customTags = customTags.filter(y=>y!==t);
+      else if(!removedBuiltin.includes(t)) removedBuiltin.push(t);
+      selectedTags = selectedTags.filter(y=>y!==t);
+      renderTagbar(); renderGrid();
+    };
+  });
+  // 加号按钮
+  const addBtn = document.getElementById('tagAdd');
+  addBtn.onclick = ()=>addCustomTag();
+}
+
+function showInputDialog(title){
+  return prompt(title, '');
+}
+
+function addCustomTag(){
+  const tag = showInputDialog('输入厂商标签(如: 冰川)');
+  if(!tag || !tag.trim()) return;
+  const name = tag.trim();
+  // 去重: 已存在则仅选中, 不重复添加
+  if(customTags.includes(name) || BUILTIN_TAGS.includes(name)){
+    if(!selectedTags.includes(name)) selectedTags.push(name);
+    renderTagbar(); renderGrid();
+    return;
+  }
+  customTags.push(name);
+  selectedTags.push(name);
+  renderTagbar(); renderGrid();
+}
+
+function addTagBlock(){
+  const w=prompt('输入要屏蔽(隐藏)的厂商名或关键词，如：创巴；该厂商的游戏将全部隐藏，支持模糊匹配');
+  if(!w || !w.trim()) return;
+  blockedTags.push(w.trim());
+  renderTagbar(); renderGrid();
+}
+function blockMatches(it){
+  const s=companyOf(it);
+  return blockedTags.some(w=> w && s.includes(w.toLowerCase()));
+}
+function unblockTag(w){
+  blockedTags=blockedTags.filter(x=>x!==w);
+  renderTagbar(); renderGrid();
+}
+
+function getSortVal(it, key){  if(key==='reserve') return (it.reserve==null? -Infinity : it.reserve);
+  if(key==='rank') return it.rank;
+  const g=(DATA.growth[curPlat]||{})[it.title]||{};
+  const v = g[key]?g[key].delta:null;
+  return (v==null? -Infinity : v);
+}
+
+function sortRows(rows){
+  if(!sortKey || sortKey==='rank'){
+    if(sortKey==='rank') rows.sort((a,b)=>sortDir*(a.rank-b.rank));
+    return rows;
+  }
+  rows.sort((a,b)=>{
+    const av=getSortVal(a,sortKey), bv=getSortVal(b,sortKey);
+    return sortDir*(av-bv);
+  });
+  return rows;
+}
+
+function coDev(it){ // 取"主厂商/供应商"串: 有开发商用开发商; TapTap无dev则用法人全称(company_full), 再退简称
+  if(it.developer!=null && String(it.developer).trim()) return String(it.developer).trim();
+  const cf=(it.company_full||'').trim();
+  const cs=(it.company||'').trim();
+  // 全称优先(能看出是哪家公司/供应商), 简称仅兜底
+  return (cf||cs);
+}
+function coLine(it){ // 展示用: 厂商/供应商 + 发行 两段。全称优先, 能认出是哪家
+  const dev=coDev(it);
+  const op=(it.operator?String(it.operator):'').trim();
+  const same=(op && op===dev);
+  let lines=[];
+  if(dev) lines.push(dev);
+  if(op && !same) lines.push('发行：'+op);
+  if(lines.length===0) return '<td>-</td>';
+  if(lines.length===1) return `<td>${esc(lines[0])}</td>`;
+  // 两行: 主 + 发行
+  return `<td>${esc(lines[0])}<div class="co-sub">${esc(lines[1])}</div></td>`;
+}
+function coPlain(it){ // 纯文本(供搜索/匹配)
+  const dev=coDev(it);
+  const op=(it.operator?String(it.operator):'').trim();
+  return (dev+' '+(op&&op!==dev?op:'')).trim()||'-';
+}
+function coShort(it){ // 窄格卡片用: 返回单个最优公司串(中文优先)
+  const cand=[it.operator, it.developer, it.company_full, it.company].map(v=>v?String(v).trim():'').filter(Boolean);
+  if(!cand.length) return '-';
+  const hasCN=/[一-鿿]/;
+  const zh=cand.find(v=>hasCN.test(v));
+  return zh||cand[0];
+}
+
+function gameIconMini(it, plat){ // 徽标榜/增长榜小图标(~22px), 名称前
+  try{
+    const p=plat||(typeof curPlat!=='undefined'&&curPlat)||it.platform||'';
+    const aid=it.app_id||it.game_base_id;
+    let mk=(it.mk!=null?it.mk:null); if(Array.isArray(mk)) mk=mk[mk.length-1];  // all是数组, SERIES是字符串
+    const k=(mk!=null) ? (p+'|'+mk) : (((p.indexOf('TapTap')===0 || p==='B站游戏') && aid) ? (p+'|id:'+aid) : (p+'|t:'+it.title));
+    const u=(typeof ICONS!=='undefined' && ICONS[k]);
+    if(!u) return '';
+    return '<img class="icon-mini" src="'+u+'" referrerpolicy="no-referrer" loading="lazy" alt="">';
+  }catch(e){ return ''; }
+}
+function gameIcon(it){ // 游戏图标(表格): 30px, 名称前
+  try{
+    const p=(typeof curPlat!=='undefined'&&curPlat)||it.platform||'';
+    const aid=it.app_id||it.game_base_id;
+    let mk=(it.mk!=null?it.mk:null); if(Array.isArray(mk)) mk=mk[mk.length-1];  // all是数组, SERIES是字符串
+    const k=(mk!=null) ? (p+'|'+mk) : (((p.indexOf('TapTap')===0 || p==='B站游戏') && aid) ? (p+'|id:'+aid) : (p+'|t:'+it.title));
+    const u=(typeof ICONS!=='undefined' && ICONS[k]);
+    if(!u) return '';
+    return '<img class="icon-tt" src="'+u+'" referrerpolicy="no-referrer" loading="lazy" alt="">';
+  }catch(e){ return ''; }
+}
+function gameIconCard(it){ // 游戏图标(手机卡片): 36px, 排名后
+  try{
+    const p=(typeof curPlat!=='undefined'&&curPlat)||it.platform||'';
+    const aid=it.app_id||it.game_base_id;
+    let mk=(it.mk!=null?it.mk:null); if(Array.isArray(mk)) mk=mk[mk.length-1];  // all是数组, SERIES是字符串
+    const k=(mk!=null) ? (p+'|'+mk) : (((p.indexOf('TapTap')===0 || p==='B站游戏') && aid) ? (p+'|id:'+aid) : (p+'|t:'+it.title));
+    const u=(typeof ICONS!=='undefined' && ICONS[k]);
+    if(!u) return '';
+    return '<span class="mc-ico-wrap"><img class="mc-ico" src="'+u+'" referrerpolicy="no-referrer" loading="lazy" alt=""></span>';
+  }catch(e){ return ''; }
+}
+function renderGrid(){
+  // 手机版: 每次重渲染(切平台/筛选/搜索/排序)重置为首批显示; jumpExpand=true 时展开全部
+  mobileShown = (typeof jumpExpand!=='undefined' && jumpExpand) ? 99999 : ((typeof mobileLimit!=='undefined' && mobileLimit>0) ? mobileLimit : 5);
+  jumpExpand = false;
+  const items = DATA.all[curPlat]||[];
+  const numLabel = curPlat==='B站游戏' ? '已预约' : (curPlat==='TapTap新品' ? '下载/上市' : '预约量');
+  // 筛选
+  let rows = items.slice();
+  if(onlyTop20) rows = rows.filter(it=>it.rank!=null && it.rank<=20);
+  if(onlyNew) rows = rows.filter(it=>it.is_new);
+  if(selectedTags.length>0){
+    // 多标签 = 并集(命中任一标签)
+    rows = rows.filter(it=>selectedTags.some(tag=>matchesTag(it,tag)));
+  }
+  if(keyword){
+    const k=keyword;
+    rows = rows.filter(it=> (it.title||'').toLowerCase().includes(k) ||
+      companyOf(it).includes(k));
+  }
+  // 屏蔽(排除)优先：命中屏蔽词的厂商游戏硬性隐藏
+  if(blockedTags.length>0){
+    rows = rows.filter(it=>!blockMatches(it));
+  }
+  rows = sortRows(rows);
+  document.getElementById('meta').textContent =
+    `显示 ${rows.length} / ${items.length} 款（${onlyTop20?'Top20':'全部'}${onlyNew?'、今日新增':''}）｜ ${curPlat}${selectedTags.length?(' ｜ 标签: '+selectedTags.join('+')):''}${blockedTags.length?(' ｜ 🚫屏蔽 '+blockedTags.join('、')):''}${curPlat==='4399游戏盒'?' ｜ ⓘ 预约数精度 1000，增量 <500 显示为 ≈0':''}`;
+
+  const cols = [
+    {k:'rank',  label:'排名'},{k:null, label:'游戏'},{k:null, label:'厂商/发行'},
+    {k:'reserve', label:numLabel},{k:'daily', label:'+昨日'},
+    {k:'weekly', label:'+7日'},{k:'monthly', label:'+30日'},
+    {k:null, label:'评分'},{k:null, label:'详情'},
+  ];
+  document.getElementById('gridHead').innerHTML = cols.map(c=>{
+    if(!c.k) return `<th>${esc(c.label)}</th>`;
+    const sortable = ['reserve','daily','weekly','monthly','rank'].includes(c.k);
+    if(!sortable) return `<th class="num">${esc(c.label)}</th>`;
+    let arrow='', cls='num sortable';
+    if(sortKey===c.k){ arrow = sortDir===1?' ▲':' ▼'; cls+=' sorted'; }
+    return `<th class="${cls}" data-k="${c.k}" style="cursor:pointer" title="点我按${esc(c.label)}排序，再点切换升/降">${esc(c.label)}${arrow}</th>`;
+  }).join('');
+
+  document.querySelectorAll('#gridHead th.sortable').forEach(th=>{
+    th.onclick=()=>{
+      const k=th.dataset.k;
+      if(sortKey===k){ if(sortDir===1) sortDir=-1; else { sortKey=null; sortDir=1; } }
+      else { sortKey=k; sortDir=1; }
+      renderGrid();
+    };
+  });
+
+  if(!rows.length){
+    document.getElementById('gridBody').innerHTML='<tr><td colspan="9" class="empty">无匹配</td></tr>';
+    return;
+  }
+  document.getElementById('gridBody').innerHTML = rows.map(it=>{
+    // 详情跳转: 有link直接用; TapTap只有app_id无link -> 拼标准详情页 https://www.taptap.cn/app/<id>
+    let hl = it.link || (((curPlat||'').indexOf('TapTap')===0 && it.app_id) ? ('https://www.taptap.cn/app/'+it.app_id) : '');
+    let linkTd = hl ? `<td><a class="link" href="${esc(hl)}" target="_blank">查看 ↗</a></td>` : '<td>-</td>';
+    const g = (DATA.growth[curPlat]||{})[it.title]||{};
+    const arrow = (v)=>{
+      if(v===null||v===undefined) return '-';
+      if(v>0) return '▲ '+fmtDelta(v);
+      if(v<0) return '▼ '+fmtDelta(v);
+      // 4399 接口预约数精度 = 1000，增量为 0 只代表真实增长在 ±500 以内
+      if(curPlat==='4399游戏盒') return '<span class="zapprox" title="4399 接口预约数精度为 1000，实际增长小于 500 时显示为 0">≈0</span>';
+      return '0';
+    };
+    const body = `<td>${it.rank}</td>
+      <td>${gameIcon(it)}${it.is_new?'<span class="new-badge">新</span>':''}${esc(it.title)}</td>` + coLine(it) +
+      `<td class="num">${fmt(it.reserve)}</td>` +
+      `<td class="num ${deltaClass(g.daily?g.daily.delta:null)}">${arrow(g.daily?g.daily.delta:null)}</td>
+       <td class="num ${deltaClass(g.weekly?g.weekly.delta:null)}">${arrow(g.weekly?g.weekly.delta:null)}</td>
+       <td class="num ${deltaClass(g.monthly?g.monthly.delta:null)}">${arrow(g.monthly?g.monthly.delta:null)}</td>` +
+      `<td class="num">${esc(it.score||'-')}</td>${linkTd}`;
+    return `<tr>${body}</tr>`;
+  }).join('');
+  renderMobileCards(rows);
+}
+
+// ===== 手机竖屏: 卡片流 =====
+function renderMobileCards(rows){
+  const box = document.getElementById('mcards');
+  if(!box) return;
+  const numLabel = curPlat==='B站游戏' ? '已预约' : (curPlat==='TapTap新品' ? '下载/上市' : '预约量');
+  // 首屏批量 = mobileLimit(默认5); 可“加载更多”逐批显示, 直至全部
+  const step = (typeof mobileLimit!=='undefined' && mobileLimit>0) ? mobileLimit : 5;
+  const shownN = (typeof mobileShown!=='undefined' && mobileShown>0) ? mobileShown : step;
+  if(!rows.length){ box.innerHTML='<div class="mcard"><div class="mc-co">无匹配</div></div>'; return; }
+  const show = rows.slice(0, shownN);
+  const sgn = (v)=>{ if(v===null||v===undefined) return '<span class="v">-</span>'; if(v===0 && curPlat==='4399游戏盒') return '<span class="v zapprox" title="4399 接口精度 1000，实际增长 &lt;500">≈0</span>'; const c=v>0?'pos':(v<0?'neg':''); return '<span class="v '+c+'">'+(v>0?'▲ ':v<0?'▼ ':'')+fmtDelta(v)+'</span>'; };
+  let html = show.map(it=>{
+    const g = (DATA.growth[curPlat]||{})[it.title]||{};
+    let hl = it.link || (((curPlat||'').indexOf('TapTap')===0 && it.app_id) ? ('https://www.taptap.cn/app/'+it.app_id) : '');
+    return `<div class="mcard">
+      <div class="mc-row">
+        <span class="mc-rank">#${it.rank!=null?it.rank:'-'}</span>
+        ${gameIconCard(it)}
+        <div class="mc-info">
+          <div class="mc-name">${esc(it.title)}${it.is_new?'<span class="mc-new">新</span>':''}</div>
+          <div class="mc-co">${esc(companyOf(it)||'-')}</div>
+          <div class="mc-nums">
+            <span class="mc-num-item"><span class="k">${numLabel}</span> <span class="mc-res">${fmt(it.reserve)}</span></span>
+            <span class="mc-num-item"><span class="k">+昨日</span> ${sgn(g.daily?g.daily.delta:null)}</span>
+            <span class="mc-num-item"><span class="k">+7日</span> ${sgn(g.weekly?g.weekly.delta:null)}</span>
+            <span class="mc-num-item"><span class="k">+30日</span> ${sgn(g.monthly?g.monthly.delta:null)}</span>
+          </div>
+          ${hl?('<a class="mc-link" href="'+esc(hl)+'" target="_blank">查看详情 ↗</a>'):''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  // 两个并排按钮: 左=展开30个(一次+30), 右=全收起(回5个)
+  if(rows.length > shownN || shownN > step){
+    html += `<div class="mc-btns">`;
+    if(rows.length > shownN) html += `<button class="mc-more" id="mcMore">展开30个（已显 ${shownN} / 共 ${rows.length}）▾</button>`;
+    else html += `<span class="mc-alldone">已全部显示（${rows.length} 款）</span>`;
+    if(shownN > step) html += `<button class="mc-less" id="mcLess">收起 ▴</button>`;
+    html += `</div>`;
+  }
+  box.innerHTML = html;
+  const more = document.getElementById('mcMore');
+  if(more) more.onclick = ()=>{ mobileShown = (mobileShown||step) + 30; renderMobileCards(rows); };
+  const less = document.getElementById('mcLess');
+  if(less) less.onclick = ()=>{ mobileShown = step; renderMobileCards(rows); try{ document.getElementById('mcards').scrollIntoView({behavior:'smooth', block:'start'}); }catch(e){} };
+}
+
+const s = document.getElementById('search');
+s.oninput = ()=>{ keyword=s.value.trim().toLowerCase(); renderGrid(); };
+const newBtn = document.getElementById('newBtn');
+newBtn.onclick = ()=>{ onlyNew=!onlyNew; newBtn.classList.toggle('on',onlyNew); renderGrid(); };
+const top20Btn = document.getElementById('top20Btn');
+top20Btn.onclick = ()=>{ onlyTop20=!onlyTop20; top20Btn.classList.toggle('on',onlyTop20); renderGrid(); };
+// 手机版排序切换
+function setMobileSort(k){
+  if(k==='') { sortKey=null; sortDir=1; }
+  else { sortKey=k; sortDir=-1; }  // 总预约/增量 默认从高到低
+  document.querySelectorAll('#mobSort .msort-btn').forEach(b=>b.classList.toggle('on', (b.dataset.k||'')===(k||'')));
+  renderGrid();
+}
+document.querySelectorAll('#mobSort .msort-btn').forEach(b=>{
+  b.onclick = ()=>setMobileSort(b.dataset.k||'');
+});
+
+document.getElementById('note').textContent = (DATA.has_previous_days.length>1)
+  ? '历史数据 '+DATA.has_previous_days[0]+' ~ '+DATA.has_previous_days[DATA.has_previous_days.length-1]+' ｜ 点"+"添加厂商标签, 交互: 点标签多选, 右上角×删除, 再点"+"可重新添加'
+  : '仅今天数据';
+
+renderBrief();
+renderTabs();
+renderTagbar();
+renderGrid();
+
+// ===== 手机/电脑排版切换 =====
+function applyLayout(){
+  document.body.classList.toggle('mobile', mobileMode);
+  const mc = document.getElementById('mcards');
+  if(mc) mc.classList.toggle('on', mobileMode);
+  const ls = document.getElementById('layoutSwitch');
+  const lsp = document.getElementById('lsPc');
+  const lsm = document.getElementById('lsMob');
+  if(lsp) lsp.classList.toggle('on', !mobileMode);
+  if(lsm) lsm.classList.toggle('on', mobileMode);
+  const ml = document.getElementById('mobLimit');
+  if(ml) ml.style.display = mobileMode ? 'inline-block' : 'none';
+  const ms = document.getElementById('mobSort');
+  if(ms) ms.style.display = mobileMode ? 'flex' : 'none';
+  try{ localStorage.setItem('dashMobile', mobileMode?'1':'0'); }catch(e){}
+  renderGrid();
+  if(typeof renderBrief==='function') renderBrief();
+}
+(function initLayout(){
+  let saved=false; try{ saved = localStorage.getItem('dashMobile')==='1'; }catch(e){}
+  // 首次访问: 根据屏幕宽度自动选(窄屏用手机版)
+  if(localStorage.getItem('dashMobile')===null) { try{ saved = window.matchMedia('(max-width:760px)').matches; }catch(e){} }
+  mobileMode = saved;
+  const lsp = document.getElementById('lsPc');
+  const lsm = document.getElementById('lsMob');
+  if(lsp) lsp.onclick = ()=>{ if(mobileMode){ mobileMode=false; applyLayout(); } };
+  if(lsm) lsm.onclick = ()=>{ if(!mobileMode){ mobileMode=true; applyLayout(); } };
+  const ml = document.getElementById('mobLimit');
+  if(ml) ml.onchange = ()=>{ mobileLimit = parseInt(ml.value,10)||0; renderGrid(); };
+  applyLayout();
+})();
+
+// 表头提示带: 常驻, ✕关闭本条(仅当前页, 不依赖首次识别/存储)
+(function(){
+  const bar=document.getElementById('tipbar');
+  const x=document.getElementById('tipX');
+  if(bar&&x) x.onclick=()=>bar.remove();
+})();
+
+// 回到顶部
+const backtop = document.getElementById('backtop');
+window.addEventListener('scroll', ()=>{
+  if(window.scrollY > 300) backtop.style.display='flex';
+  else backtop.style.display='none';
+});
+backtop.onclick = ()=>window.scrollTo({top:0, behavior:'smooth'});
+
+
+// ===== 主题切换器 =====
+const THEMES = [
+  {key:'deep',   name:'🔵 星穹深蓝', dot:'#1c2333'},
+  {key:'paper',  name:'🟡 暖纸米白', dot:'#e6ddd0'},
+  {key:'graphite',name:'⚫ 霓虹石墨', dot:'#2fd4c0'},
+];
+function applyTheme(key){
+  document.body.classList.remove('theme-paper','theme-graphite');
+  if(key && key!=='deep') document.body.classList.add('theme-'+key);
+  const meta = THEMES.find(t=>t.key===key)||THEMES[0];
+  const nm = document.getElementById('themeName');
+  if(nm) nm.textContent = meta.name;
+  try{ localStorage.setItem('dashTheme', key||'deep'); }catch(e){}
+}
+(function initThemeMenu(){
+  let saved='deep'; try{ saved = localStorage.getItem('dashTheme')||'deep'; }catch(e){}
+  applyTheme(saved);
+  const sw = document.getElementById('themeSwitch');
+  const menu = document.createElement('div');
+  menu.className = 'theme-menu';
+  menu.innerHTML = THEMES.map(t=>`<div class="tm-item" data-k="${t.key}"><span class="dot" style="background:${t.dot}"></span>${t.name}</div>`).join('');
+  sw.appendChild(menu);
+  sw.addEventListener('click', (e)=>e.stopPropagation());
+  sw.onclick = (e)=>{ e.stopPropagation(); menu.classList.toggle('open'); };
+  menu.querySelectorAll('.tm-item').forEach(it=>{
+    it.onclick = (e)=>{ e.stopPropagation(); applyTheme(it.dataset.k); menu.classList.remove('open'); };
+  });
+  document.addEventListener('click', ()=>menu.classList.remove('open'));
+})();
+
+// ===== 顶部日期对比条: 选数据日 + 对比日 -> 跳转到 dash-<数据日>_cmp-<对比日>.html =====
+(function initDateSwitch(){
+  // 只保留有数据且可靠的日期(2026-09-10 起)
+  const AVAIL_ALL = ["2026-08-27", "2026-08-28", "2026-08-29", "2026-08-30", "2026-08-31", "2026-09-01", "2026-09-02", "2026-09-03", "2026-09-04", "2026-09-05", "2026-09-06", "2026-09-07", "2026-09-08", "2026-09-09", "2026-09-10", "2026-09-11", "2026-09-12", "2026-09-13", "2026-09-14", "2026-09-15", "2026-09-16", "2026-09-17", "2026-09-18", "2026-09-19", "2026-09-20", "2026-09-21", "2026-09-22", "2026-09-23", "2026-09-24", "2026-09-25", "2026-09-26", "2026-09-27", "2026-09-28", "2026-09-29", "2026-09-30", "2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-05", "2026-10-06", "2026-10-07", "2026-10-08", "2026-10-09", "2026-10-10", "2026-10-11", "2026-10-12", "2026-10-13", "2026-10-14", "2026-10-15", "2026-10-16", "2026-10-17", "2026-10-18", "2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22", "2026-10-23", "2026-10-24", "2026-10-25", "2026-10-26", "2026-10-27", "2026-10-28"];
+  const MIN_DATE = '2026-09-10';
+  const AVAIL = AVAIL_ALL.filter(d=>d>=MIN_DATE);
+  const SET = new Set(AVAIL);
+  let SERIES = DATA.date_series || {};
+  const CUR = "2026-10-28";
+  const dPick = document.getElementById('pickData');
+  const cPick = document.getElementById('pickCmp');
+  const dPop = document.getElementById('calData');
+  const cPop = document.getElementById('calCmp');
+  const goBtn = document.getElementById('dbGo');
+  if(!dPick || !cPick) return;
+
+  let selData = AVAIL.includes(CUR) ? CUR : AVAIL[AVAIL.length-1];
+  let i0 = AVAIL.indexOf(selData);
+  let selCmp = (i0>0) ? AVAIL[i0-1] : (AVAIL.length>1?AVAIL[0]:selData);
+  try{
+    const sp = new URLSearchParams(location.search);
+    if(sp.get('d') && SET.has(sp.get('d'))) selData = sp.get('d');
+    if(sp.get('c') && SET.has(sp.get('c'))) selCmp = sp.get('c');
+  }catch(e){}
+
+  const WEEK = ['日','一','二','三','四','五','六'];
+  const pad2 = n=>String(n).padStart(2,'0');
+  const iso = (y,m,d)=>`${y}-${pad2(m)}-${pad2(d)}`;
+
+  // 画一个月历; state: {v:当前年, sel, onPick, role}
+  //   role: 'data' | 'cmp'  —— 用于高亮 今日/昨日 角标
+  //   说明: 不再把「不符合方向约束」的日期整片置灰(那会导致只剩一天可选/全黑);
+  //         只要该日有数据就可以点, 选中后自动把另一侧调整到合法位置(见 normPair)。
+  function renderCal(pop, st){
+    const y = st.v.getFullYear(), m = st.v.getMonth();
+    const first = new Date(y, m, 1);
+    const startWd = first.getDay();
+    const daysInMonth = new Date(y, m+1, 0).getDate();
+    let html = `<div class="cal-head"><span class="cal-ym">${y}年${m+1}月</span>`+
+      `<span class="cal-nav"><button data-nav="py">‹‹</button><button data-nav="pm">‹</button>`+
+      `<button data-nav="nm">›</button><button data-nav="ny">››</button></span></div>`;
+    html += '<div class="cal-grid">';
+    WEEK.forEach(w=>html += `<div class="cal-wd">${w}</div>`);
+    for(let i=0;i<startWd;i++) html += '<div class="cal-day pad"></div>';
+    for(let d=1; d<=daysInMonth; d++){
+      const dstr = iso(y, m+1, d);
+      const has = SET.has(dstr);           // 只有「有数据」才可点, 不再受另一侧日期牵制
+      const isToday = (dstr===CUR);         // CUR = 最新数据日 = 「今日」
+      const isYest  = (dstr===prevAvail(CUR)); // 「昨日」= 今日的前一个有数据日
+      const cls = ['cal-day', has?'on':'off', dstr===st.sel?'sel':'', dstr===todayIso?'today':''].filter(Boolean).join(' ');
+      let badge = '';
+      if(isToday) badge = '<span class="cal-bdg">今日</span>';
+      else if(isYest) badge = '<span class="cal-bdg yest">昨日</span>';
+      html += `<div class="${cls}" ${has?`data-d="${dstr}"`:''}>${d}${badge}</div>`;
+    }
+    html += '</div>';
+    pop.innerHTML = html;
+    pop.querySelectorAll('[data-nav]').forEach(b=>b.onclick=(e)=>{
+      e.stopPropagation();
+      const k=b.dataset.nav;
+      if(k==='pm') st.v=new Date(y, m-1, 1);
+      else if(k==='nm') st.v=new Date(y, m+1, 1);
+      else if(k==='py') st.v=new Date(y-1, m, 1);
+      else if(k==='ny') st.v=new Date(y+1, m, 1);
+      renderCal(pop, st);
+    });
+    pop.querySelectorAll('.cal-day.on').forEach(el=>el.onclick=(e)=>{
+      e.stopPropagation(); st.onPick(el.dataset.d); pop.classList.remove('open'); renderCal(pop, st); updateLabels();
+    });
+  }
+  // 任一有数据日都可点选; 选中数据日后, 自动把对比日挪到它前一个有数据日;
+  // 选中对比日后, 若它 >= 数据日, 自动把数据日挪到它后一个有数据日。保证 数据日 > 对比日。
+  // 「前一个有数据日」/「后一个有数据日」
+  function prevAvail(d){ for(let i=AVAIL.length-1;i>=0;i--){ if(AVAIL[i]<d) return AVAIL[i]; } return null; }
+  function nextAvail(d){ for(let i=0;i<AVAIL.length;i++){ if(AVAIL[i]>d) return AVAIL[i]; } return null; }
+  const todayIso = (()=>{ const t=new Date(); return iso(t.getFullYear(), t.getMonth()+1, t.getDate()); })();
+  function normPair(){
+    if(selData && selCmp && selData>selCmp) return;
+    if(selCmp>=selData){ const nx=nextAvail(selCmp); if(nx) selData=nx; else { const pv=prevAvail(selCmp); if(pv) selCmp=pv; } }
+  }
+  const stD = { v: new Date(selData+'T00:00:00'), sel: selData, role:'data', onPick: (v)=>{ selData=v; const pv=prevAvail(v); if(pv) selCmp=pv; normPair(); } };
+  const stC = { v: new Date(selCmp+'T00:00:00'),  sel: selCmp,  role:'cmp',  onPick: (v)=>{ selCmp=v; if(selCmp>=selData){ const nx=nextAvail(selCmp); if(nx) selData=nx; } normPair(); } };
+
+  function updateLabels(){
+    stD.sel = selData; stC.sel = selCmp;
+    dPick.querySelector('.pv').textContent = selData.replace(/-/g,'.');
+    cPick.querySelector('.pv').textContent = selCmp.replace(/-/g,'.');
+    // 「数据/对比」标签按语义动态显示: 数据=最新数据日时叫「今日」, 对比=其前一数据日时叫「昨日」
+    const lbD = document.querySelector('#grpData .db-lb');
+    const lbC = document.querySelector('#grpCmp .db-lb');
+    if(lbD) { lbD.textContent = (selData===CUR) ? '今日' : '数据'; lbD.className = 'db-lb' + (selData===CUR?' today':''); }
+    if(lbC) { lbC.textContent = (selCmp===prevAvail(selData)) ? '昨日' : '对比'; lbC.className = 'db-lb' + (selCmp===prevAvail(selData)?' yest':''); }
+    const w = document.getElementById('dbWarn');
+    if(w){
+      const span = dayDiff(selData, selCmp);
+      if(span !== 1){
+        w.style.display = 'inline';
+        w.textContent = '⚠️ 当前为跳日对比（' + selCmp.slice(5) + '→' + selData.slice(5) + '，隔' + span + '天），已隐藏「今日简报/异常放量/今日新增」（这些只适用于相邻两日对比）';
+      } else { w.style.display = 'none'; }
+    }
+  }
+  const dayDiff = (a,b)=>{ return Math.round((new Date(a+'T00:00:00') - new Date(b+'T00:00:00'))/86400000); };
+  updateLabels();
+
+  const closeAll = ()=>{ dPop.classList.remove('open'); cPop.classList.remove('open'); };
+  dPick.onclick = (e)=>{ e.stopPropagation(); stD.v=new Date(selData+'T00:00:00'); renderCal(dPop, stD);
+    const open=dPop.classList.contains('open'); closeAll(); if(!open) dPop.classList.add('open'); };
+  cPick.onclick = (e)=>{ e.stopPropagation(); stC.v=new Date(selCmp+'T00:00:00'); renderCal(cPop, stC);
+    const open=cPop.classList.contains('open'); closeAll(); if(!open) cPop.classList.add('open'); };
+  dPop.onclick = (e)=>e.stopPropagation(); cPop.onclick = (e)=>e.stopPropagation();
+  document.addEventListener('click', closeAll);
+
+  // 客户端重算并重渲染
+  const apply = (d, c)=>{
+    const cur = SERIES[d] || {}, cmp = SERIES[c] || {};
+    const plats = Object.keys(cur);
+    const byPlat = {};
+    // is_new: 直接取服务端预算好的 it.nw (唯一真相源 queries.summary().is_new, 2026-09-23 修复)
+    // 旧版这里有一份 JS titleKey 重复实现, 与服务端 queries._title_key 不同步 → 已删除。
+    plats.forEach(p=>{ byPlat[p] = (cur[p]||[]).map(it=>({title:it.t, mk:it.mk, rank:it.rk, reserve:it.rv,
+      company_full:it.cf||it.co||'', company:it.cp||it.co||'', developer:it.dv||'', operator:it.op||'',
+      score:it.sc, reserve_type:it.rt, link:it.link||null, app_id:it.app_id||null,
+      is_new:!!it.nw})); });
+    DATA.all = byPlat;
+    DATA.top20 = {}; plats.forEach(p=>{ DATA.top20[p]=byPlat[p].slice(0,20); });
+    const growth = {}, dg = [];
+    // 取某探针日期前最近一个可用日期(<=target)
+    const prevOnOrBefore = (target)=>{ let best=null; for(let i=0;i<AVAIL.length;i++){ if(AVAIL[i]<=target) best=AVAIL[i]; else break; } return best; };
+    const dDay = (s)=>Math.round(new Date(s+'T00:00:00').getTime()/86400000);
+    const dNum = dDay(d);
+    const isoBack = (back)=>{ const t=dNum-back; return new Date(t*86400000).toISOString().slice(0,10); };
+    // 与服务端 per_game_growth 同口径: 周/月基准日 在 [d-back, d-back-2] 窗口内取最近可用
+    const refInWindow = (back)=>{ for(let off=0;off<3;off++){ const iso=isoBack(back+off); if(SERIES[iso]) return iso; } return null; };
+    const wRefD = refInWindow(7), mRefD = refInWindow(30);
+    const wRef = wRefD?SERIES[wRefD]:null, mRef = mRefD?SERIES[mRefD]:null;
+    // 配对用 mk(2026-09-29 方案C): TapTap/B站 的 mk 是 'id:xxx'(免疫改名); 快爆是 't:主干名'。
+    const mkOf = (it)=>(it.mk!=null?it.mk:it.t);
+    plats.forEach(p=>{
+      const cm={}; (cmp[p]||[]).forEach(it=>{ cm[mkOf(it)]=it.rv; });
+      const cw={}; if(wRef) (wRef[p]||[]).forEach(it=>{ cw[mkOf(it)]=it.rv; });
+      const cM={}; if(mRef) (mRef[p]||[]).forEach(it=>{ cM[mkOf(it)]=it.rv; });
+      (cur[p]||[]).forEach(it=>{
+        const mk=mkOf(it);
+        const then=cm[mk];
+        growth[p]=growth[p]||{};
+        const rec={};
+        if(then!=null&&it.rv!=null){ const delta=Math.round(it.rv-then);
+          rec.daily={delta:delta, pct: then?Math.round(delta/then*1000)/10:null, base_date:c};
+          dg.push({platform:p,title:it.t,mk:mk,now:it.rv,then:then,delta:delta,pct:then?Math.round(delta/then*1000)/10:null});
+        }
+        const tw=cw[mk];
+        if(tw!=null&&it.rv!=null){ const delta=Math.round(it.rv-tw); rec.weekly={delta:delta, pct: tw?Math.round(delta/tw*1000)/10:null, base_date:wRefD}; }
+        const tM=cM[mk];
+        if(tM!=null&&it.rv!=null){ const delta=Math.round(it.rv-tM); rec.monthly={delta:delta, pct: tM?Math.round(delta/tM*1000)/10:null, base_date:mRefD}; }
+        // growth 仍按【展示名】it.t 存(下游渲染直接用 it.title 查), 但配对是 mk。
+        if(Object.keys(rec).length) growth[p][it.t]=rec;
+      });
+    });
+    dg.sort((a,b)=>b.delta-a.delta);
+    DATA.growth=growth; DATA.daily_gain=dg; DATA.date=d; DATA.cmp_date=c;
+    // 是否相邻两日对比(只有此时「今日简报/异常放量/今日新增」才成立)
+    DATA.strict_pair = (dayDiff(d, c) === 1);
+    const hist={};
+    AVAIL.filter(x=>x<=d).reverse().slice(0,9).forEach(dd=>{
+      Object.keys(SERIES[dd]||{}).forEach(p=>{ (SERIES[dd][p]||[]).forEach(it=>{
+        const k=p+'|'+it.t; hist[k]=hist[k]||[]; hist[k].push({date:dd,reserve:it.rv}); }); });
+    });
+    DATA.reserve_hist=hist;
+    renderBrief(); renderTabs(); renderTagbar(); renderGrid();
+    const tsOfV=(x)=>{ const s=(DATA.snapshot_ts||{})[x]; return s?String(s).replace('T',' ').slice(0,19):(x||'—'); };
+    const el=document.querySelector('.leader-ts');
+    if(el) el.textContent='🕒 数据 '+tsOfV(d)+' ↔ 对比 '+tsOfV(c);
+    updateLabels();
+    history.replaceState(null,'','?d='+d+(c&&c!==d?('&c='+c):''));
+  };
+  const go = ()=>apply(selData, selCmp);
+  if(goBtn) goBtn.onclick = go;
+  // 首次加载一律用客户端同口径重算一次(与点「刷新」完全一致),
+  // 避免服务端注入的 reserve_hist 不全导致首次/重算两套结果不一样。
+  go();
+  window.__apply = apply; window.__setSeries = function(s){ SERIES = s; apply(selData, selCmp); }; window.__setSel = (d,c)=>{ if(d)selData=d; if(c)selCmp=c; updateLabels(); }
+})();
+
+};
+(function(){
+  var q = new URLSearchParams(location.search);
+  var DATE = q.get('d') || '2026-10-28';
+  var base = '../lab/data/' + DATE + '/';
+  function el(id){ return document.getElementById(id); }
+  function showSkel(msg){ if(el('skel')) { el('skel').style.display='flex'; el('skelMsg').textContent = msg||'加载中…'; } }
+  function hideSkel(){ if(el('skel')) el('skel').style.display='none'; }
+  var t0 = (performance && performance.now) ? performance.now() : Date.now();
+  window.__PERF__ = {coreMs: null};
+  showSkel('正在加载数据…');
+  function fetchJSON(u, tries){
+    tries = tries || 0;
+    // 兜底：Chrome 的 force-cache 可能命中历史缓存的失败/404 响应 -> 改用破缓存参数重试
+    var uu = (tries>0) ? (u + (u.indexOf('?')>=0?'&':'?') + 'cb=' + Date.now() + '_' + tries) : u;
+    return fetch(uu, {cache: tries>0 ? 'no-store' : 'force-cache'})
+      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+      .catch(function(e){ if(tries < 2) return fetchJSON(u, tries+1); throw e; });
+  }
+  fetchJSON(base + 'core.json?b=1793153733')
+    .then(function(b){
+      var t1 = (performance && performance.now) ? performance.now() : Date.now();
+      window.__PERF__.coreMs = Math.round(t1-t0);
+      window.__BOOT__(b.DATA, b.ICONS, b.TESTNEWS, b.TESTTIMELINE, b.TESTGANT, b.PLATFORMS, b.BUILTIN_TAGS);
+      hideSkel();
+      // 后台加载全量历史（不阻塞首屏）
+      fetchJSON(base + 'series.json?b=1793153733')
+        .then(function(s){ if(s && window.__setSeries){ window.__setSeries(s); window.__PERF__.seriesDone = true; } })
+        .catch(function(e){ console.warn('series load failed', e); });
+    })
+    .catch(function(e){
+      showSkel('加载失败: ' + e.message + '（若为旧缓存，请 Ctrl+F5 强刷）');
+      console.error(e);
+    });
+})();
+</script>
+</body></html>
