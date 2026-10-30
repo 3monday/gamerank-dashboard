@@ -308,7 +308,7 @@ function setupDates(){
   const q = new URLSearchParams(location.search);
   const date = q.get('d') || '2026-10-30';
   const sess = q.get('s') || 'am';
-  const VER = '20261030095040';
+  const VER = '20261030162018';
   curDate = date; curSess = sess;
   // 顶部导航带日期
   try{ $('#navDash').href = `index.html?d=${date}`; }catch(e){}
