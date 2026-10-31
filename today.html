@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>新游日历 · 2026-10-30</title>
+<title>新游日历 · 2026-10-31</title>
 <style>
   :root{
     --bg:#0c1220; --card:#151d2e; --card2:#1b2540; --line:#26324a; --line2:#1e2a40;
@@ -157,10 +157,10 @@
 </head>
 <body>
 <div class="topnav">
-  <a href="index.html?d=2026-10-30" id="navDash">📊 预约榜</a>
-  <a href="today.html?d=2026-10-30" class="active" id="navToday">🆕 新游日历</a>
+  <a href="index.html?d=2026-10-31" id="navDash">📊 预约榜</a>
+  <a href="today.html?d=2026-10-31" class="active" id="navToday">🆕 新游日历</a>
   <span class="navsp"></span>
-  <span class="navdate">2026-10-30</span>
+  <span class="navdate">2026-10-31</span>
 </div>
 <div class="wrap">
   <div class="datebar">
@@ -306,9 +306,9 @@ function setupDates(){
 
 (async function(){
   const q = new URLSearchParams(location.search);
-  const date = q.get('d') || '2026-10-30';
+  const date = q.get('d') || '2026-10-31';
   const sess = q.get('s') || 'am';
-  const VER = '20261030162018';
+  const VER = '20261031095014';
   curDate = date; curSess = sess;
   // 顶部导航带日期
   try{ $('#navDash').href = `index.html?d=${date}`; }catch(e){}
