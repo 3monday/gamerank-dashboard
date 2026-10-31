@@ -47,7 +47,7 @@
   }
 })();
 </script>
-<title>游戏预约榜 · 2026-10-30</title>
+<title>游戏预约榜 · 2026-10-31</title>
 <style>
   :root {
     --bg:#0f1420; --bg2:#1c2333; --bg3:#243049; --head:#151b2a;
@@ -486,8 +486,8 @@
 
 
 <div class="topnav">
-  <a href="index.html?d=2026-10-30" class="active">📊 预约榜</a>
-  <a href="today.html?d=2026-10-30">🆕 新游日历</a>
+  <a href="index.html?d=2026-10-31" class="active">📊 预约榜</a>
+  <a href="today.html?d=2026-10-31">🆕 新游日历</a>
 </div>
 <style>
 .topnav{max-width:1220px;margin:0 auto 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -1572,12 +1572,12 @@ function applyTheme(key){
 // ===== 顶部日期对比条: 选数据日 + 对比日 -> 跳转到 dash-<数据日>_cmp-<对比日>.html =====
 (function initDateSwitch(){
   // 只保留有数据且可靠的日期(2026-09-10 起)
-  const AVAIL_ALL = ["2026-08-27", "2026-08-28", "2026-08-29", "2026-08-30", "2026-08-31", "2026-09-01", "2026-09-02", "2026-09-03", "2026-09-04", "2026-09-05", "2026-09-06", "2026-09-07", "2026-09-08", "2026-09-09", "2026-09-10", "2026-09-11", "2026-09-12", "2026-09-13", "2026-09-14", "2026-09-15", "2026-09-16", "2026-09-17", "2026-09-18", "2026-09-19", "2026-09-20", "2026-09-21", "2026-09-22", "2026-09-23", "2026-09-24", "2026-09-25", "2026-09-26", "2026-09-27", "2026-09-28", "2026-09-29", "2026-09-30", "2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-05", "2026-10-06", "2026-10-07", "2026-10-08", "2026-10-09", "2026-10-10", "2026-10-11", "2026-10-12", "2026-10-13", "2026-10-14", "2026-10-15", "2026-10-16", "2026-10-17", "2026-10-18", "2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22", "2026-10-23", "2026-10-24", "2026-10-25", "2026-10-26", "2026-10-27", "2026-10-28", "2026-10-29", "2026-10-30"];
+  const AVAIL_ALL = ["2026-08-27", "2026-08-28", "2026-08-29", "2026-08-30", "2026-08-31", "2026-09-01", "2026-09-02", "2026-09-03", "2026-09-04", "2026-09-05", "2026-09-06", "2026-09-07", "2026-09-08", "2026-09-09", "2026-09-10", "2026-09-11", "2026-09-12", "2026-09-13", "2026-09-14", "2026-09-15", "2026-09-16", "2026-09-17", "2026-09-18", "2026-09-19", "2026-09-20", "2026-09-21", "2026-09-22", "2026-09-23", "2026-09-24", "2026-09-25", "2026-09-26", "2026-09-27", "2026-09-28", "2026-09-29", "2026-09-30", "2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-05", "2026-10-06", "2026-10-07", "2026-10-08", "2026-10-09", "2026-10-10", "2026-10-11", "2026-10-12", "2026-10-13", "2026-10-14", "2026-10-15", "2026-10-16", "2026-10-17", "2026-10-18", "2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22", "2026-10-23", "2026-10-24", "2026-10-25", "2026-10-26", "2026-10-27", "2026-10-28", "2026-10-29", "2026-10-30", "2026-10-31"];
   const MIN_DATE = '2026-09-10';
   const AVAIL = AVAIL_ALL.filter(d=>d>=MIN_DATE);
   const SET = new Set(AVAIL);
   let SERIES = DATA.date_series || {};
-  const CUR = "2026-10-30";
+  const CUR = "2026-10-31";
   const dPick = document.getElementById('pickData');
   const cPick = document.getElementById('pickCmp');
   const dPop = document.getElementById('calData');
@@ -1755,9 +1755,9 @@ function applyTheme(key){
 };
 (function(){
   var q = new URLSearchParams(location.search);
-  var DATE = q.get('d') || '2026-10-30';
+  var DATE = q.get('d') || '2026-10-31';
   var base = 'data/';
-  window.__DATA_BASES__ = ["https://gcore.jsdelivr.net/gh/3monday/gamerank-dashboard@e9f01d1424923511bf462161663c6b3f1a567861/data/"];
+  window.__DATA_BASES__ = ["https://gcore.jsdelivr.net/gh/3monday/gamerank-dashboard@d23ee1aa8191fd47d4a1152ed3c1db82010e78d7/data/"];
   // 正式版会注入 window.__DATA_BASES__（jsDelivr 固定 commit）；失败自动回退同源
   var CDN_BASES = (window.__DATA_BASES__ || []).slice(0);
   function el(id){ return document.getElementById(id); }
@@ -1795,14 +1795,14 @@ function applyTheme(key){
     }
     return next();
   }
-  loadJSON('core.json?b=1793324227')
+  loadJSON('core.json?b=1793410619')
     .then(function(b){
       var t1 = (performance && performance.now) ? performance.now() : Date.now();
       window.__PERF__.coreMs = Math.round(t1-t0);
       window.__BOOT__(b.DATA, b.ICONS, b.TESTNEWS, b.TESTTIMELINE, b.TESTGANT, b.PLATFORMS, b.BUILTIN_TAGS);
       hideSkel();
       // 后台加载全量历史（不阻塞首屏）
-      loadJSON('series.json?b=1793324227')
+      loadJSON('series.json?b=1793410619')
         .then(function(s){ if(s && window.__setSeries){ window.__setSeries(s); window.__PERF__.seriesDone = true; } })
         .catch(function(e){ console.warn('series load failed', e); });
     })
