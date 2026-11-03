@@ -1757,6 +1757,7 @@ function applyTheme(key){
   var q = new URLSearchParams(location.search);
   var DATE = q.get('d') || '2026-11-03';
   var base = 'data/';
+  window.__DATA_BASES__ = ["https://gcore.jsdelivr.net/gh/3monday/gamerank-dashboard@61cac5c303bb0f63e4e1b16a31ba281c4ff6dfb1/data/"];
   // 正式版会注入 window.__DATA_BASES__（jsDelivr 固定 commit）；失败自动回退同源
   var CDN_BASES = (window.__DATA_BASES__ || []).slice(0);
   function el(id){ return document.getElementById(id); }
