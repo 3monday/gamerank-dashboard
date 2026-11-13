@@ -175,7 +175,7 @@
     <h1>🆕 TapTap 新游日历</h1>
     <span class="pill" id="meta">加载中…</span>
   </div>
-  <div class="hint">今天新开预约 / 首发 / 开测的游戏 · 点卡片跳 TapTap 详情 · 按类型筛选 + 搜索（游戏名/发行/供应商）· 🏢 只看公司（研发/发行/供应商含「公司」）</div>
+  <div class="hint">今天新开预约 / 首发 / 开测的游戏 · 点卡片跳 TapTap 详情 · 按类型筛选 + 搜索（游戏名/厂商/发行/供应商）· 🏢 只看公司（研发/发行/供应商含「公司」）</div>
 
   <div class="toolbar">
     <div class="chips">
@@ -187,7 +187,7 @@
       <span class="chip" data-cat="workshop">🏭 TAP创意工坊<span class="n" id="n-workshop"></span></span>
     </div>
     <span class="spacer"></span>
-    <div class="searchwrap"><span class="sic">🔍</span><input class="search" id="q" placeholder="搜游戏名 / 发行 / 供应商（如：深圳）"></div>
+    <div class="searchwrap"><span class="sic">🔍</span><input class="search" id="q" placeholder="搜游戏名 / 厂商 / 发行 / 供应商（如：深圳）"></div>
     <span class="tog" id="onlyScore">只看有评分</span>
     <span class="tog" id="onlyCo" title="只看研发/发行/供应商含「公司」二字的游戏">🏢 只看公司</span>
     <select class="sel" id="sort">
@@ -230,9 +230,9 @@ function baseList(){
 
 function render(){
   let list = baseList();
-  // 关键词搜索：只匹配 游戏名 + 发行 + 供应商（研发/厂商不参与）
+  // 关键词搜索：匹配 游戏名 + 厂商 + 发行 + 供应商
   if (kw) list = list.filter(x=>{
-    const hay = [x.title||'', (x.pub||[]).join(' '), x.supplier||''].join(' ').toLowerCase();
+    const hay = [x.title||'', (x.dev||[]).join(' '), (x.pub||[]).join(' '), x.supplier||''].join(' ').toLowerCase();
     return hay.includes(kw);
   });
   if (onlyScore) list = list.filter(x=>x.score && +x.score>0);
@@ -254,7 +254,7 @@ function render(){
     if (dv) {
       devHtml += `<div class="cname" title="厂商：${esc(dv)}"><span class="dlb">厂商</span>${esc(dv)}</div>`;
     }
-    if (sp) {
+    if (sp && sp !== dv) {   // 供应商与厂商相同则不重复显示
       devHtml += `<div class="cname" title="供应商：${esc(sp)}"><span class="dlb sup">供应商</span>${esc(sp)}</div>`;
     }
     if (pb) devHtml += `<div class="cname" title="发行：${esc(pb)}"><span class="dlb pub">发行</span>${esc(pb)}</div>`;
@@ -320,7 +320,7 @@ function setupDates(){
   const q = new URLSearchParams(location.search);
   const date = q.get('d') || '2026-11-13';
   const sess = q.get('s') || 'am';
-  const VER = '20261113162106';
+  const VER = '20261113170642';
   curDate = date; curSess = sess;
   // 顶部导航带日期
   try{ $('#navDash').href = `index.html?d=${date}`; }catch(e){}
