@@ -175,7 +175,7 @@
     <h1>🆕 TapTap 新游日历</h1>
     <span class="pill" id="meta">加载中…</span>
   </div>
-  <div class="hint">今天新开预约 / 首发 / 开测的游戏 · 点卡片跳 TapTap 详情 · 按类型筛选 + 搜索（游戏名/发行/供应商）· 🀄 只看中文发行/研发</div>
+  <div class="hint">今天新开预约 / 首发 / 开测的游戏 · 点卡片跳 TapTap 详情 · 按类型筛选 + 搜索（游戏名/发行/供应商）· 🏢 只看公司（研发/发行含「公司」）</div>
 
   <div class="toolbar">
     <div class="chips">
@@ -189,7 +189,7 @@
     <span class="spacer"></span>
     <div class="searchwrap"><span class="sic">🔍</span><input class="search" id="q" placeholder="搜游戏名 / 发行 / 供应商（如：深圳）"></div>
     <span class="tog" id="onlyScore">只看有评分</span>
-    <span class="tog" id="onlyCn" title="只看发行/研发/供应商含中文的游戏（过滤纯拼音/英文厂商，如 wulinghui）">🀄 只看中文发行/研发</span>
+    <span class="tog" id="onlyCo" title="只看研发/发行含「公司」二字的游戏">🏢 只看公司</span>
     <select class="sel" id="sort">
       <option value="default">排序：默认</option>
       <option value="score">评分 高→低</option>
@@ -207,15 +207,16 @@
 
 <script>
 const $ = (s)=>document.querySelector(s);
-let DATA = [], cat = 'all', kw = '', onlyScore = false, onlyCn = false, sortBy = 'default';  // 无默认选中标签：初始=全部
+let DATA = [], cat = 'all', kw = '', onlyScore = false, onlyCo = false, sortBy = 'default';  // 无默认选中标签：初始=全部
 const CATNAME = {release:'首发', test:'测试中', reserve:'新开预约', other:'其它', workshop:'创意工坊'};
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
-// 是否含中文字符（供应商/研发/发行 任一含中文即算）
-function hasCn(x){
-  const s = [x.supplier||'', (x.pub||[]).join(' '), (x.dev||[]).join(' ')].join(' ');
-  return /[一-鿿]/.test(s);
+// 研发(dev)或发行(pub)含「公司」即保留
+function hasCompany(x){
+  const dev = (x.dev||[]).join(' ');
+  const pub = (x.pub||[]).join(' ');
+  return dev.includes('公司') || pub.includes('公司');
 }
 
 // 当前分类下的基础列表
@@ -234,7 +235,7 @@ function render(){
     return hay.includes(kw);
   });
   if (onlyScore) list = list.filter(x=>x.score && +x.score>0);
-  if (onlyCn) list = list.filter(hasCn);
+  if (onlyCo) list = list.filter(hasCompany);
   if (sortBy==='score') list.sort((a,b)=>(+b.score||0)-(+a.score||0));
   else if (sortBy==='name') list.sort((a,b)=>(a.title||'').localeCompare(b.title||'','zh'));
   else list.sort((a,b)=>(b.level||0)-(a.level||0)); // 默认: 重点(level=1)置顶
@@ -279,7 +280,7 @@ document.querySelectorAll('.chip').forEach(ch=>{
 });
 $('#q').oninput = (e)=>{ kw = e.target.value.trim().toLowerCase(); render(); };
 $('#onlyScore').onclick = ()=>{ onlyScore = !onlyScore; $('#onlyScore').classList.toggle('on', onlyScore); render(); };
-$('#onlyCn').onclick = ()=>{ onlyCn = !onlyCn; $('#onlyCn').classList.toggle('on', onlyCn); render(); };
+$('#onlyCo').onclick = ()=>{ onlyCo = !onlyCo; $('#onlyCo').classList.toggle('on', onlyCo); render(); };
 $('#sort').onchange = (e)=>{ sortBy = e.target.value; render(); };
 
 // ---------- 日期选择 ----------
@@ -318,7 +319,7 @@ function setupDates(){
   const q = new URLSearchParams(location.search);
   const date = q.get('d') || '2026-11-13';
   const sess = q.get('s') || 'am';
-  const VER = '20261113100739';
+  const VER = '20261113101449';
   curDate = date; curSess = sess;
   // 顶部导航带日期
   try{ $('#navDash').href = `index.html?d=${date}`; }catch(e){}
