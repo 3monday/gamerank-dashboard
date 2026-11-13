@@ -248,11 +248,12 @@ function render(){
     const pb = (x.pub||[]).join('、');
     const sp = x.supplier || '';
     let devHtml = '';
-    // 供应商优先(没供应商才回退显示研发/厂商)
+    // 厂商 + 供应商 都显示（厂商=研发昵称，供应商=法定主体）
+    if (dv) {
+      devHtml += `<div class="cname" title="厂商：${esc(dv)}"><span class="dlb">厂商</span>${esc(dv)}</div>`;
+    }
     if (sp) {
       devHtml += `<div class="cname" title="供应商：${esc(sp)}"><span class="dlb sup">供应商</span>${esc(sp)}</div>`;
-    } else if (dv) {
-      devHtml += `<div class="cname" title="厂商：${esc(dv)}"><span class="dlb">厂商</span>${esc(dv)}</div>`;
     }
     if (pb) devHtml += `<div class="cname" title="发行：${esc(pb)}"><span class="dlb pub">发行</span>${esc(pb)}</div>`;
     return `<a class="card cat-${x.cat}" href="${esc(x.link)}" target="_blank" rel="noopener">${top}${img}
@@ -317,7 +318,7 @@ function setupDates(){
   const q = new URLSearchParams(location.search);
   const date = q.get('d') || '2026-11-13';
   const sess = q.get('s') || 'am';
-  const VER = '20261113095014';
+  const VER = '20261113100739';
   curDate = date; curSess = sess;
   // 顶部导航带日期
   try{ $('#navDash').href = `index.html?d=${date}`; }catch(e){}
