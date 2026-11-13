@@ -175,7 +175,7 @@
     <h1>🆕 TapTap 新游日历</h1>
     <span class="pill" id="meta">加载中…</span>
   </div>
-  <div class="hint">今天新开预约 / 首发 / 开测的游戏 · 点卡片跳 TapTap 详情 · 按类型筛选 + 搜索（游戏名/发行/供应商）· 🏢 只看公司（研发/发行含「公司」）</div>
+  <div class="hint">今天新开预约 / 首发 / 开测的游戏 · 点卡片跳 TapTap 详情 · 按类型筛选 + 搜索（游戏名/发行/供应商）· 🏢 只看公司（研发/发行/供应商含「公司」）</div>
 
   <div class="toolbar">
     <div class="chips">
@@ -189,7 +189,7 @@
     <span class="spacer"></span>
     <div class="searchwrap"><span class="sic">🔍</span><input class="search" id="q" placeholder="搜游戏名 / 发行 / 供应商（如：深圳）"></div>
     <span class="tog" id="onlyScore">只看有评分</span>
-    <span class="tog" id="onlyCo" title="只看研发/发行含「公司」二字的游戏">🏢 只看公司</span>
+    <span class="tog" id="onlyCo" title="只看研发/发行/供应商含「公司」二字的游戏">🏢 只看公司</span>
     <select class="sel" id="sort">
       <option value="default">排序：默认</option>
       <option value="score">评分 高→低</option>
@@ -212,11 +212,12 @@ const CATNAME = {release:'首发', test:'测试中', reserve:'新开预约', oth
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
-// 研发(dev)或发行(pub)含「公司」即保留
+// 研发(dev)/发行(pub)/供应商(supplier) 任一含「公司」即保留
 function hasCompany(x){
   const dev = (x.dev||[]).join(' ');
   const pub = (x.pub||[]).join(' ');
-  return dev.includes('公司') || pub.includes('公司');
+  const sup = x.supplier || '';
+  return dev.includes('公司') || pub.includes('公司') || sup.includes('公司');
 }
 
 // 当前分类下的基础列表
@@ -319,7 +320,7 @@ function setupDates(){
   const q = new URLSearchParams(location.search);
   const date = q.get('d') || '2026-11-13';
   const sess = q.get('s') || 'am';
-  const VER = '20261113101449';
+  const VER = '20261113102648';
   curDate = date; curSess = sess;
   // 顶部导航带日期
   try{ $('#navDash').href = `index.html?d=${date}`; }catch(e){}
