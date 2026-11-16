@@ -88,8 +88,8 @@
   .datebar .dnav.dis{opacity:.35;cursor:not-allowed}
   .datebar select{padding:7px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card2);color:var(--tx);font-size:13.5px;font-weight:700;outline:none;cursor:pointer;font-variant-numeric:tabular-nums}
   .datebar select:focus{border-color:var(--accent)}
-  .datebar .dinfo{font-size:12px;color:var(--tx3);margin-left:auto}
-  .datebar .fnote{font-size:11.5px;color:var(--tx3);white-space:nowrap;border-left:1px solid var(--line);padding-left:10px}
+  .datebar .dinfo{font-size:12px;color:var(--tx3)}
+  .datebar #refresh{margin-left:auto}
   .datebar .dtag{font-size:11.5px;color:var(--warn,#f0a020);font-weight:700}
   /* 上午/下午切换 */
   .sess{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;flex:none}
@@ -171,7 +171,6 @@
     <span id="dToday" class="dnav">回到今天</span>
     <span class="sess" id="sessTog"><span class="stog" id="sAm">上午</span><span class="stog" id="sPm">下午</span></span>
     <span class="dnav" id="refresh" title="重新加载当前时段的最新数据">🔄 刷新</span>
-    <span class="fnote" title="每天这些时刻自动抓取，点刷新可看之后的最新数据">抓取 09:50·10:20·11:50·14:30·16:20</span>
     <span class="dinfo" id="dInfo"></span>
   </div>
   <div class="hd">
@@ -205,6 +204,7 @@
 
   <div class="foot">
     数据来源：TapTap 原生日历「今日游戏」· <a style="color:var(--accent)" href="https://www.taptap.cn/app-calendar" target="_blank" rel="noopener">打开 TapTap 原页</a><br>
+    ⏱ 每日自动抓取 09:50 / 10:20 / 11:50 / 14:30 / 16:20（点顶部「🔄 刷新」看最新）<br>
     ⚡ lab 实验榜 · 仅读取 TapTap 公开接口，未改动任何线上文件
   </div>
 </div>
@@ -322,7 +322,7 @@ function setupDates(){
   setupSess();
 }
 
-let VER = '20261116133510';
+let VER = '20261116134923';
 async function loadData(bust){
   try{
     const v = bust || VER;
