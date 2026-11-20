@@ -175,7 +175,7 @@
 <body>
 <div class="topnav">
   <a href="index.html?d=2026-11-20" id="navDash">📊 预约榜</a>
-  <a href="today.html?d=2026-11-20" id="navToday">🆕 新游日历</a>
+  <a href="today.html?d=2026-11-20" id="navToday">🆕 Tap新游日历</a>
   <a href="hb.html?d=2026-11-20" class="active" id="navHb">🎯 快爆精选</a>
   <span class="navsp"></span>
   <span class="navdate">2026-11-20</span>
@@ -193,12 +193,12 @@
     <span class="pill" id="meta">加载中…</span>
   </div>
   <div class="hint">好游快爆「好游抢鲜玩」人工精选 · 点卡片跳快爆详情<br>
-    🚀 即将上线 / 🧪 即将测试 / 🔄 即将更新 / 🔥 提前预热（有日期但不是今天就上线的直进这里）/ ⭐ 独家</div>
+    🚀 今日上线 / 🧪 今日测试 / 🔄 今日更新 / 🔥 提前预热（有日期但不是今天就上线的直进这里）/ ⭐ 独家</div>
   <div class="toolbar">
     <div class="chips">
-      <span class="chip on" data-cat="release">🚀 即将上线<span class="n" id="n-release"></span></span>
-      <span class="chip" data-cat="test">🧪 即将测试<span class="n" id="n-test"></span></span>
-      <span class="chip" data-cat="update">🔄 即将更新<span class="n" id="n-update"></span></span>
+      <span class="chip on" data-cat="release">🚀 今日上线<span class="n" id="n-release"></span></span>
+      <span class="chip" data-cat="test">🧪 今日测试<span class="n" id="n-test"></span></span>
+      <span class="chip" data-cat="update">🔄 今日更新<span class="n" id="n-update"></span></span>
       <span class="chip" data-cat="preheat">🔥 提前预热<span class="n" id="n-preheat"></span></span>
       <span class="chip" data-cat="exclusive">⭐ 独家<span class="n" id="n-exclusive"></span></span>
       <span class="chip" data-cat="all">🎮 全部<span class="n" id="n-all"></span></span>
@@ -226,7 +226,7 @@
 <script>
 const $ = (s)=>document.querySelector(s);
 let DATA = [], cat = 'release', kw = '', onlyScore = false, onlyCo = false, sortBy = 'default';
-const CATNAME = {release:'即将上线', test:'即将测试', update:'即将更新', exclusive:'独家', preheat:'提前预热', other:'其它'};
+const CATNAME = {release:'今日上线', test:'今日测试', update:'今日更新', exclusive:'独家', preheat:'提前预热', other:'其它'};
 
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function hasCompany(x){
@@ -320,7 +320,7 @@ function setupDates(){
   if(info) info.textContent = `已收录 ${INDEX.length} 天（${INDEX[0]} ~ ${INDEX[INDEX.length-1]}）`;
 }
 
-let VER = '20261120113427';
+let VER = '20261120114208';
 async function loadData(){
   try{
     const r = await fetch(`data/${curDate}/hb_today.json?v=${VER}`, {cache:'no-cache'});
