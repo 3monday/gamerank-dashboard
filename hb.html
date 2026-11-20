@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>好游快爆 精选日历 · 2026-11-20</title>
+<style>
+
+  :root{
+    --bg:#0c1220; --card:#151d2e; --card2:#1b2540; --line:#26324a; --line2:#1e2a40;
+    --tx:#e8ecf4; --tx2:#93a0b5; --tx3:#67748c; --title:#fff;
+    --accent:#4f8cff; --release:#2fbf71; --test:#f0a020; --reserve:#2fb3e8; --other:#7286a3; --workshop:#9a6cf0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:radial-gradient(1200px 600px at 20% -10%, #16233c 0%, var(--bg) 55%);background-attachment:fixed;color:var(--tx);padding:20px 18px 40px;-webkit-text-size-adjust:100%;min-height:100vh}
+  .wrap{max-width:1280px;margin:0 auto}
+  /* 顶部导航 */
+  .topnav{max-width:1280px;margin:0 auto 18px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .topnav a{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border:1px solid var(--line);border-radius:11px;background:var(--card);color:var(--tx2);text-decoration:none;font-size:14px;font-weight:600;transition:.15s}
+  .topnav a:hover{border-color:var(--accent);color:var(--tx);transform:translateY(-1px)}
+  .topnav a.active{background:linear-gradient(180deg,#5a95ff,#3f7dff);color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(79,140,255,.35)}
+  .topnav .navsp{flex:1}
+  .topnav .navdate{font-size:12.5px;color:var(--tx3);font-variant-numeric:tabular-nums}
+
+  .hd{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+  .hd h1{font-size:22px;color:var(--title);letter-spacing:.3px}
+  .hd .pill{margin-left:auto;font-size:11.5px;color:var(--tx3);background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 11px}
+  .hint{color:var(--tx3);font-size:12px;margin:0 0 16px}
+
+  /* 工具栏面板 */
+  .toolbar{background:linear-gradient(180deg,var(--card),#121a2b);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:20px;display:flex;gap:14px;flex-wrap:wrap;align-items:center;box-shadow:0 4px 18px rgba(0,0,0,.18)}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .chip{display:inline-flex;align-items:center;gap:7px;padding:8px 15px;border:1px solid var(--line);border-radius:11px;background:var(--card2);color:var(--tx2);font-size:13.5px;font-weight:600;cursor:pointer;white-space:nowrap;transition:.14s}
+  .chip:hover{border-color:var(--accent);color:var(--tx)}
+  .chip .n{opacity:.7;font-size:11.5px;font-weight:700;background:rgba(255,255,255,.08);border-radius:7px;padding:1px 7px;margin-left:1px}
+  .chip.on{color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(0,0,0,.28)}
+  .chip.on[data-cat=all]{background:linear-gradient(180deg,#5a95ff,#3f7dff)}
+  .chip.on[data-cat=release]{background:linear-gradient(180deg,#35c97c,#22a862)}
+  .chip.on[data-cat=test]{background:linear-gradient(180deg,#f6ad30,#e0900d);color:#2a1c02}
+  .chip.on[data-cat=reserve]{background:linear-gradient(180deg,#3bbdf0,#2199cc);color:#032432}
+  .chip.on[data-cat=other]{background:linear-gradient(180deg,#8299b8,#63788f)}
+  .chip.on[data-cat=workshop]{background:linear-gradient(180deg,#a97ef5,#8a5ce6)}
+  .chip.on .n{background:rgba(255,255,255,.22)}
+  .chip[data-cat=workshop]{border-color:#3d3160;color:#c3b1f8}
+  .vdiv{width:1px;align-self:stretch;background:var(--line);margin:0 2px}
+  .spacer{flex:1;min-width:8px}
+  .searchwrap{position:relative;display:inline-flex;align-items:center}
+  .searchwrap .sic{position:absolute;left:11px;font-size:13px;opacity:.6}
+  .search{padding:8px 13px 8px 32px;border:1px solid var(--line);border-radius:11px;background:var(--card2);color:var(--tx);font-size:13px;min-width:230px;max-width:320px;flex:1;outline:none;transition:.14s}
+  .search:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,140,255,.15)}
+  .tog{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid var(--line);border-radius:11px;background:var(--card2);color:var(--tx2);font-size:12.5px;font-weight:600;cursor:pointer;user-select:none;transition:.14s}
+  .tog:hover{border-color:var(--accent);color:var(--tx)}
+  .tog.on{background:linear-gradient(180deg,#5a95ff,#3f7dff);color:#fff;border-color:transparent}
+  .sel{padding:8px 12px;border:1px solid var(--line);border-radius:11px;background:var(--card2);color:var(--tx);font-size:12.5px;font-weight:600;outline:none;cursor:pointer;transition:.14s}
+  .sel:hover,.sel:focus{border-color:var(--accent)}
+
+  /* 卡片网格 */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px}
+  .card{display:flex;gap:15px;align-items:flex-start;background:linear-gradient(180deg,var(--card),#121a2b);border:1px solid var(--line);border-radius:16px;padding:15px 17px 15px 16px;cursor:pointer;transition:transform .16s cubic-bezier(.2,.7,.3,1),box-shadow .16s,border-color .16s;text-decoration:none;color:inherit;position:relative;overflow:hidden}
+  .card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--other);opacity:.85}
+  .card.cat-reserve::before{background:var(--reserve)}
+  .card.cat-release::before{background:var(--release)}
+  .card.cat-test::before{background:var(--test)}
+  .card.cat-workshop::before{background:var(--workshop)}
+  .card:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(0,0,0,.4);border-color:var(--accent)}
+  .card .ico{width:76px;height:76px;border-radius:16px;object-fit:cover;background:#1d2740;flex:none;box-shadow:0 0 0 1px rgba(255,255,255,.07),0 4px 10px rgba(0,0,0,.3)}
+  .card .mid{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
+  .card .tt{font-weight:700;font-size:16px;color:#fff;line-height:1.3;letter-spacing:.2px}
+  .card .cname{font-size:12px;color:var(--tx2);line-height:1.55;display:flex;gap:6px;word-break:break-word}
+  .card .cname .dlb{flex:none;display:inline-block;color:#8b93a7;background:rgba(255,255,255,.07);border-radius:5px;padding:0 6px;font-size:10px;height:17px;line-height:17px;margin-top:2px}
+  .card .cname .dlb.sup{color:#7dd3fc;background:rgba(47,179,232,.15)}
+  .card .cname .dlb.pub{color:#fbbf24;background:rgba(245,158,11,.15)}
+  .card .meta{display:flex;align-items:center;gap:9px;margin-top:8px;flex-wrap:wrap}
+  .tag{font-size:11px;padding:3px 9px;border-radius:7px;font-weight:700}
+  .tag.release{background:rgba(47,191,113,.16);color:#54d68d}
+  .tag.test{background:rgba(240,160,32,.16);color:#f7b64a}
+  .tag.reserve{background:rgba(47,179,232,.16);color:#5ecbf0}
+  .tag.other{background:rgba(114,134,163,.22);color:#9db0cb}
+  .tag.workshop{background:rgba(154,108,240,.18);color:#bda2f7}
+  .score{font-size:12.5px;color:#fbbf24;font-weight:800}
+  .score.na{color:var(--tx3);font-weight:500;font-size:11.5px}
+  .top{position:absolute;top:0;right:0;background:linear-gradient(90deg,#ff5f6d,#ff2d55);color:#fff;font-size:9.5px;font-weight:800;padding:3px 9px;border-bottom-left-radius:10px;letter-spacing:.5px}
+  .empty{padding:60px;text-align:center;color:var(--tx3);font-size:14px;grid-column:1/-1}
+  .foot{margin-top:26px;color:var(--tx3);font-size:11.5px;text-align:center;line-height:1.9}
+  /* 日期选择条 */
+  .datebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:linear-gradient(180deg,var(--card),#121a2b);border:1px solid var(--line);border-radius:14px;padding:10px 14px;margin-bottom:14px}
+  .datebar .dnav{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card2);color:var(--tx2);cursor:pointer;font-size:13px;font-weight:600;transition:.14s}
+  .datebar .dnav:hover{border-color:var(--accent);color:var(--tx)}
+  .datebar .dnav.dis{opacity:.35;cursor:not-allowed}
+  .datebar select{padding:7px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card2);color:var(--tx);font-size:13.5px;font-weight:700;outline:none;cursor:pointer;font-variant-numeric:tabular-nums}
+  .datebar select:focus{border-color:var(--accent)}
+  .datebar .dinfo{font-size:12px;color:var(--tx3)}
+  .datebar #refresh{margin-left:auto}
+  .datebar .dtag{font-size:11.5px;color:var(--warn,#f0a020);font-weight:700}
+  /* 上午/下午切换 */
+  .sess{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;flex:none}
+  .sess .stog{padding:7px 15px;cursor:pointer;font-size:12.5px;font-weight:700;color:var(--tx2);background:var(--card2);user-select:none;transition:.14s}
+  .sess .stog.on{background:linear-gradient(180deg,#5a95ff,#3f7dff);color:#fff}
+  .sess .stog.dis{opacity:.35;cursor:not-allowed}
+  .sess .stog:not(.on):not(.dis):hover{color:var(--tx);background:var(--card)}
+  @media(max-width:600px){
+    body{padding:12px 11px 32px}
+    .grid{grid-template-columns:1fr;gap:11px}
+    .toolbar{padding:11px;gap:10px}
+    .chip{padding:7px 12px;font-size:12.5px}
+    .card{padding:12px 13px}
+    .card .ico{width:64px;height:64px;border-radius:13px}
+    .card .tt{font-size:15px}
+    .search{min-width:0;width:100%}
+    .searchwrap{flex:1;min-width:150px}
+    .hd h1{font-size:18px}
+    .hd .pill{display:none}
+  }
+
+  .ic-fb{width:56px;height:56px;border-radius:13px;position:relative;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:700;flex:none;overflow:hidden;margin-bottom:10px}
+  .ic-fb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .card{position:relative;display:flex;flex-direction:column}
+  .card .cname{font-size:14.5px;font-weight:700;color:var(--title);line-height:1.35;margin-bottom:4px}
+  .card .cmeta{margin-bottom:5px}
+  .card .sc{font-size:12.5px;color:#f6ad30;font-weight:700}
+  .card .sc.no{color:var(--tx3);font-weight:600}
+  .card .ctags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px}
+  .card .tg{font-size:10.5px;padding:1px 6px;border-radius:5px;background:rgba(255,255,255,.07);color:var(--tx2)}
+  .card .cinfo{font-size:11.5px;color:var(--tx2);line-height:1.4;margin-bottom:4px}
+  .card .cvendor{font-size:11px;color:var(--tx3);margin-top:auto;line-height:1.35}
+  .topbadge{position:absolute;top:8px;right:8px;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;background:rgba(47,191,113,.16);color:#38d189;border:1px solid rgba(47,191,113,.35)}
+  .card.cat-update::before{background:#8b5cf6}
+  .chip.on[data-cat=update]{background:linear-gradient(180deg,#a97ef5,#8a5ce6)}
+  .chip.on[data-cat=exclusive]{background:linear-gradient(180deg,#f6ad30,#e0900d);color:#2a1c02}
+  .card.cat-exclusive::before{background:#f6ad30}
+
+</style>
+<!-- 访问统计 counter.dev（每日每设备去重；同一 data-id / 同一后台） -->
+<script>
+(function(){
+  var ID="96600022-bdab-4575-b303-c93e69eeba3d", OFF=8, SRV="https://t.counter.dev";
+  try{
+    if(sessionStorage.getItem("doNotTrack")||localStorage.getItem("doNotTrack")) return;
+  }catch(e){}
+  var path = location.pathname || "/";
+  var day;
+  try{ day = new Date(Date.now()+OFF*3600000).toISOString().slice(0,10); }catch(e){ return; }
+  if(!day) return;
+  // 抢占当日去重键：拿到 true 才上报；localStorage 不可用时退化为官方行为
+  function claim(key){
+    try{
+      if(localStorage.getItem(key)) return false;
+      localStorage.setItem(key, "1");
+      return true;
+    }catch(e){ return true; }
+  }
+  // 1) 访客数(/track)：每设备每天 1 次
+  if(claim("cv_visit_"+ID+"_"+day)){
+    setTimeout(function(){
+      try{
+        fetch(SRV+"/track?"+new URLSearchParams({
+          referrer: document.referrer,
+          screen: screen.width+"x"+screen.height,
+          id: ID,
+          utcoffset: String(OFF)
+        }), {mode:"cors"});
+      }catch(e){}
+    }, 4500);
+  }
+  // 2) 页面浏览(/trackpage)：每设备每天、每个路径 1 次
+  if(claim("cv_page_"+ID+"_"+day+"_"+path)){
+    try{
+      navigator.sendBeacon(SRV+"/trackpage", new URLSearchParams({
+        id: ID, page: path, utcoffset: String(OFF)
+      }));
+    }catch(e){
+      try{ fetch(SRV+"/trackpage?"+new URLSearchParams({id:ID,page:path,utcoffset:String(OFF)}), {mode:"cors"}); }catch(_){}
+    }
+  }
+})();
+</script>
+</head>
+<body>
+<div class="topnav">
+  <a href="index.html?d=2026-11-20" id="navDash">📊 预约榜</a>
+  <a href="today.html?d=2026-11-20" id="navToday">🆕 新游日历</a>
+  <a href="hb.html?d=2026-11-20" class="active" id="navHb">🎯 快爆精选</a>
+  <span class="navsp"></span>
+  <span class="navdate">2026-11-20</span>
+</div>
+<div class="wrap">
+  <div class="datebar">
+    <span class="dnav" id="dPrev">‹ 前一天</span>
+    <select id="dSel"></select>
+    <span class="dnav" id="dNext">后一天 ›</span>
+    <span id="dToday" class="dnav">回到今天</span>
+    <span class="dinfo" id="dInfo"></span>
+  </div>
+  <div class="hd">
+    <h1>🎯 好游快爆 精选日历</h1>
+    <span class="pill" id="meta">加载中…</span>
+  </div>
+  <div class="hint">好游快爆「好游抢鲜玩」人工精选 · 点卡片跳快爆详情 · 按类型筛选 + 搜索（游戏名/厂商）· 🏢 只看公司</div>
+
+  <div class="toolbar">
+    <div class="chips">
+      <span class="chip on" data-cat="release">🚀 即将上线<span class="n" id="n-release"></span></span>
+      <span class="chip" data-cat="test">🧪 即将测试<span class="n" id="n-test"></span></span>
+      <span class="chip" data-cat="update">🔄 即将更新<span class="n" id="n-update"></span></span>
+      <span class="chip" data-cat="exclusive">⭐ 独家<span class="n" id="n-exclusive"></span></span>
+      <span class="chip" data-cat="all">🎮 全部<span class="n" id="n-all"></span></span>
+    </div>
+    <span class="spacer"></span>
+    <div class="searchwrap"><span class="sic">🔍</span><input class="search" id="q" placeholder="搜游戏名 / 厂商 / 发行"></div>
+    <span class="tog" id="onlyScore">只看有评分</span>
+    <span class="tog" id="onlyCo" title="只看研发/发行/供应商含「公司」二字的游戏">🏢 只看公司</span>
+    <select class="sel" id="sort">
+      <option value="default">排序：默认</option>
+      <option value="score">评分 高→低</option>
+      <option value="name">名称 A→Z</option>
+    </select>
+  </div>
+
+  <div class="grid" id="grid"><div class="empty">加载中…</div></div>
+
+  <div class="foot">
+    数据来源：好游快爆「好游抢鲜玩」· <a style="color:var(--accent)" href="https://www.3839.com/timeline.html" target="_blank" rel="noopener">打开快爆原页</a><br>
+    ⏱ 每日自动抓取（快爆仅提供当前时间线，历史从首次抓取日开始累积）<br>
+    🧪 lab 实验页 · 仅读取快爆公开页面，未改动任何线上既有文件
+  </div>
+</div>
+
+<script>
+const $ = (s)=>document.querySelector(s);
+let DATA = [], cat = 'release', kw = '', onlyScore = false, onlyCo = false, sortBy = 'default';
+const CATNAME = {release:'即将上线', test:'即将测试', update:'即将更新', exclusive:'独家', other:'其它'};
+
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function hasCompany(x){
+  const f = [(x.company||''), (x.dev||''), (x.pub||'')];
+  return f.some(v=>v && v.indexOf('公司')>=0);
+}
+function fmtScore(s){ const n=parseFloat(s); return (isNaN(n)||n<=0) ? '' : n.toFixed(1); }
+function vendorOf(x){
+  return x.company || x.dev || x.pub || '';
+}
+function iconImg(url, name){
+  const letter = (name||'?').trim().charAt(0) || '?';
+  const cls = 'ic-fb';
+  if(!url) return `<span class="${cls}" style="background:#334155">${esc(letter)}</span>`;
+  return `<span class="${cls}" style="background:#334155">${esc(letter)}<img src="${esc(url)}" referrerpolicy="no-referrer" onerror="this.remove()"></span>`;
+}
+
+function counts(){
+  const c = {};
+  DATA.forEach(x=>{ c[x.cat]=(c[x.cat]||0)+1; });
+  c.all = DATA.length;
+  ['release','test','update','exclusive','all'].forEach(k=>{
+    const el = $('#n-'+k); if(el) el.textContent = c[k]||0;
+  });
+}
+
+function render(){
+  let list = DATA.slice();
+  if(cat !== 'all') list = list.filter(x=>x.cat===cat);
+  if(kw) list = list.filter(x=>{
+    const s = [x.name, x.company, x.dev, x.pub, (x.tags||[]).join(' ')].join(' ').toLowerCase();
+    return s.indexOf(kw)>=0;
+  });
+  if(onlyScore) list = list.filter(x=>fmtScore(x.score));
+  if(onlyCo) list = list.filter(hasCompany);
+  if(sortBy==='score') list.sort((a,b)=>(parseFloat(b.score)||0)-(parseFloat(a.score)||0));
+  else if(sortBy==='name') list.sort((a,b)=>String(a.name).localeCompare(String(b.name),'zh'));
+  else list.sort((a,b)=>{
+    const r = (parseFloat(b.score)||0)-(parseFloat(a.score)||0);
+    return r || String(a.name).localeCompare(String(b.name),'zh');
+  });
+
+  const g = $('#grid');
+  if(!list.length){ g.innerHTML = '<div class="empty">没有符合条件的游戏</div>'; return; }
+  g.innerHTML = list.map(x=>{
+    const sc = fmtScore(x.score);
+    const co = hasCompany(x);
+    const tags = (x.tags||[]).slice(0,3).map(t=>`<span class="tg">${esc(t)}</span>`).join('');
+    return `<a class="card cat-${x.cat}" href="${esc(x.link)}" target="_blank" rel="noopener">
+      ${co?'<span class="topbadge">公司</span>':''}
+      ${iconImg(x.icon, x.name)}
+      <div class="cname">${esc(x.name)}</div>
+      <div class="cmeta">${sc?`<span class="sc">★ ${sc}</span>`:'<span class="sc no">暂无评分</span>'}</div>
+      <div class="ctags">${tags}</div>
+      <div class="cinfo">${esc(x.info||'')}</div>
+      <div class="cvendor">${esc(vendorOf(x))}</div>
+    </a>`;
+  }).join('');
+}
+
+$('#q').oninput = (e)=>{ kw = e.target.value.trim().toLowerCase(); render(); };
+$('#onlyScore').onclick = ()=>{ onlyScore = !onlyScore; $('#onlyScore').classList.toggle('on', onlyScore); render(); };
+$('#onlyCo').onclick = ()=>{ onlyCo = !onlyCo; $('#onlyCo').classList.toggle('on', onlyCo); render(); };
+$('#sort').onchange = (e)=>{ sortBy = e.target.value; render(); };
+document.querySelectorAll('.chip').forEach(ch=>{
+  ch.onclick = ()=>{
+    const wasOn = ch.classList.contains('on');
+    document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+    if(wasOn){ cat = 'all'; } else { ch.classList.add('on'); cat = ch.dataset.cat; }
+    render();
+  };
+});
+// ---------- 日期 ----------
+let INDEX = [], curDate = '';
+function gotoDate(d){ location.href = `hb.html?d=${d}`; }
+function setupDates(){
+  const sel = $('#dSel');
+  if(!sel) return;
+  sel.innerHTML = INDEX.slice().reverse().map(d=>`<option value="${d}" ${d===curDate?'selected':''}>${d}${d===INDEX[INDEX.length-1]?' （今天）':''}</option>`).join('');
+  sel.onchange = (e)=>gotoDate(e.target.value);
+  const i = INDEX.indexOf(curDate);
+  const prev = $('#dPrev'), next = $('#dNext');
+  if(i>0){ prev.classList.remove('dis'); prev.onclick = ()=>gotoDate(INDEX[i-1]); } else { prev.classList.add('dis'); prev.onclick=null; }
+  if(i<INDEX.length-1){ next.classList.remove('dis'); next.onclick = ()=>gotoDate(INDEX[i+1]); } else { next.classList.add('dis'); next.onclick=null; }
+  const t = $('#dToday'); if(t) t.onclick = ()=>gotoDate(INDEX[INDEX.length-1]);
+  const info = $('#dInfo');
+  if(info) info.textContent = `已收录 ${INDEX.length} 天（${INDEX[0]} ~ ${INDEX[INDEX.length-1]}）`;
+}
+
+let VER = '20261120112159';
+async function loadData(){
+  try{
+    const r = await fetch(`data/${curDate}/hb_today.json?v=${VER}`, {cache:'no-cache'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const j = await r.json();
+    const groups = (j.groups||[]).filter(g=>g.date===curDate);
+    DATA = [];
+    groups.forEach(g=>{
+      (g.items||[]).forEach(it=>{
+        DATA.push(Object.assign({}, it, {cat: g.cat}));
+      });
+    });
+    $('#meta').textContent = `${curDate} · 共 ${DATA.length} 款（快爆精选）`;
+    counts(); render();
+  }catch(e){
+    $('#grid').innerHTML = `<div class="empty" style="color:#ef4444">加载失败: ${esc(e.message)}</div>`;
+  }
+}
+
+(async function(){
+  const q = new URLSearchParams(location.search);
+  curDate = q.get('d') || '2026-11-20';
+  try{ $('#navDash').href = `index.html?d=${curDate}`; }catch(e){}
+  try{ $('#navToday').href = `today.html?d=${curDate}`; }catch(e){}
+  try{
+    const ir = await fetch(`hb_index.json?v=${VER}`, {cache:'no-cache'});
+    if(ir.ok){ const ij = await ir.json(); INDEX = ij.dates || []; }
+  }catch(e){}
+  if(!INDEX.includes(curDate)) INDEX = [...new Set([...INDEX, curDate])].sort();
+  setupDates();
+  loadData();
+})();</script>
+</body></html>
