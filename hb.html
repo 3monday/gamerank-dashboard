@@ -274,7 +274,9 @@ function render(){
   g.innerHTML = list.map(x=>{
     const sc = fmtScore(x.score);
     const co = hasCompany(x);
-    const top = co ? '<span class="top">公司</span>' : '';
+    // 角标只给「重点产品」：有评分且 >= 9（公司角标已去掉，公司信息看主体行）
+    const isKey = sc && parseFloat(sc) >= 9;
+    const top = isKey ? '<span class="top">重点</span>' : '';
     const img = x.icon
       ? `<img class="ico" src="${esc(x.icon)}" alt="${esc(x.name)}" loading="lazy" decoding="async" referrerpolicy="no-referrer">`
       : '<span class="ico"></span>';
@@ -320,7 +322,7 @@ function setupDates(){
   if(info) info.textContent = `已收录 ${INDEX.length} 天（${INDEX[0]} ~ ${INDEX[INDEX.length-1]}）`;
 }
 
-let VER = '20261120114208';
+let VER = '20261120115254';
 async function loadData(){
   try{
     const r = await fetch(`data/${curDate}/hb_today.json?v=${VER}`, {cache:'no-cache'});
