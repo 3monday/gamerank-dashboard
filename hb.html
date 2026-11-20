@@ -330,7 +330,7 @@ function setupDates(){
   if(info) info.textContent = `已收录 ${INDEX.length} 天（${INDEX[0]} ~ ${INDEX[INDEX.length-1]}）`;
 }
 
-let VER = '20261120163013';
+let VER = '20261120164051';
 async function loadData(){
   try{
     const r = await fetch(`data/${curDate}/hb_today.json?v=${VER}`, {cache:'no-cache'});
