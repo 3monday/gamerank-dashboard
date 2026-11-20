@@ -625,6 +625,8 @@ function fmtDelta(x){
   return '0';
 }
 function deltaClass(x){ return x>0?'pos':(x<0?'neg':'zero'); }
+// 取某条游戏的三档增长(2026-11-20 起按 mk 存/查, 避免同展示名的不同游戏互盖)
+function gOf(p, it){ return ((DATA.growth[p]||{})[(it&&it.mk!=null)?it.mk:(it?it.title:'')]||{}); }
 
 function companyOf(it){
   return (it.company_full||it.company||it.operator||it.developer||'').toLowerCase();
@@ -688,7 +690,7 @@ function renderBrief(){
   gainPlats.forEach(p=>{
     const items = DATA.all[p]||[];
     const withGain = items.map(it=>{
-      const g = (DATA.growth[p]||{})[it.title]||{};
+      const g = gOf(p, it);
       return {it: it, daily: g.daily?g.daily.delta:null, now: it.reserve};
     }).filter(x=>x.daily!==null&&x.daily!==undefined);
     withGain.sort((a,b)=>b.daily-a.daily);
@@ -832,18 +834,23 @@ function renderBrief(){
   //   ①环比: 本日增 >= 前日增*2 (超100%)  ②占比: 本日增/昨日总量 >=30%
   //   ③超均: 本日增 >= 过去7天日均*2.5     ④巨量: 本日增 >= 5万
   let surgeHtml = '';
-  const findRec = (p,t)=>{ const arr=DATA.all[p]||[]; for(let i=0;i<arr.length;i++){ if(arr[i].title===t) return arr[i]; } return null; };
-  // 历史序列(每日 reserve)由后端注入: DATA.reserve_hist 键为 平台|标题, 值为日期降序数组
+  const findRec = (p,t,mk)=>{ const arr=DATA.all[p]||[];
+    if(mk!=null){ for(let i=0;i<arr.length;i++){ if(arr[i].mk===mk) return arr[i]; } }
+    for(let i=0;i<arr.length;i++){ if(arr[i].title===t) return arr[i]; } return null; };
+  // 历史序列(每日 reserve)由后端注入: DATA.reserve_hist 键为「平台|match_key」
+  //   2026-11-20: 原键为「平台|展示名」, 导致快爆同名的两款不同游戏(现代坦克-国服/现代坦克)
+  //   历史混在一起 → 算出 +18.1万 假异常。现在统一用 mk。
   const hist = DATA.reserve_hist || {};
-  const prevDayGain = (p,t)=>{
-    const hs = hist[p+'|'+t]; if(!hs || hs.length<3) return null;
+  const histKey = (g)=> g.platform+'|'+(g.mk!=null?g.mk:g.title);
+  const prevDayGain = (g)=>{
+    const hs = hist[histKey(g)]; if(!hs || hs.length<3) return null;
     return (hs[1].reserve||0) - (hs[2].reserve||0);
   };
-  const avg7Gain = (p,t)=>{
+  const avg7Gain = (g)=>{
     // 与文字简报 _avg7_gain 严格对齐(常量见 surge_rules.py):
     // 取含今日最近 avgDays 个数据日 → 最多 avgDays-1 段相邻日增量 → 日均。
     const n = (window.SURGE_CFG && window.SURGE_CFG.avgDays) || 7;
-    const hs = hist[p+'|'+t]; if(!hs || hs.length<2) return null;
+    const hs = hist[histKey(g)]; if(!hs || hs.length<2) return null;
     const days = hs.slice(0, n);
     const gs=[];
     for(let i=1;i<days.length;i++){ gs.push((days[i-1].reserve||0)-(days[i].reserve||0)); }
@@ -855,14 +862,14 @@ function renderBrief(){
     if(delta<=0 || now<(cfg.minReserve||1000)) return [];
     const out=[];
     const dcn = '本日增+'+fmt(delta);
-    const pg = prevDayGain(g.platform,g.title);
+    const pg = prevDayGain(g);
     // 环比: 本日增 >= 前日增*倍数; 且要求 前日增本身 >= 最小下限(默认5000), 防小基数噪声
     if(pg!=null && pg>=(cfg.hbMin||5000) && delta>=pg*(cfg.hbMult||2)) out.push('环比超'+Math.round((delta/pg-1)*100)+'% (前日+'+fmt(pg)+') '+dcn);
     // 占比: 本日增 ÷ 昨日总量 >= 阈值; 且要求 本日增 >= 最小下限(默认5000)防小基数噪声,
     //      同时要求 昨日总量 >= 占比分母下限(默认10万)防小盘子误报。
     //      小盘子的异动交给环比/超均判。
     if(then && then>=(cfg.ratioBaseMin||100000) && delta>=(cfg.ratioMin||5000) && delta/then>=(cfg.ratio||0.30)) out.push('占比'+Math.round(delta/then*100)+'% (昨日'+fmt(then)+') '+dcn);
-    const av = avg7Gain(g.platform,g.title);
+    const av = avg7Gain(g);
     // 超均: 本日增 >= 7天日均*倍数; 且要求 7天日均本身 >= 最小下限(默认5000),
     // 避免小基数(日均+167/+500)刷出一堆"超均N倍"的噪声项。
     if(av!=null && av>=(cfg.avgMin||5000) && av>0 && delta>=av*(cfg.avgMult||2.5)) out.push('超均'+Math.round((delta/av-1)*100)+'% (日均+'+fmt(av)+') '+dcn);
@@ -874,7 +881,7 @@ function renderBrief(){
   window.renderSurges = function(){
     const cfg = window.SURGE_CFG;
     const surges = (DATA.daily_gain||[])
-      .filter(g=>{ const rec=findRec(g.platform, g.title)||{}; return !rec.is_new; })
+      .filter(g=>{ const rec=findRec(g.platform, g.title, g.mk)||{}; return !rec.is_new; })
       .map(g=>{ const fl=surgeFlags(g, cfg); return fl.length?{g,fl}:null; })
       .filter(Boolean)
       .sort((a,b)=>(b.g.delta||0)-(a.g.delta||0));
@@ -883,7 +890,7 @@ function renderBrief(){
     if(!surges.length){ box.innerHTML='<div class="lc" style="color:#8b93a7">按当前口径无异常放量</div>'; return; }
     box.innerHTML = surges.map(x=>{
       const g=x.g;
-      const rec = findRec(g.platform, g.title)||{};
+      const rec = findRec(g.platform, g.title, g.mk)||{};
       const comp = coShort(rec);
       return `<div class="surge" data-plat=${JSON.stringify(g.platform)} data-title=${JSON.stringify(g.title)} title="点击定位到游戏"><div class="s-top"><span class="s-name">${esc(g.title)} ⇣${comp!=='-'?' <span class="bc">'+esc(comp)+'</span>':''}</span></div>`+
         `<div class="s-meta">厂商：${esc(comp)}｜平台：${esc(g.platform)}｜今总预约：${fmt(g.now)}</div>`+
@@ -1253,7 +1260,7 @@ function unblockTag(w){
 
 function getSortVal(it, key){  if(key==='reserve') return (it.reserve==null? -Infinity : it.reserve);
   if(key==='rank') return it.rank;
-  const g=(DATA.growth[curPlat]||{})[it.title]||{};
+  const g=gOf(curPlat, it);
   const v = g[key]?g[key].delta:null;
   return (v==null? -Infinity : v);
 }
@@ -1398,7 +1405,7 @@ function renderGrid(){
     // 详情跳转: 有link直接用; TapTap只有app_id无link -> 拼标准详情页 https://www.taptap.cn/app/<id>
     let hl = it.link || (((curPlat||'').indexOf('TapTap')===0 && it.app_id) ? ('https://www.taptap.cn/app/'+it.app_id) : '');
     let linkTd = hl ? `<td><a class="link" href="${esc(hl)}" target="_blank">查看 ↗</a></td>` : '<td>-</td>';
-    const g = (DATA.growth[curPlat]||{})[it.title]||{};
+    const g = gOf(curPlat, it);
     const arrow = (v)=>{
       if(v===null||v===undefined) return '-';
       if(v>0) return '▲ '+fmtDelta(v);
@@ -1431,7 +1438,7 @@ function renderMobileCards(rows){
   const show = rows.slice(0, shownN);
   const sgn = (v)=>{ if(v===null||v===undefined) return '<span class="v">-</span>'; if(v===0 && curPlat==='4399游戏盒') return '<span class="v zapprox" title="4399 接口精度 1000，实际增长 &lt;500">≈0</span>'; const c=v>0?'pos':(v<0?'neg':''); return '<span class="v '+c+'">'+(v>0?'▲ ':v<0?'▼ ':'')+fmtDelta(v)+'</span>'; };
   let html = show.map(it=>{
-    const g = (DATA.growth[curPlat]||{})[it.title]||{};
+    const g = gOf(curPlat, it);
     let hl = it.link || (((curPlat||'').indexOf('TapTap')===0 && it.app_id) ? ('https://www.taptap.cn/app/'+it.app_id) : '');
     return `<div class="mcard">
       <div class="mc-row">
@@ -1724,8 +1731,8 @@ function applyTheme(key){
         if(tw!=null&&it.rv!=null){ const delta=Math.round(it.rv-tw); rec.weekly={delta:delta, pct: tw?Math.round(delta/tw*1000)/10:null, base_date:wRefD}; }
         const tM=cM[mk];
         if(tM!=null&&it.rv!=null){ const delta=Math.round(it.rv-tM); rec.monthly={delta:delta, pct: tM?Math.round(delta/tM*1000)/10:null, base_date:mRefD}; }
-        // growth 仍按【展示名】it.t 存(下游渲染直接用 it.title 查), 但配对是 mk。
-        if(Object.keys(rec).length) growth[p][it.t]=rec;
+        // growth 按 mk 存(2026-11-20): 原先按展示名存, 同展示名的不同游戏会互盖。
+        if(Object.keys(rec).length) growth[p][mk]=rec;
       });
     });
     dg.sort((a,b)=>b.delta-a.delta);
@@ -1735,7 +1742,7 @@ function applyTheme(key){
     const hist={};
     AVAIL.filter(x=>x<=d).reverse().slice(0,9).forEach(dd=>{
       Object.keys(SERIES[dd]||{}).forEach(p=>{ (SERIES[dd][p]||[]).forEach(it=>{
-        const k=p+'|'+it.t; hist[k]=hist[k]||[]; hist[k].push({date:dd,reserve:it.rv}); }); });
+        const k=p+'|'+(it.mk!=null?it.mk:it.t); hist[k]=hist[k]||[]; hist[k].push({date:dd,reserve:it.rv}); }); });
     });
     DATA.reserve_hist=hist;
     renderBrief(); renderTabs(); renderTagbar(); renderGrid();
@@ -1758,7 +1765,7 @@ function applyTheme(key){
   var q = new URLSearchParams(location.search);
   var DATE = q.get('d') || '2026-11-20';
   var base = 'data/';
-  window.__DATA_BASES__ = ["https://gcore.jsdelivr.net/gh/3monday/gamerank-dashboard@8fbda93a830d2f966fc823d1feb6927d5e300476/data/"];
+  window.__DATA_BASES__ = ["https://gcore.jsdelivr.net/gh/3monday/gamerank-dashboard@7ad2fa9dac6806ab8300bf9bf9e87c651e530388/data/"];
   // 正式版会注入 window.__DATA_BASES__（jsDelivr 固定 commit）；失败自动回退同源
   var CDN_BASES = (window.__DATA_BASES__ || []).slice(0);
   function el(id){ return document.getElementById(id); }
@@ -1796,14 +1803,14 @@ function applyTheme(key){
     }
     return next();
   }
-  loadJSON('core.json?b=1795146617')
+  loadJSON('core.json?b=1795153666')
     .then(function(b){
       var t1 = (performance && performance.now) ? performance.now() : Date.now();
       window.__PERF__.coreMs = Math.round(t1-t0);
       window.__BOOT__(b.DATA, b.ICONS, b.TESTNEWS, b.TESTTIMELINE, b.TESTGANT, b.PLATFORMS, b.BUILTIN_TAGS);
       hideSkel();
       // 后台加载全量历史（不阻塞首屏）
-      loadJSON('series.json?b=1795146617')
+      loadJSON('series.json?b=1795153666')
         .then(function(s){ if(s && window.__setSeries){ window.__setSeries(s); window.__PERF__.seriesDone = true; } })
         .catch(function(e){ console.warn('series load failed', e); });
     })
