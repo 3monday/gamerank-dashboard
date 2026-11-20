@@ -112,22 +112,19 @@
     .hd .pill{display:none}
   }
 
-  .ic-fb{width:56px;height:56px;border-radius:13px;position:relative;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:700;flex:none;overflow:hidden;margin-bottom:10px}
-  .ic-fb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-  .card{position:relative;display:flex;flex-direction:column}
-  .card .cname{font-size:14.5px;font-weight:700;color:var(--title);line-height:1.35;margin-bottom:4px}
-  .card .cmeta{margin-bottom:5px}
-  .card .sc{font-size:12.5px;color:#f6ad30;font-weight:700}
-  .card .sc.no{color:var(--tx3);font-weight:600}
-  .card .ctags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px}
-  .card .tg{font-size:10.5px;padding:1px 6px;border-radius:5px;background:rgba(255,255,255,.07);color:var(--tx2)}
-  .card .cinfo{font-size:11.5px;color:var(--tx2);line-height:1.4;margin-bottom:4px}
-  .card .cvendor{font-size:11px;color:var(--tx3);margin-top:auto;line-height:1.35}
-  .topbadge{position:absolute;top:8px;right:8px;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;background:rgba(47,191,113,.16);color:#38d189;border:1px solid rgba(47,191,113,.35)}
+  /* 预热分类：暖色调 */
+  .card.cat-preheat::before{background:#f97316}
+  .chip.on[data-cat=preheat]{background:linear-gradient(180deg,#fb923c,#ea580c);color:#2a1400}
+  .chip[data-cat=preheat]{border-color:#4a2f1c;color:#fbb58a}
+  .tag.preheat{background:rgba(249,115,22,.16);color:#fba15f}
   .card.cat-update::before{background:#8b5cf6}
   .chip.on[data-cat=update]{background:linear-gradient(180deg,#a97ef5,#8a5ce6)}
+  .chip[data-cat=update]{border-color:#3d3160;color:#c3b1f8}
+  .tag.update{background:rgba(139,92,246,.18);color:#bda2f7}
   .chip.on[data-cat=exclusive]{background:linear-gradient(180deg,#f6ad30,#e0900d);color:#2a1c02}
   .card.cat-exclusive::before{background:#f6ad30}
+  .tag.exclusive{background:rgba(246,173,48,.18);color:#f7c25a}
+  .card .ico{display:block}
 
 </style>
 <!-- 访问统计 counter.dev（每日每设备去重；同一 data-id / 同一后台） -->
@@ -195,13 +192,14 @@
     <h1>🎯 好游快爆 精选日历</h1>
     <span class="pill" id="meta">加载中…</span>
   </div>
-  <div class="hint">好游快爆「好游抢鲜玩」人工精选 · 点卡片跳快爆详情 · 按类型筛选 + 搜索（游戏名/厂商）· 🏢 只看公司</div>
-
+  <div class="hint">好游快爆「好游抢鲜玩」人工精选 · 点卡片跳快爆详情<br>
+    🚀 即将上线 / 🧪 即将测试 / 🔄 即将更新 / 🔥 提前预热（有日期但不是今天就上线的直进这里）/ ⭐ 独家</div>
   <div class="toolbar">
     <div class="chips">
       <span class="chip on" data-cat="release">🚀 即将上线<span class="n" id="n-release"></span></span>
       <span class="chip" data-cat="test">🧪 即将测试<span class="n" id="n-test"></span></span>
       <span class="chip" data-cat="update">🔄 即将更新<span class="n" id="n-update"></span></span>
+      <span class="chip" data-cat="preheat">🔥 提前预热<span class="n" id="n-preheat"></span></span>
       <span class="chip" data-cat="exclusive">⭐ 独家<span class="n" id="n-exclusive"></span></span>
       <span class="chip" data-cat="all">🎮 全部<span class="n" id="n-all"></span></span>
     </div>
@@ -228,7 +226,7 @@
 <script>
 const $ = (s)=>document.querySelector(s);
 let DATA = [], cat = 'release', kw = '', onlyScore = false, onlyCo = false, sortBy = 'default';
-const CATNAME = {release:'即将上线', test:'即将测试', update:'即将更新', exclusive:'独家', other:'其它'};
+const CATNAME = {release:'即将上线', test:'即将测试', update:'即将更新', exclusive:'独家', preheat:'提前预热', other:'其它'};
 
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function hasCompany(x){
@@ -250,7 +248,7 @@ function counts(){
   const c = {};
   DATA.forEach(x=>{ c[x.cat]=(c[x.cat]||0)+1; });
   c.all = DATA.length;
-  ['release','test','update','exclusive','all'].forEach(k=>{
+  ['release','test','update','preheat','exclusive','all'].forEach(k=>{
     const el = $('#n-'+k); if(el) el.textContent = c[k]||0;
   });
 }
@@ -276,16 +274,20 @@ function render(){
   g.innerHTML = list.map(x=>{
     const sc = fmtScore(x.score);
     const co = hasCompany(x);
-    const tags = (x.tags||[]).slice(0,3).map(t=>`<span class="tg">${esc(t)}</span>`).join('');
-    return `<a class="card cat-${x.cat}" href="${esc(x.link)}" target="_blank" rel="noopener">
-      ${co?'<span class="topbadge">公司</span>':''}
-      ${iconImg(x.icon, x.name)}
-      <div class="cname">${esc(x.name)}</div>
-      <div class="cmeta">${sc?`<span class="sc">★ ${sc}</span>`:'<span class="sc no">暂无评分</span>'}</div>
-      <div class="ctags">${tags}</div>
-      <div class="cinfo">${esc(x.info||'')}</div>
-      <div class="cvendor">${esc(vendorOf(x))}</div>
-    </a>`;
+    const top = co ? '<span class="top">公司</span>' : '';
+    const img = x.icon
+      ? `<img class="ico" src="${esc(x.icon)}" alt="${esc(x.name)}" loading="lazy" decoding="async" referrerpolicy="no-referrer">`
+      : '<span class="ico"></span>';
+    const scHtml = sc
+      ? `<span class="score">★ ${sc}</span>`
+      : '<span class="score na">暂无评分</span>';
+    const tags = (x.tags||[]).slice(0,3).map(t=>`<span class="tag ${x.cat}">${esc(t)}</span>`).join('');
+    let meta = `<div class="meta"><span class="tag ${x.cat}">${esc(CATNAME[x.cat]||'')}</span>${scHtml}${tags}</div>`;
+    let info = x.info ? `<div class="cname" title="${esc(x.info)}"><span class="dlb">进度</span>${esc(x.info)}</div>` : '';
+    const comp = x.company || x.dev || x.pub || '';
+    let vd = comp ? `<div class="cname" title="${esc(comp)}"><span class="dlb sup">主体</span>${esc(comp)}</div>` : '';
+    return `<a class="card cat-${x.cat}" href="${esc(x.link)}" target="_blank" rel="noopener">${top}${img}
+      <div class="mid"><div class="tt" title="${esc(x.name)}">${esc(x.name)}</div>${vd}${info}${meta}</div></a>`;
   }).join('');
 }
 
@@ -318,7 +320,7 @@ function setupDates(){
   if(info) info.textContent = `已收录 ${INDEX.length} 天（${INDEX[0]} ~ ${INDEX[INDEX.length-1]}）`;
 }
 
-let VER = '20261120112532';
+let VER = '20261120113427';
 async function loadData(){
   try{
     const r = await fetch(`data/${curDate}/hb_today.json?v=${VER}`, {cache:'no-cache'});
@@ -328,7 +330,9 @@ async function loadData(){
     DATA = [];
     groups.forEach(g=>{
       (g.items||[]).forEach(it=>{
-        DATA.push(Object.assign({}, it, {cat: g.cat}));
+        // 预热归入独立分类（不混进「即将上线」）
+        const cat = it.preheat ? 'preheat' : g.cat;
+        DATA.push(Object.assign({}, it, {cat: cat}));
       });
     });
     $('#meta').textContent = `${curDate} · 共 ${DATA.length} 款（快爆精选）`;
