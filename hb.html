@@ -319,18 +319,24 @@ function gotoDate(d){ location.href = `hb.html?d=${d}`; }
 function setupDates(){
   const sel = $('#dSel');
   if(!sel) return;
-  sel.innerHTML = INDEX.slice().reverse().map(d=>`<option value="${d}" ${d===curDate?'selected':''}>${d}${d===INDEX[INDEX.length-1]?' （今天）':''}</option>`).join('');
+  // 导航列表 = 真实收录日期 ∪ 当前日期（手输的也可能要看，但不计入「已收录」天数）
+  const NAV = INDEX.indexOf(curDate)>=0 ? INDEX.slice() : [...new Set([...INDEX, curDate])].sort();
+  sel.innerHTML = NAV.slice().reverse().map(d=>`<option value="${d}" ${d===curDate?'selected':''}>${d}${d===INDEX[INDEX.length-1]?' （今天）':''}</option>`).join('');
   sel.onchange = (e)=>gotoDate(e.target.value);
-  const i = INDEX.indexOf(curDate);
+  const i = NAV.indexOf(curDate);
   const prev = $('#dPrev'), next = $('#dNext');
-  if(i>0){ prev.classList.remove('dis'); prev.onclick = ()=>gotoDate(INDEX[i-1]); } else { prev.classList.add('dis'); prev.onclick=null; }
-  if(i<INDEX.length-1){ next.classList.remove('dis'); next.onclick = ()=>gotoDate(INDEX[i+1]); } else { next.classList.add('dis'); next.onclick=null; }
+  if(i>0){ prev.classList.remove('dis'); prev.onclick = ()=>gotoDate(NAV[i-1]); } else { prev.classList.add('dis'); prev.onclick=null; }
+  if(i<NAV.length-1){ next.classList.remove('dis'); next.onclick = ()=>gotoDate(NAV[i+1]); } else { next.classList.add('dis'); next.onclick=null; }
   const t = $('#dToday'); if(t) t.onclick = ()=>gotoDate(INDEX[INDEX.length-1]);
   const info = $('#dInfo');
-  if(info) info.textContent = `已收录 ${INDEX.length} 天（${INDEX[0]} ~ ${INDEX[INDEX.length-1]}）`;
+  if(info){
+    if(!INDEX.length){ info.textContent = '暂无历史存档'; }
+    else if(INDEX.indexOf(curDate)<0){ info.textContent = `已收录 ${INDEX.length} 天（${INDEX[0]} ~ ${INDEX[INDEX.length-1]}）· 当前日期无数据`; }
+    else { info.textContent = `已收录 ${INDEX.length} 天（${INDEX[0]} ~ ${INDEX[INDEX.length-1]}）`; }
+  }
 }
 
-let VER = '20261120164842';
+let VER = '20261120165630';
 async function loadData(){
   try{
     const r = await fetch(`data/${curDate}/hb_today.json?v=${VER}`, {cache:'no-cache'});
@@ -348,7 +354,15 @@ async function loadData(){
     $('#meta').textContent = `${curDate} · 共 ${DATA.length} 款（快爆精选）`;
     counts(); render();
   }catch(e){
-    $('#grid').innerHTML = `<div class="empty" style="color:#ef4444">加载失败: ${esc(e.message)}</div>`;
+    // 该日期本地无存档（手输日期/索引里过期条目）：说清楚，别只报 HTTP 错误码
+    const isMiss = String(e.message||'').indexOf('404') >= 0;
+    $('#meta').textContent = isMiss ? `${curDate} · 无数据` : `${curDate} · 加载失败`;
+    $('#grid').innerHTML = isMiss
+      ? '<div class="empty">这一天没有快爆存档（快爆只提供当前时间线，历史从首次抓取日开始累积）</div>'
+      : `<div class="empty" style="color:#ef4444">加载失败: ${esc(e.message)}</div>`;
+    ['release','test','update','preheat','exclusive','all'].forEach(k=>{
+      const el = document.getElementById('n-'+k); if(el) el.textContent = '-';
+    });
   }
 }
 
@@ -361,7 +375,10 @@ async function loadData(){
     const ir = await fetch(`hb_index.json?v=${VER}`, {cache:'no-cache'});
     if(ir.ok){ const ij = await ir.json(); INDEX = ij.dates || []; }
   }catch(e){}
-  if(!INDEX.includes(curDate)) INDEX = [...new Set([...INDEX, curDate])].sort();
+  // ⚠ 不要把手输的/不存在的日期塞进 INDEX（2026-11-20 修）
+  //    原逻辑：if(!INDEX.includes(curDate)) INDEX = [...INDEX, curDate].sort()
+  //    → 用户随手输个 ?d=2026-11-19，页头就变成「已收录 2 天」，而那天根本没数据。
+  //    现在：保留当前日期用于导航，但统计天数只用 INDEX 里的真实日期。
   setupDates();
   loadData();
 })();</script>
