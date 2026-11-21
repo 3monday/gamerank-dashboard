@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>好游快爆 精选日历 · 2026-11-20</title>
+<title>好游快爆 精选日历 · 2026-11-21</title>
 <style>
 
   :root{
@@ -176,11 +176,11 @@
 </head>
 <body>
 <div class="topnav">
-  <a href="index.html?d=2026-11-20" id="navDash">📊 预约榜</a>
-  <a href="today.html?d=2026-11-20" id="navToday">🆕 Tap新游日历</a>
-  <a href="hb.html?d=2026-11-20" class="active" id="navHb">🎯 快爆精选</a>
+  <a href="index.html?d=2026-11-21" id="navDash">📊 预约榜</a>
+  <a href="today.html?d=2026-11-21" id="navToday">🆕 Tap新游日历</a>
+  <a href="hb.html?d=2026-11-21" class="active" id="navHb">🎯 快爆精选</a>
   <span class="navsp"></span>
-  <span class="navdate">2026-11-20</span>
+  <span class="navdate">2026-11-21</span>
 </div>
 <div class="wrap">
   <div class="datebar">
@@ -336,7 +336,7 @@ function setupDates(){
   }
 }
 
-let VER = '20261120174657';
+let VER = '20261121100006';
 async function loadData(){
   try{
     const r = await fetch(`data/${curDate}/hb_today.json?v=${VER}`, {cache:'no-cache'});
@@ -368,7 +368,7 @@ async function loadData(){
 
 (async function(){
   const q = new URLSearchParams(location.search);
-  curDate = q.get('d') || '2026-11-20';
+  curDate = q.get('d') || '2026-11-21';
   try{ $('#navDash').href = `index.html?d=${curDate}`; }catch(e){}
   try{ $('#navToday').href = `today.html?d=${curDate}`; }catch(e){}
   try{
