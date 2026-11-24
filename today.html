@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>新游日历 · 2026-11-23</title>
+<title>新游日历 · 2026-11-24</title>
 <style>
   :root{
     --bg:#0c1220; --card:#151d2e; --card2:#1b2540; --line:#26324a; --line2:#1e2a40;
@@ -158,11 +158,11 @@
 </head>
 <body>
 <div class="topnav">
-  <a href="index.html?d=2026-11-23" id="navDash">📊 预约榜</a>
-  <a href="today.html?d=2026-11-23" class="active" id="navToday">🆕 Tap新游日历</a>
-  <a href="hb.html?d=2026-11-23" id="navHb">🎯 快爆精选</a>
+  <a href="index.html?d=2026-11-24" id="navDash">📊 预约榜</a>
+  <a href="today.html?d=2026-11-24" class="active" id="navToday">🆕 Tap新游日历</a>
+  <a href="hb.html?d=2026-11-24" id="navHb">🎯 快爆精选</a>
   <span class="navsp"></span>
-  <span class="navdate">2026-11-23</span>
+  <span class="navdate">2026-11-24</span>
 </div>
 <div class="wrap">
   <div class="datebar">
@@ -323,7 +323,7 @@ function setupDates(){
   setupSess();
 }
 
-let VER = '20261123162009';
+let VER = '20261124095026';
 async function loadData(bust){
   try{
     const v = bust || VER;
@@ -349,7 +349,7 @@ $('#refresh').onclick = refreshData;
 
 (async function(){
   const q = new URLSearchParams(location.search);
-  const date = q.get('d') || '2026-11-23';
+  const date = q.get('d') || '2026-11-24';
   const sess = q.get('s') || 'am';
   curDate = date; curSess = sess;
   // 顶部导航带日期
