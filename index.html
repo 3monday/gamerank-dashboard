@@ -1765,7 +1765,7 @@ function applyTheme(key){
   var q = new URLSearchParams(location.search);
   var DATE = q.get('d') || '2026-11-26';
   var base = 'data/';
-  window.__DATA_BASES__ = ["https://gcore.jsdelivr.net/gh/3monday/gamerank-dashboard@714ad9e858737856399701c61b668ea0d84de746/data/"];
+  window.__DATA_BASES__ = ["https://gcore.jsdelivr.net/gh/3monday/gamerank-dashboard@950d7944b589cedb9cc3f873ad8d85c219d86c07/data/"];
   // 正式版会注入 window.__DATA_BASES__（jsDelivr 固定 commit）；失败自动回退同源
   var CDN_BASES = (window.__DATA_BASES__ || []).slice(0);
   function el(id){ return document.getElementById(id); }
@@ -1803,14 +1803,14 @@ function applyTheme(key){
     }
     return next();
   }
-  loadJSON('core.json?b=1795657082')
+  loadJSON('core.json?b=1795677739')
     .then(function(b){
       var t1 = (performance && performance.now) ? performance.now() : Date.now();
       window.__PERF__.coreMs = Math.round(t1-t0);
       window.__BOOT__(b.DATA, b.ICONS, b.TESTNEWS, b.TESTTIMELINE, b.TESTGANT, b.PLATFORMS, b.BUILTIN_TAGS);
       hideSkel();
       // 后台加载全量历史（不阻塞首屏）
-      loadJSON('series.json?b=1795657082')
+      loadJSON('series.json?b=1795677739')
         .then(function(s){ if(s && window.__setSeries){ window.__setSeries(s); window.__PERF__.seriesDone = true; } })
         .catch(function(e){ console.warn('series load failed', e); });
     })
