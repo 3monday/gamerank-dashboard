@@ -178,6 +178,7 @@
 <div class="topnav">
   <a href="index.html?d=2026-11-26" id="navDash">📊 预约榜</a>
   <a href="today.html?d=2026-11-26" id="navToday">🆕 Tap新游日历</a>
+  <a href="cross.html?d=2026-11-26" id="navCross">🔀 跨平台对比</a>
   <a href="hb.html?d=2026-11-26" class="active" id="navHb">🎯 快爆精选</a>
   <span class="navsp"></span>
   <span class="navdate">2026-11-26</span>
@@ -336,7 +337,7 @@ function setupDates(){
   }
 }
 
-let VER = '20261126163040';
+let VER = '20261126164531';
 async function loadData(){
   try{
     const r = await fetch(`data/${curDate}/hb_today.json?v=${VER}`, {cache:'no-cache'});
