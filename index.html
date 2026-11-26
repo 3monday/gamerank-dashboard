@@ -488,6 +488,7 @@
 <div class="topnav">
   <a href="index.html?d=2026-11-26" class="active">📊 预约榜</a>
   <a href="today.html?d=2026-11-26">🆕 Tap新游日历</a>
+  <a href="cross.html?d=2026-11-26">🔀 跨平台对比</a>
   <a href="hb.html?d=2026-11-26">🎯 快爆精选</a>
 </div>
 <style>
@@ -1765,7 +1766,7 @@ function applyTheme(key){
   var q = new URLSearchParams(location.search);
   var DATE = q.get('d') || '2026-11-26';
   var base = 'data/';
-  window.__DATA_BASES__ = ["https://gcore.jsdelivr.net/gh/3monday/gamerank-dashboard@950d7944b589cedb9cc3f873ad8d85c219d86c07/data/"];
+  window.__DATA_BASES__ = ["https://gcore.jsdelivr.net/gh/3monday/gamerank-dashboard@d523c5670c3788a815de79ae19fd1597e1b1f81a/data/"];
   // 正式版会注入 window.__DATA_BASES__（jsDelivr 固定 commit）；失败自动回退同源
   var CDN_BASES = (window.__DATA_BASES__ || []).slice(0);
   function el(id){ return document.getElementById(id); }
@@ -1803,14 +1804,14 @@ function applyTheme(key){
     }
     return next();
   }
-  loadJSON('core.json?b=1795677739')
+  loadJSON('core.json?b=1795682721')
     .then(function(b){
       var t1 = (performance && performance.now) ? performance.now() : Date.now();
       window.__PERF__.coreMs = Math.round(t1-t0);
       window.__BOOT__(b.DATA, b.ICONS, b.TESTNEWS, b.TESTTIMELINE, b.TESTGANT, b.PLATFORMS, b.BUILTIN_TAGS);
       hideSkel();
       // 后台加载全量历史（不阻塞首屏）
-      loadJSON('series.json?b=1795677739')
+      loadJSON('series.json?b=1795682721')
         .then(function(s){ if(s && window.__setSeries){ window.__setSeries(s); window.__PERF__.seriesDone = true; } })
         .catch(function(e){ console.warn('series load failed', e); });
     })
