@@ -772,7 +772,7 @@ function renderChartGrid(g, plats, from, to, W, H, PCT){
   if(!dates.length) return '<div style="color:var(--tx2);font-size:13px;padding:12px">该范围内无数据</div>';
   const _narrow = W<520;
   const PL=_narrow?46:78, PR=_narrow?52:74, PT=8, PB=28;
-  const rowH=Math.max(_narrow?52:62, Math.round((H-30-PB) / plats.length) - 8);
+  const rowH=Math.max(_narrow?56:66, Math.round((H-30-PB) / plats.length) - 8);
   const gap=8;
   const totalH = PT + plats.length*(rowH+gap) + PB;
   const X=i=> PL+(W-PL-PR)*(dates.length>1? i/(dates.length-1):0);
@@ -822,18 +822,19 @@ function renderChartGrid(g, plats, from, to, W, H, PCT){
     const cl=coords[coords.length-1];
     body+=`<circle cx="${cl.x.toFixed(1)}" cy="${cl.y.toFixed(1)}" r="3.6" fill="${COLORS[p]}" stroke="var(--card2)" stroke-width="1.4"/>`;
     // 左侧平台名 + 纵轴范围
-    body+=`<text x="6" y="${y0+rowH/2-3}" class="axis" style="fill:${COLORS[p]};font-weight:600;font-size:${_narrow?10:11.5}px">${_pn}${_short?'※':''}</text>`;
+    body+=`<text x="6" y="${y0+rowH/2-4}" class="axis" style="fill:${COLORS[p]};font-weight:600;font-size:${_narrow?10:11.5}px">${_pn}${_short?'※':''}</text>`;
     if(!_narrow){
+      // 只报极值，避免两行文字挤在一起（0% 是固定基准，不必再写）
       const _rng = usePct
-        ? `${vmin>0?'+':''}${vmin.toFixed(0)}%~${vmax>0?'+':''}${vmax.toFixed(0)}%`
+        ? (vmax>0.05?`最高 +${vmax.toFixed(0)}%`:(vmin<-0.05?`最低 ${vmin.toFixed(0)}%`:'持平'))
         : `${fmt(vmin)}~${fmt(vmax)}`;
-      body+=`<text x="8" y="${y0+rowH/2+12}" class="axis" style="font-size:10px">${_short?('自'+ds[0].slice(5)+' '):''}${_rng}</text>`;
+      body+=`<text x="6" y="${y0+rowH/2+13}" class="axis" style="font-size:10px;opacity:.85">${_short?('自'+ds[0].slice(5)+' '):''}${_rng}</text>`;
     } else if(_short) {
       body+=`<text x="6" y="${y0+rowH/2+11}" class="axis" style="font-size:9px">自${ds[0].slice(5)}</text>`;
     }
     // 右侧末值（PCT 模式仍显示真实预约量）+ 涨幅
-    body+=`<text x="${W-PR+6}" y="${y0+rowH/2-2}" class="axis" style="fill:var(--tx);font-weight:700;font-size:${_narrow?10.5:12}px">${fmt(last)}</text>`;
-    body+=`<text x="${W-PR+6}" y="${y0+rowH/2+12}" class="axis" style="fill:${upn?'#34d399':'#f87171'};font-size:${_narrow?9.5:10.5}px">${upn?'+':''}${pv.toFixed(1)}%</text>`;
+    body+=`<text x="${W-PR+6}" y="${y0+rowH/2-4}" class="axis" style="fill:var(--tx);font-weight:700;font-size:${_narrow?10.5:12}px">${fmt(last)}</text>`;
+    body+=`<text x="${W-PR+6}" y="${y0+rowH/2+13}" class="axis" style="fill:${upn?'#34d399':'#f87171'};font-size:${_narrow?9.5:10.5}px">${upn?'+':''}${pv.toFixed(1)}%</text>`;
     body+=`</g>`;
   });
   CHART=null;
