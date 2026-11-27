@@ -532,6 +532,7 @@ function renderPanel(){
           <button data-m="abs"${chartMode==='abs'?' class="on"':''}>绝对值</button>
           <button data-m="pct"${chartMode==='pct'?' class="on"':''}>相对涨幅</button>
           <button data-m="grid"${chartMode==='grid'?' class="on"':''}>分平台展开</button>
+          <button data-m="gridpct"${chartMode==='gridpct'?' class="on"':''}>分平台·相对涨幅</button>
         </div>
         <button id="btnStretch" style="padding:5px 12px;font-size:13px;border-radius:8px;background:var(--card);border:1px solid var(--line);cursor:pointer;color:var(--tx)">${chartStretch?'⤡ 还原':'⤢ 放大'}</button>
         <div class="seg" id="rangeSeg">
@@ -702,7 +703,7 @@ function renderChart(g, plats){
   const _narrow=W<520;
   const H=_st? Math.max(420, window.innerHeight-170) : (_narrow?300:400);
   const PL=_narrow?44:64, PR=_narrow?44:20, PT=18, PB=30;
-  if(chartMode==='grid') return renderChartGrid(g, plats, from, to, W, H);
+  if(chartMode==='grid'||chartMode==='gridpct') return renderChartGrid(g, plats, from, to, W, H, chartMode==='gridpct');
   const PCT=chartMode==='pct';
   // 每个平台在此区间内的 map
   const maps={};
@@ -762,8 +763,9 @@ function renderChart(g, plats){
   <div class="legend">${legend}</div>
   <div class="hover-tip" id="hoverTip"></div>`;
 }
-function renderChartGrid(g, plats, from, to, W, H){
+function renderChartGrid(g, plats, from, to, W, H, PCT){
   // 每个平台一条独立纵轴的小图，纵向堆叠；共用日期横轴
+  // PCT=true 时纵轴换成「相对涨幅」（区间首日=0%），与上方「相对涨幅」合并图同一口径
   const maps={};
   plats.forEach(p=>{ const m={}; (g.platforms[p].series||[]).forEach(s=>{ if(s.d>=from&&s.d<=to&&s.r!=null) m[s.d]=s.r; }); maps[p]=m; });
   const dates=[...new Set(Object.values(maps).flatMap(m=>Object.keys(m)))].sort();
@@ -781,41 +783,69 @@ function renderChartGrid(g, plats, from, to, W, H){
   plats.forEach((p,pi)=>{
     const m=maps[p]; const ds=Object.keys(m).sort();
     const y0=PT+pi*(rowH+gap);
-    if(!ds.length){ body+=`<g><text x="8" y="${y0+rowH/2+4}" class="axis">${p}</text><text x="${PL+8}" y="${y0+rowH/2+4}" class="axis">无数据</text></g>`; return; }
-    const vals=ds.map(d=>m[d]);
+    const _pn = _narrow? p.replace('游戏盒','').replace('预约','').slice(0,4) : p.replace('游戏盒','').replace('预约','');
+    if(!ds.length){ body+=`<g><text x="6" y="${y0+rowH/2+4}" class="axis" style="fill:${COLORS[p]};font-weight:600">${_pn}</text><text x="${PL+8}" y="${y0+rowH/2+4}" class="axis">无数据</text></g>`; return; }
+    const first=m[ds[0]], last=m[ds[ds.length-1]];
+    // 相对涨幅（PCT）需要首日 >0 才有基准
+    const usePct = PCT && first>0;
+    const val = d => usePct ? (m[d]-first)/first*100 : m[d];
+    const vals=ds.map(val);
     const vmin=Math.min(...vals), vmax=Math.max(...vals);
-    const pad=(vmax-vmin)*0.14 || Math.max(1, vmax*0.02);
-    const lo=vmin-pad, hi=vmax+pad;
+    let lo, hi;
+    if(usePct){
+      // 0% 一定进画面，两侧留余量
+      const pad=Math.max((vmax-Math.min(vmin,0))*0.10, 2);
+      lo=Math.min(vmin,0)-pad; hi=Math.max(vmax,0)+pad;
+    } else {
+      const pad=(vmax-vmin)*0.14 || Math.max(1, vmax*0.02);
+      lo=vmin-pad; hi=vmax+pad;
+    }
     const Y=v=> y0 + rowH*(1-(v-lo)/(hi-lo||1));
-    const first=vals[0], last=vals[vals.length-1];
-    const pct= first>0 ? (last-first)/first*100 : 0;
-    const upn = pct>=0;
-    // 基线 + 首末参考
+    const pv = first>0 ? (last-first)/first*100 : 0;
+    const upn = pv>=0;
+    const _short = ds[0] > from;   // 该平台在区间内数据不足（新收录），涨幅对应更短区间
     body+=`<g>`;
     body+=`<rect x="${PL}" y="${y0}" width="${W-PL-PR}" height="${rowH}" fill="rgba(255,255,255,.016)" rx="6"/>`;
-    body+=`<line x1="${PL}" y1="${Y(first)}" x2="${W-PR}" y2="${Y(first)}" stroke="rgba(147,161,189,.35)" stroke-width="1" stroke-dasharray="2 3"/>`;
-    const coords=dates.map((d,i)=> d in m ? {x:X(i),y:Y(m[d]),v:m[d],d} : null).filter(Boolean);
+    // 基准线：PCT 固定在 0%；绝对值模式固定在首日值
+    const base = usePct ? 0 : first;
+    body+=`<line x1="${PL}" y1="${Y(base)}" x2="${W-PR}" y2="${Y(base)}" stroke="${usePct?'rgba(147,161,189,.45)':'rgba(147,161,189,.35)'}" stroke-width="1" stroke-dasharray="2 3"/>`;
+    const coords=dates.map((d,i)=> (d in m) ? {x:X(i),y:Y(val(d)),v:m[d],d} : null).filter(Boolean);
     if(coords.length>1){
       body+=`<polyline points="${coords.map(c=>c.x.toFixed(1)+','+c.y.toFixed(1)).join(' ')}" fill="none" stroke="${COLORS[p]}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
     }
-    coords.forEach(c=>{ body+=`<circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="6" fill="transparent"><title>${p} ${c.d} ${fmt(c.v)}</title></circle>`; });
+    const _fmtTip = c => {
+      if(!usePct) return `${p} ${c.d} ${fmt(c.v)}`;
+      const q = first>0 ? (c.v-first)/first*100 : null;
+      return `${p} ${c.d} ${fmt(c.v)}` + (q!=null?` (${q>0?'+':''}${q.toFixed(1)}%)`:'');
+    };
+    coords.forEach(c=>{ body+=`<circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="6" fill="transparent"><title>${_fmtTip(c)}</title></circle>`; });
     const cl=coords[coords.length-1];
     body+=`<circle cx="${cl.x.toFixed(1)}" cy="${cl.y.toFixed(1)}" r="3.6" fill="${COLORS[p]}" stroke="var(--card2)" stroke-width="1.4"/>`;
-    // 左侧平台名 + 最高最低
-    const _pn = _narrow? p.replace('游戏盒','').replace('预约','').slice(0,4) : p.replace('游戏盒','').replace('预约','');
-    body+=`<text x="6" y="${y0+rowH/2-3}" class="axis" style="fill:${COLORS[p]};font-weight:600;font-size:${_narrow?10:11.5}px">${_pn}</text>`;
-    if(!_narrow) body+=`<text x="8" y="${y0+rowH/2+12}" class="axis" style="font-size:10px">${fmt(vmin)}~${fmt(vmax)}</text>`;
-    // 右侧末值 + 涨幅
+    // 左侧平台名 + 纵轴范围
+    body+=`<text x="6" y="${y0+rowH/2-3}" class="axis" style="fill:${COLORS[p]};font-weight:600;font-size:${_narrow?10:11.5}px">${_pn}${_short?'※':''}</text>`;
+    if(!_narrow){
+      const _rng = usePct
+        ? `${vmin>0?'+':''}${vmin.toFixed(0)}%~${vmax>0?'+':''}${vmax.toFixed(0)}%`
+        : `${fmt(vmin)}~${fmt(vmax)}`;
+      body+=`<text x="8" y="${y0+rowH/2+12}" class="axis" style="font-size:10px">${_short?('自'+ds[0].slice(5)+' '):''}${_rng}</text>`;
+    } else if(_short) {
+      body+=`<text x="6" y="${y0+rowH/2+11}" class="axis" style="font-size:9px">自${ds[0].slice(5)}</text>`;
+    }
+    // 右侧末值（PCT 模式仍显示真实预约量）+ 涨幅
     body+=`<text x="${W-PR+6}" y="${y0+rowH/2-2}" class="axis" style="fill:var(--tx);font-weight:700;font-size:${_narrow?10.5:12}px">${fmt(last)}</text>`;
-    body+=`<text x="${W-PR+6}" y="${y0+rowH/2+12}" class="axis" style="fill:${upn?'#34d399':'#f87171'};font-size:${_narrow?9.5:10.5}px">${upn?'+':''}${pct.toFixed(1)}%</text>`;
+    body+=`<text x="${W-PR+6}" y="${y0+rowH/2+12}" class="axis" style="fill:${upn?'#34d399':'#f87171'};font-size:${_narrow?9.5:10.5}px">${upn?'+':''}${pv.toFixed(1)}%</text>`;
     body+=`</g>`;
   });
   CHART=null;
+  const _note = (PCT
+    ? '每个平台一条独立纵轴，纵轴为相对涨幅（各平台区间首日 = 0%），所以「谁涨得猛」可直接比斜率；右侧为该平台最新预约量和区间涨幅。'
+    : '每个平台一条独立纵轴（左侧为区间最低~最高），所以小体量平台的小幅增长也能看清；右侧为该平台最新值和区间涨幅。')
+    + ' ※ = 该平台在区间内数据不足（新收录），※涨幅对应的是它自己的首日，比其它平台区间短。';
   return `<svg id="chartSvg" viewBox="0 0 ${W} ${totalH}" preserveAspectRatio="none" style="height:${totalH}px">
     <g class="axis">${dateLabels}</g>
     ${body}
   </svg>
-  <div class="legend" style="color:var(--tx2);font-size:12px">每个平台一条独立纵轴（左侧为区间最低~最高），所以小体量平台的小幅增长也能看清；右侧为该平台最新值和区间涨幅。</div>`;
+  <div class="legend" style="color:var(--tx2);font-size:12px">${_note}</div>`;
 }
 function niceTicksRange(minV, maxV){
   // 自适应纵轴：只覆盖数据实际范围（上下各留 6% 余量），但不往 0 以下延伸
