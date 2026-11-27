@@ -263,10 +263,12 @@ function niceTicks(maxV){
   return ticks;
 }
 function snapAt(series, date){ let best=null; for(const s of (series||[])){ if(s.d<=date) best=s; else break; } return best; }
+/* 日期加减：必须走 UTC。用 new Date(s+'T00:00:00').toISOString() 在 UTC+8 会回退一天，
+   导致「30日增长」实际取 31 天前的值，与曲线相对涨幅差一天对不上（2026-11-27 修）。 */
+function dadd(dateStr, n){ const d=new Date(dateStr+'T00:00:00Z'); d.setUTCDate(d.getUTCDate()+n); return d.toISOString().slice(0,10); }
 function gain(series, date, N){
   const c=snapAt(series,date); if(!c||c.r==null) return null;
-  const d0=new Date(date+'T00:00:00'); d0.setDate(d0.getDate()-N);
-  const cutoff=d0.toISOString().slice(0,10);
+  const cutoff=dadd(date,-N);
   let prev=null; for(const s of (series||[])){ if(s.d<=cutoff) prev=s; else break; }
   if(!prev||prev.r==null) return null; return c.r-prev.r;
 }
@@ -346,8 +348,7 @@ function autoSummary(g, plats){
     const sn=snapAt(pf.series, baseDate);
     if(!sn||sn.r==null) return;
     // 7天前排名
-    const d0=new Date(baseDate+'T00:00:00'); d0.setDate(d0.getDate()-7);
-    const prev=snapAt(pf.series, d0.toISOString().slice(0,10));
+    const prev=snapAt(pf.series, dadd(baseDate,-7));
     info.push({p, r:sn.r, rk:sn.rk, rkPrev:prev?prev.rk:null, score:pf.score||0});
   });
   if(!info.length) return '';
@@ -366,7 +367,7 @@ function autoSummary(g, plats){
   }
 
   // 区间涨幅最快
-  const dFrom=(()=>{const d=new Date(baseDate+'T00:00:00'); d.setDate(d.getDate()-(rangeDays-1)); return d.toISOString().slice(0,10);})();
+  const dFrom=dadd(baseDate,-rangeDays);
   let fastest=null;
   plats.forEach(p=>{
     const ser=(g.platforms[p].series||[]).filter(x=>x.d>=dFrom && x.d<=baseDate && x.r!=null);
@@ -693,7 +694,7 @@ function exportSingle(){
 
 /* ================= 曲线 ================= */
 function renderChart(g, plats){
-  const to=baseDate; const d0=new Date(baseDate+'T00:00:00'); d0.setDate(d0.getDate()-(rangeDays-1)); const from=d0.toISOString().slice(0,10);
+  const to=baseDate; const from=dadd(baseDate,-rangeDays);
   const _st=chartStretch;
   const _host=document.querySelector('.chart-wrap');
   const _cw=_host? (_host.clientWidth||window.innerWidth) : window.innerWidth;
@@ -883,7 +884,9 @@ function bindRange(){
 }
 function applyCustom(){
   const f=document.getElementById('fromDate').value, t=document.getElementById('toDate').value;
-  if(f&&t&&f<=t){ fromDateVal=f; toDateVal=t; rangeDays=Math.round((new Date(t)-new Date(f))/86400000)+1; isCustom=true; renderPanel(); }
+  if(f&&t&&f<=t){ fromDateVal=f; toDateVal=t;
+    rangeDays=Math.max(1, Math.round((Date.parse(t+'T00:00:00Z')-Date.parse(f+'T00:00:00Z'))/86400000));
+    isCustom=true; renderPanel(); }
 }
 
 /* ================= 启动 ================= */
@@ -907,8 +910,7 @@ META = {"generated_at": "2026-11-27", "upto": "2026-11-27", "icon_src": "2026-11
     if(view==='single') renderPanel(); else renderOverview();
   });
   // 自定义区间默认值：基准日往前 30 天
-  const d0=new Date(baseDate+'T00:00:00'); d0.setDate(d0.getDate()-29);
-  fromDateVal=d0.toISOString().slice(0,10); toDateVal=baseDate;
+  fromDateVal=dadd(baseDate,-30); toDateVal=baseDate;
   sh.textContent='共 '+DATA.length+' 款';
   if(DATA.length){ cur=0; si.value=DATA[0].name; }
   setView('single');
