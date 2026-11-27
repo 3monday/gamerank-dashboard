@@ -825,10 +825,16 @@ function renderChartGrid(g, plats, from, to, W, H, PCT){
     body+=`<text x="6" y="${y0+rowH/2-6}" class="axis" style="fill:${COLORS[p]};font-weight:600;font-size:${_narrow?10:11.5}px">${_pn}${_short?'※':''}</text>`;
     if(!_narrow){
       // 只报极值，避免两行文字挤在一起（0% 是固定基准，不必再写）
-      const _rng = usePct
-        ? (vmax>0.05?`最高 +${vmax.toFixed(0)}%`:(vmin<-0.05?`最低 ${vmin.toFixed(0)}%`:'持平'))
-        : `${fmt(vmin)}~${fmt(vmax)}`;
-      body+=`<text x="6" y="${y0+rowH/2+14}" class="axis" style="font-size:9.5px;opacity:.8">${_short?('自'+ds[0].slice(5)+' '):''}${_rng}</text>`;
+      let _rng;
+      if(_short){
+        // 新收录平台区间不满，标「自 MM-DD 起」比报极值有意义
+        _rng = '自'+ds[0].slice(5)+' 起';
+      } else {
+        _rng = usePct
+          ? (vmax>0.05?`最高 +${vmax.toFixed(0)}%`:(vmin<-0.05?`最低 ${vmin.toFixed(0)}%`:'持平'))
+          : `${fmt(vmin)}~${fmt(vmax)}`;
+      }
+      body+=`<text x="6" y="${y0+rowH/2+14}" class="axis" style="font-size:9.5px;opacity:.8">${_rng}</text>`;
     } else if(_short) {
       body+=`<text x="6" y="${y0+rowH/2+12}" class="axis" style="font-size:9px">自${ds[0].slice(5)}</text>`;
     }
